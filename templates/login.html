@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrar · BI Jovens e Menores</title>
+<link rel="icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+</head>
+<body>
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="{{ url_for('static', filename='img/ccb-logo-completo.png') }}" alt="Congregação Cristã no Brasil">
+    </div>
+    <p class="login-caption">BI · Jovens e Menores</p>
+    <p class="saudacao">Que a paz do Senhor Jesus esteja com todos.</p>
+    <h1>Entrar</h1>
+    <p class="subtitle">Escolha sua função e digite a senha combinada com a liderança.</p>
+
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+      {% for categoria, texto in mensagens %}
+        <div class="flash {{ categoria }}">{{ texto }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="post">
+      <input type="hidden" name="proximo" value="{{ proximo }}">
+      <div class="field-grid login-papeis">
+        {% for chave, nome in papeis.items() %}
+        <label class="papel-opcao">
+          <input type="radio" name="papel" value="{{ chave }}" {{ 'checked' if loop.first }} required>
+          <span>{{ nome }}</span>
+        </label>
+        {% endfor %}
+      </div>
+      <div class="field" style="margin-top:16px;">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" name="senha" autofocus required>
+      </div>
+      <button type="submit" class="btn primary" style="width:100%; margin-top:18px; justify-content:center;">Entrar</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

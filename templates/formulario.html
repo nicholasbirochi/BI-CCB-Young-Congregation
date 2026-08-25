@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Editar registro' if modo == 'editar' else 'Novo registro' }} · BI Jovens e Menores{% endblock %}
+{% block conteudo %}
+<div class="page-header">
+  <div>
+    <h1>{{ 'Editar registro' if modo == 'editar' else 'Novo registro' }}</h1>
+    <p class="subtitle">Preencha os mesmos campos do formulário impresso da Reunião de Jovens e Menores.</p>
+  </div>
+</div>
+
+<div id="rascunho-banner" class="rascunho-banner" hidden>
+  <span>Encontramos um preenchimento não terminado neste aparelho.</span>
+  <div class="rascunho-banner-acoes">
+    <button type="button" class="btn small primary" id="rascunho-restaurar">Restaurar</button>
+    <button type="button" class="btn small" id="rascunho-descartar">Descartar</button>
+  </div>
+</div>
+
+<form method="post" class="card" style="margin-top:16px;" novalidate
+      data-rascunho-chave="{{ 'editar-' ~ registro_id if modo == 'editar' else 'novo' }}">
+  <div class="form-section">
+    <h2>Dados da reunião</h2>
+    <p class="subtitle">Data e presidência.</p>
+    <div class="field-grid">
+      <div class="field">
+        <label for="data">Data *</label>
+        <input type="date" id="data" name="data" value="{{ registro['data'] }}" required>
+      </div>
+      <div class="field">
+        <label for="presidencia">Presidência</label>
+        <input type="text" id="presidencia" name="presidencia" value="{{ registro['presidencia'] }}" placeholder="Nome de quem presidiu">
+      </div>
+      <div class="field">
+        <label for="estado">Estado <span class="hint">(opcional)</span></label>
+        <select id="estado">
+          <option value="">Selecione...</option>
+          {% for uf in estados_ccb %}<option value="{{ uf }}">{{ uf }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="cidade">Cidade</label>
+        <select id="cidade" disabled>
+          <option value="">—</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="local">Local / Congregação <span class="hint">(opcional)</span></label>
+        <input list="lista-localidades" id="local" name="local" value="{{ registro['local'] }}" placeholder="Escolha a cidade ao lado ou digite" autocomplete="off">
+        <datalist id="lista-localidades">
+          {% for loc in localidades %}<option value="{{ loc }}">{% endfor %}
+        </datalist>
+      </div>
+    </div>
+    <p class="subtitle" style="margin:8px 0 0;">Estado e cidade vêm do diretório oficial da CCB — escolher os dois já preenche o campo Local, que continua editável.</p>
+  </div>
+
+  <div class="form-section">
+    <h2>Recitativos</h2>
+    <p class="subtitle">Quantidade de recitativos em cada posição do programa, por naipe.</p>
+    <div class="recitativos-table">
+      <div class="recitativos-col">
+        <h3>Meninas</h3>
+        <div class="recitativos-linha"><label for="meninas_1">1º (crianças)</label><input type="number" min="0" id="meninas_1" name="meninas_1" value="{{ registro['meninas_1'] }}"></div>
+        <div class="recitativos-linha"><label for="meninas_2">2º (meninas)</label><input type="number" min="0" id="meninas_2" name="meninas_2" value="{{ registro['meninas_2'] }}"></div>
+        <div class="recitativos-linha"><label for="meninas_3">3º (moças)</label><input type="number" min="0" id="meninas_3" name="meninas_3" value="{{ registro['meninas_3'] }}"></div>
+        <div class="recitativos-linha"><label for="meninas_4">4º (moças)</label><input type="number" min="0" id="meninas_4" name="meninas_4" value="{{ registro['meninas_4'] }}"></div>
+        <div class="recitativos-linha"><label for="meninas_5">5º (moças)</label><input type="number" min="0" id="meninas_5" name="meninas_5" value="{{ registro['meninas_5'] }}"></div>
+        <div class="recitativos-total"><span>Total</span><span id="total-meninas">0</span></div>
+      </div>
+      <div class="recitativos-col">
+        <h3>Meninos</h3>
+        <div class="recitativos-linha"><label for="meninos_1">1º (crianças)</label><input type="number" min="0" id="meninos_1" name="meninos_1" value="{{ registro['meninos_1'] }}"></div>
+        <div class="recitativos-linha"><label for="meninos_2">2º (meninos)</label><input type="number" min="0" id="meninos_2" name="meninos_2" value="{{ registro['meninos_2'] }}"></div>
+        <div class="recitativos-linha"><label for="meninos_3">3º (moços)</label><input type="number" min="0" id="meninos_3" name="meninos_3" value="{{ registro['meninos_3'] }}"></div>
+        <div class="recitativos-linha"><label for="meninos_4">4º (moços)</label><input type="number" min="0" id="meninos_4" name="meninos_4" value="{{ registro['meninos_4'] }}"></div>
+        <div class="recitativos-linha"><label for="meninos_5">5º (moços)</label><input type="number" min="0" id="meninos_5" name="meninos_5" value="{{ registro['meninos_5'] }}"></div>
+        <div class="recitativos-total"><span>Total</span><span id="total-meninos">0</span></div>
+      </div>
+    </div>
+    <div class="total-geral-box">
+      <div class="value" id="total-geral">0</div>
+      <div class="label">Total geral</div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <h2>Recitativos individuais e visitas</h2>
+    <div class="field-grid">
+      <div class="field">
+        <label for="recitativos_individuais">Recitativos individuais</label>
+        <input type="number" min="0" id="recitativos_individuais" name="recitativos_individuais" value="{{ registro['recitativos_individuais'] }}">
+      </div>
+      <div class="field">
+        <label for="visitas">Visitas</label>
+        <input type="number" min="0" id="visitas" name="visitas" value="{{ registro['visitas'] }}">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <h2>Palavra <span class="hint">(opcional)</span></h2>
+    <p class="subtitle">Só é possível escolher capítulos e versículos que realmente existem no livro.</p>
+    <div class="field-grid">
+      <div class="field">
+        <label for="livro">Livro</label>
+        <select id="livro" name="livro">
+          <option value="">Selecione...</option>
+          {% for l in livros %}<option value="{{ l }}" {{ 'selected' if registro['livro'] == l }}>{{ l }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="capitulo">Capítulo</label>
+        <select id="capitulo" name="capitulo" disabled>
+          <option value="">—</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="versiculo">Versículo</label>
+        <select id="versiculo" name="versiculo" disabled>
+          <option value="">—</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="presidido_por">Presidido por</label>
+        <input type="text" id="presidido_por" name="presidido_por" value="{{ registro['presidido_por'] }}">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <span class="rascunho-status" id="rascunho-status"></span>
+    <a class="btn" href="{{ url_for('registros') if modo == 'editar' else url_for('menu') }}">Cancelar</a>
+    <button type="submit" class="btn primary">Salvar registro</button>
+  </div>
+</form>
+
+<script>
+  window.BIBLIA_ESTRUTURA = {{ biblia_estrutura | tojson }};
+  window.REGISTRO_ATUAL = { capitulo: {{ registro['capitulo']|tojson }}, versiculo: {{ registro['versiculo']|tojson }} };
+  window.LOCALIDADES_CCB = {{ localidades_ccb | tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/form.js') }}" defer></script>
+{% endblock %}

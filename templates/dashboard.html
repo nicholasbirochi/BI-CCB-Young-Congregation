@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block titulo %}Análises · BI Jovens e Menores{% endblock %}
+{% block conteudo %}
+<div class="page-header">
+  <div>
+    <h1>Análises</h1>
+    <p class="subtitle">{{ rotulo_periodo }} · {{ kpis.qtd_reunioes }} reunião(ões){% if localidade_selecionada %} · {{ localidade_selecionada }}{% endif %}.</p>
+  </div>
+</div>
+
+<div class="filter-row">
+  {% for chave, rotulo in [("30","30 dias"), ("90","90 dias"), ("365","365 dias"), ("ano","Este ano"), ("tudo","Tudo")] %}
+    <a class="pill {{ 'ativo' if chave_periodo == chave else '' }}" href="{{ url_for('dashboard', periodo=chave, localidade=localidade_selecionada) }}">{{ rotulo }}</a>
+  {% endfor %}
+  <form class="custom-range" method="get">
+    <input type="hidden" name="periodo" value="personalizado">
+    <input type="hidden" name="localidade" value="{{ localidade_selecionada }}">
+    <input type="date" name="inicio" value="{{ inicio }}">
+    <span style="color:var(--text-muted); font-size:13px;">até</span>
+    <input type="date" name="fim" value="{{ fim }}">
+    <button class="btn small" type="submit">Aplicar</button>
+  </form>
+  {% if localidades %}
+  <form class="custom-range" method="get">
+    <input type="hidden" name="periodo" value="{{ chave_periodo }}">
+    {% if chave_periodo == 'personalizado' %}
+    <input type="hidden" name="inicio" value="{{ inicio }}">
+    <input type="hidden" name="fim" value="{{ fim }}">
+    {% endif %}
+    <select name="localidade" onchange="this.form.submit()">
+      <option value="">Todas as localidades</option>
+      {% for loc in localidades %}
+      <option value="{{ loc }}" {{ 'selected' if loc == localidade_selecionada else '' }}>{{ loc }}</option>
+      {% endfor %}
+    </select>
+  </form>
+  {% endif %}
+</div>
+
+<div class="kpi-row">
+  <div class="stat-tile">
+    <div class="label">Reuniões</div>
+    <div class="value">{{ kpis.qtd_reunioes }}</div>
+  </div>
+  <div class="stat-tile">
+    <div class="label">Total de recitativos</div>
+    <div class="value">{{ kpis.soma_geral }}</div>
+  </div>
+  <div class="stat-tile">
+    <div class="label">Média por reunião</div>
+    <div class="value small">{{ kpis.media_geral }}</div>
+  </div>
+  <div class="stat-tile">
+    <div class="label">Recitativos individuais</div>
+    <div class="value small">{{ kpis.soma_individuais }}</div>
+  </div>
+  <div class="stat-tile">
+    <div class="label">Visitas</div>
+    <div class="value small">{{ kpis.soma_visitas }}</div>
+  </div>
+</div>
+
+<div class="chart-grid">
+  <div class="card">
+    <h2>Recitativos ao longo do tempo</h2>
+    <p class="subtitle">Total geral (meninas + meninos) por data da reunião</p>
+    <div id="chart-tendencia"></div>
+  </div>
+  <div class="card">
+    <h2>Meninas x Meninos</h2>
+    <p class="subtitle">Soma por posição do recitativo (1º = crianças → 5º = moças/moços)</p>
+    <div id="chart-categorias"></div>
+  </div>
+</div>
+
+<div class="chart-grid">
+  <div class="card">
+    <h2>Individuais x Visitas</h2>
+    <p class="subtitle">Evolução por data da reunião</p>
+    <div id="chart-individuais"></div>
+  </div>
+  <div class="card">
+    <h2>Livros mais lidos</h2>
+    <p class="subtitle">Ranking da seção "Palavra" no período</p>
+    <div id="chart-livros"></div>
+  </div>
+</div>
+
+<div class="card table-scroll" style="margin-top:16px;">
+  <h2>Últimos registros do período</h2>
+  <p class="subtitle">Os 8 mais recentes — veja todos no Histórico.</p>
+  {% if ultimos %}
+  <table class="data-table">
+    <thead>
+      <tr><th>Data</th><th>Presidência</th><th class="num">Total geral</th><th class="num">Individuais</th><th class="num">Visitas</th><th>Palavra</th></tr>
+    </thead>
+    <tbody>
+      {% for r in ultimos %}
+      <tr>
+        <td><a href="{{ url_for('editar_registro', registro_id=r.id) }}">{{ r.data }}</a></td>
+        <td>{{ r.presidencia or "—" }}</td>
+        <td class="num"><strong>{{ r.total_geral }}</strong></td>
+        <td class="num">{{ r.individuais }}</td>
+        <td class="num">{{ r.visitas }}</td>
+        <td>{{ r.livro or "—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">Nenhum registro no período selecionado.</div>
+  {% endif %}
+</div>
+
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+  const dashboardData = {{ dashboard_data | tojson }};
+
+  function cor(i) {
+    return getComputedStyle(document.documentElement).getPropertyValue(`--series-${i + 1}`).trim();
+  }
+
+  function montar() {
+    CCBCharts.renderLineChart(document.getElementById("chart-tendencia"), {
+      labels: dashboardData.tendencia.labels,
+      series: [{ name: "Total geral", color: cor(0), values: dashboardData.tendencia.valores }],
+    });
+
+    CCBCharts.renderBarChart(document.getElementById("chart-categorias"), {
+      labels: dashboardData.categorias.labels,
+      series: dashboardData.categorias.series.map((s, i) => ({ name: s.nome, color: cor(i), values: s.valores })),
+    });
+
+    CCBCharts.renderLineChart(document.getElementById("chart-individuais"), {
+      labels: dashboardData.individuais_visitas.labels,
+      series: dashboardData.individuais_visitas.series.map((s, i) => ({ name: s.nome, color: cor(i), values: s.valores })),
+    });
+
+    CCBCharts.renderBarChart(document.getElementById("chart-livros"), {
+      labels: dashboardData.livros.labels,
+      series: [{ name: "Ocorrências", color: cor(0), values: dashboardData.livros.valores }],
+      horizontal: true,
+    });
+  }
+
+  montar();
+  window.addEventListener("resize", () => { clearTimeout(window.__rt); window.__rt = setTimeout(montar, 150); });
+  document.getElementById("theme-toggle") && document.getElementById("theme-toggle").addEventListener("click", () => setTimeout(montar, 50));
+</script>
+{% endblock %}
