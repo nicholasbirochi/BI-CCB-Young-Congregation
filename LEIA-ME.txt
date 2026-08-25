@@ -1,0 +1,133 @@
+====================================================================
+ BI - Reunião de Jovens e Menores (Congregação Cristã no Brasil)
+====================================================================
+
+O QUE É
+-------
+Um site que roda no próprio computador da igreja (não precisa de
+internet depois de configurado) para:
+  1) Cadastrar os formulários da Reunião de Jovens e Menores
+  2) Ver o histórico e editar/excluir registros
+  3) Acompanhar análises (gráficos) sobre os dados
+
+Qualquer celular, tablet ou notebook conectado no MESMO Wi-Fi do
+computador da igreja consegue acessar pelo link que aparece na tela
+inicial (ou lendo o QR code).
+
+
+COMO USAR NO DIA A DIA
+-----------------------
+Depois de configurado (veja abaixo), é só dar DOIS CLIQUES no
+arquivo certo para o sistema operacional do computador da igreja:
+
+  Windows  ->  Iniciar_Windows.bat
+  Mac      ->  Iniciar_Mac.command
+
+Uma janela preta (terminal) vai abrir e mostrar dois endereços,
+por exemplo:
+
+  Neste computador .... http://127.0.0.1:8000
+  Na rede local ........ http://192.168.0.15:8000
+
+O navegador abre sozinho neste computador. Para as OUTRAS pessoas
+acessarem pelo celular, é só abrir o link "Na rede local" (ou usar
+o QR code que aparece no Menu) estando no mesmo Wi-Fi.
+
+NÃO FECHE essa janela preta enquanto estiver usando o sistema — ela
+é o "motor" que mantém o site no ar. Para encerrar, feche a janela
+ou pressione CTRL+C dentro dela.
+
+
+CONFIGURAÇÃO INICIAL (só da primeira vez)
+------------------------------------------
+1. Copie a pasta inteira "BI-CCB" para o computador da igreja
+   (pen drive, e-mail, OneDrive, etc. — copie a pasta toda).
+
+2. Instale o Python 3 gratuito (só precisa fazer isso uma vez):
+   https://www.python.org/downloads/
+
+   - No Windows: durante a instalação, marque a caixinha
+     "Add python.exe to PATH" antes de clicar em Instalar.
+   - No Mac: pode baixar o instalador do site acima, ou já vem
+     pronto em Macs mais novos.
+
+3. Dê dois cliques no arquivo "Iniciar_Windows.bat" (Windows) ou
+   "Iniciar_Mac.command" (Mac). Na primeira vez ele vai demorar um
+   pouco (baixa e prepara os componentes — precisa de internet só
+   nesse momento). Da segunda vez em diante abre em 2 segundos e
+   funciona mesmo sem internet.
+
+   * Mac: se aparecer aviso de segurança ("não é possível abrir"),
+     clique com o botão direito no arquivo -> Abrir -> Abrir.
+
+
+LOGIN — DUAS SENHAS
+--------------------
+Ao abrir o link, primeiro aparece uma tela de Entrar com duas opções.
+Não são contas pessoais, são duas senhas compartilhadas mesmo:
+
+  Cooperador de Jovens ..... acesso completo: novo registro, histórico
+      (editar E excluir) e a tela de Análises.
+
+  Irmãos da Contagem ....... para o dia a dia do culto: novo registro
+      e histórico (só editar). Não vê a tela de Análises e não pode
+      excluir registros.
+
+IMPORTANTE: as senhas vêm de fábrica com um valor de exemplo bem óbvio
+("troque-esta-senha-1" / "troque-esta-senha-2") — troque as duas ANTES
+de usar de verdade. Para trocar, abra o arquivo "config_acesso.py"
+(pasta BI-CCB) em qualquer editor de texto, mude o que está entre
+aspas e salve. Depois feche a janela preta e abra o "Iniciar" de novo.
+
+A sessão fica conectada por bastante tempo no mesmo aparelho/navegador
+(não precisa digitar a senha toda hora) — use "Sair", no canto
+superior direito, para desconectar.
+
+
+ONDE FICAM OS DADOS
+--------------------
+Tudo é salvo no arquivo:
+   BI-CCB/dados/ccb.db
+
+É um banco de dados único (SQLite). Para fazer backup, basta copiar
+esse arquivo para um pen drive ou nuvem de vez em quando. Para
+"zerar" o sistema, apague esse arquivo (ele é recriado vazio
+automaticamente na próxima vez que abrir).
+
+
+ESTRUTURA DO SITE
+------------------
+- Menu ......... tela inicial, com o link/QR code de acesso pela rede
+- Novo registro  formulário igual ao papel (recitativos, palavra, etc.)
+- Histórico ..... lista todos os registros; editar (os dois papéis) e
+                   excluir (só Cooperador de Jovens)
+- Análises ...... painel com gráficos e indicadores (só Cooperador de
+                   Jovens; filtro por período e por localidade)
+
+
+PERGUNTAS FREQUENTES
+---------------------
+"Preciso reinstalar tudo toda vez?"
+Não. A instalação (passo 2 e a primeira execução do passo 3) só
+acontece uma vez. Depois é sempre dois cliques.
+
+"Funciona sem internet?"
+Sim, depois da primeira configuração o sistema roda 100% local.
+Só precisa que os aparelhos estejam no mesmo Wi-Fi/rede local
+(o roteador não precisa ter internet).
+
+"Posso usar em mais de um computador?"
+Pode, mas cada computador terá seu PRÓPRIO banco de dados. O ideal
+é manter um único computador como "servidor" (o da igreja) e todos
+os outros aparelhos apenas acessam pelo link.
+
+"Comecei a preencher e precisei sair no meio do culto, perdi tudo?"
+Não. Enquanto você digita, o formulário vai salvando um rascunho
+sozinho NESTE aparelho/navegador. Se sair e voltar depois (mesmo
+fechando a aba), aparece um aviso oferecendo "Restaurar" o que já
+tinha sido preenchido.
+
+"O link mudou / não abre no celular"
+O endereço da rede local depende do IP do computador, que pode
+mudar se o roteador reiniciar. Basta abrir o Menu no computador da
+igreja e copiar o link/QR code atualizado.

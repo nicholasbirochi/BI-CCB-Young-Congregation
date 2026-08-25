@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block titulo %}Histórico · BI Jovens e Menores{% endblock %}
+{% block conteudo %}
+<div class="page-header">
+  <div>
+    <h1>Histórico de reuniões</h1>
+    <p class="subtitle">{{ registros|length }} registro(s){% if busca %} para "{{ busca }}"{% endif %}.</p>
+  </div>
+  <a class="btn primary" href="{{ url_for('novo_registro') }}">Novo registro</a>
+</div>
+
+<form class="search-row" method="get">
+  <input type="text" name="busca" value="{{ busca }}" placeholder="Buscar por data, presidência, livro, local...">
+  <button class="btn" type="submit">Buscar</button>
+  {% if busca %}<a class="btn" href="{{ url_for('registros') }}">Limpar</a>{% endif %}
+</form>
+
+<div class="card table-scroll">
+  {% if registros %}
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Presidência</th>
+        <th>Local</th>
+        <th class="num">Meninas</th>
+        <th class="num">Meninos</th>
+        <th class="num">Total geral</th>
+        <th class="num">Individuais</th>
+        <th class="num">Visitas</th>
+        <th>Palavra</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in registros %}
+      <tr>
+        <td>{{ r.data }}</td>
+        <td>{{ r.presidencia or "—" }}</td>
+        <td>{{ r.local or "—" }}</td>
+        <td class="num">{{ r.total_meninas }}</td>
+        <td class="num">{{ r.total_meninos }}</td>
+        <td class="num"><strong>{{ r.total_geral }}</strong></td>
+        <td class="num">{{ r.recitativos_individuais }}</td>
+        <td class="num">{{ r.visitas }}</td>
+        <td>{% if r.livro %}{{ r.livro }} {{ r.capitulo }}{% if r.versiculo %}:{{ r.versiculo }}{% endif %}{% else %}—{% endif %}</td>
+        <td class="actions">
+          <a class="btn small" href="{{ url_for('editar_registro', registro_id=r.id) }}">Editar</a>
+          {% if session.papel == 'cooperador' %}
+          <form method="post" action="{{ url_for('excluir_registro', registro_id=r.id) }}" data-confirmar="Excluir este registro? Essa ação não pode ser desfeita.">
+            <button type="submit" class="btn small danger">Excluir</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">Nenhum registro encontrado. <a href="{{ url_for('novo_registro') }}">Cadastre o primeiro.</a></div>
+  {% endif %}
+</div>
+{% endblock %}

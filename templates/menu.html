@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block titulo %}Menu · BI Jovens e Menores{% endblock %}
+{% block conteudo %}
+<div class="hero">
+  <h1>Reunião de Jovens e Menores</h1>
+  <p>Congregação Cristã no Brasil — registre os formulários e acompanhe as análises.</p>
+  <p class="hero-papel">Você entrou como <strong>{{ 'Cooperador de Jovens' if session.papel == 'cooperador' else 'Irmãos da Contagem' }}</strong>. Use o menu no topo da página para navegar.</p>
+</div>
+
+<div class="card network-banner">
+  <div class="info">
+    <h3>Acesso pela rede local</h3>
+    <p>Qualquer aparelho conectado no mesmo Wi‑Fi pode abrir este BI usando o link abaixo — não precisa instalar nada.</p>
+    <div class="network-link">
+      <span id="link-rede">{{ link_rede }}</span>
+      <button data-copiar="#link-rede">Copiar</button>
+    </div>
+  </div>
+  <div class="qr-wrap">
+    <img src="{{ url_for('qrcode_svg') }}" alt="QR code do link de acesso">
+  </div>
+</div>
+{% endblock %}
