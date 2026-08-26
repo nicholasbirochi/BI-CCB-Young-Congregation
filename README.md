@@ -17,7 +17,10 @@ através de um link (e um QR code).
   versificação embutidos, veja `biblia_dados.py`).
 - **Localidade oficial da CCB**: os campos Estado/Cidade vêm do diretório
   público da CCB (`static/dados/localidades_ccb.json`, baixado uma única vez
-  do site oficial) — funciona 100% offline depois de instalado.
+  do site oficial) — funciona 100% offline depois de instalado. Tem também
+  uma busca ao vivo (`/api/localidade-busca`) pra achar a unidade específica
+  pelo nome — essa parte precisa de internet; sem ela, o campo Local continua
+  editável à mão.
 - **Rascunho automático**: o formulário salva o preenchimento sozinho neste
   aparelho (`localStorage`), então dá pra sair no meio do culto sem perder
   nada.
