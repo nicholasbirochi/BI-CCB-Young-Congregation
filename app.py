@@ -8,9 +8,11 @@ qualquer aparelho conectado na mesma rede Wi-Fi/local através de um link.
 Como usar: dê dois cliques em "Iniciar.bat" (Windows) ou "Iniciar.command"
 (Mac). Não precisa de internet depois da primeira configuração.
 """
+import html as html_utils
 import io
 import json
 import os
+import re
 import secrets
 import socket
 import threading
@@ -18,6 +20,7 @@ import webbrowser
 from datetime import date, datetime, timedelta
 from functools import wraps
 
+import requests
 from flask import Flask, flash, g, redirect, render_template, request, session, url_for
 
 import config_acesso
@@ -49,6 +52,63 @@ def _carregar_localidades_ccb():
 
 
 LOCALIDADES_CCB = _carregar_localidades_ccb()
+
+
+# --------------------------------------------------------------------------
+# Busca ao vivo de unidades específicas no diretório oficial da CCB
+# (só roda quando alguém realmente pesquisa no formulário — nunca em massa —
+# e falha em silêncio sem internet, o campo Local continua editável na mão).
+# --------------------------------------------------------------------------
+CCB_URL_BASE = "https://congregacaocristanobrasil.org.br"
+_ccb_sessao = {"cookies": None, "token": None}
+
+_PADRAO_LOCALIDADE = re.compile(
+    r'data-id="\d+">\s*'
+    r'<div[^>]*><strong class="nome-localidade">([^<]*)</strong></div>\s*'
+    r'<small[^>]*>([^<]*)</small>\s*'
+    r'<div[^>]*>([^<]*)</div>\s*'
+    r'<div[^>]*>([^<]*)</div>',
+    re.IGNORECASE,
+)
+
+
+def _sessao_ccb(renovar=False):
+    if renovar or not _ccb_sessao["token"]:
+        resp = requests.get(f"{CCB_URL_BASE}/relatorio", timeout=6, headers={"User-Agent": "Mozilla/5.0"})
+        m = re.search(r'name="__RequestVerificationToken"[^>]*value="([^"]*)"', resp.text)
+        _ccb_sessao["token"] = m.group(1) if m else None
+        _ccb_sessao["cookies"] = resp.cookies
+    return _ccb_sessao["cookies"], _ccb_sessao["token"]
+
+
+def buscar_localidades_ccb(termo):
+    """Pesquisa unidades da CCB pelo nome, direto no site oficial (ao vivo)."""
+    for tentativa in (False, True):
+        cookies, token = _sessao_ccb(renovar=tentativa)
+        if not token:
+            continue
+        try:
+            resp = requests.post(
+                f"{CCB_URL_BASE}/service/localidade-relatorio",
+                data={"search": termo, "pagina": 1},
+                cookies=cookies,
+                headers={"AntiForgeryToken": token, "User-Agent": "Mozilla/5.0"},
+                timeout=6,
+            )
+            if resp.status_code != 200:
+                continue
+            achados = []
+            for nome, codigo, cidade, endereco in _PADRAO_LOCALIDADE.findall(resp.text):
+                achados.append({
+                    "nome": html_utils.unescape(nome.strip()),
+                    "codigo": html_utils.unescape(codigo.strip()),
+                    "cidade": html_utils.unescape(cidade.strip()),
+                    "endereco": html_utils.unescape(endereco.strip()),
+                })
+            return achados
+        except requests.RequestException:
+            continue
+    return []
 
 
 def _obter_secret_key():
@@ -257,6 +317,22 @@ def qrcode_svg():
     buf = io.BytesIO()
     img.save(buf)
     return Response(buf.getvalue(), mimetype="image/svg+xml")
+
+
+@app.route("/api/localidade-busca")
+@login_obrigatorio
+def api_localidade_busca():
+    """Busca ao vivo, no diretório oficial da CCB, por unidades pelo nome.
+    Só é chamada quando alguém digita na busca do formulário; sem internet
+    simplesmente devolve uma lista vazia (o campo Local continua editável)."""
+    termo = request.args.get("q", "").strip()
+    if len(termo) < 3:
+        return {"resultados": []}
+    try:
+        resultados = buscar_localidades_ccb(termo)
+    except Exception:
+        resultados = []
+    return {"resultados": resultados[:8]}
 
 
 # --------------------------------------------------------------------------

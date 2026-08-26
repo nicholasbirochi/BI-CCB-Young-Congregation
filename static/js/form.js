@@ -112,6 +112,70 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --------------------------- busca ao vivo de unidades (nome específico) ---------------------------
+  const campoBusca = document.getElementById("busca-localidade");
+  const listaResultados = document.getElementById("resultados-localidade");
+  let temporizadorBusca = null;
+
+  if (campoBusca && listaResultados && campoLocal) {
+    campoBusca.addEventListener("input", () => {
+      clearTimeout(temporizadorBusca);
+      const termo = campoBusca.value.trim();
+      if (termo.length < 3) {
+        listaResultados.hidden = true;
+        return;
+      }
+      temporizadorBusca = setTimeout(() => buscarLocalidade(termo), 400);
+    });
+
+    document.addEventListener("click", (e) => {
+      if (e.target !== campoBusca && !listaResultados.contains(e.target)) {
+        listaResultados.hidden = true;
+      }
+    });
+  }
+
+  function buscarLocalidade(termo) {
+    fetch(`/api/localidade-busca?q=${encodeURIComponent(termo)}`)
+      .then((r) => r.json())
+      .then((dados) => mostrarResultados(dados.resultados || []))
+      .catch(() => mostrarResultados(null));
+  }
+
+  function mostrarResultados(resultados) {
+    listaResultados.innerHTML = "";
+    if (resultados === null) {
+      const aviso = document.createElement("div");
+      aviso.className = "aviso";
+      aviso.textContent = "Não foi possível buscar agora (sem internet?). Digite o nome direto no campo Local.";
+      listaResultados.appendChild(aviso);
+    } else if (resultados.length === 0) {
+      const aviso = document.createElement("div");
+      aviso.className = "aviso";
+      aviso.textContent = "Nada encontrado com esse nome.";
+      listaResultados.appendChild(aviso);
+    } else {
+      resultados.forEach((item) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        const nome = document.createElement("strong");
+        nome.textContent = item.nome;
+        const local = document.createElement("span");
+        local.textContent = item.cidade;
+        btn.appendChild(nome);
+        btn.appendChild(local);
+        btn.addEventListener("click", () => {
+          campoLocal.value = `${item.nome} — ${item.cidade}`;
+          campoLocal.dispatchEvent(new Event("input", { bubbles: true }));
+          campoBusca.value = "";
+          listaResultados.hidden = true;
+        });
+        listaResultados.appendChild(btn);
+      });
+    }
+    listaResultados.hidden = false;
+  }
+
   // ------------------------------------------------------------- rascunho automático
   const chave = "ccb-bi-rascunho-" + form.getAttribute("data-rascunho-chave");
   const banner = document.getElementById("rascunho-banner");
