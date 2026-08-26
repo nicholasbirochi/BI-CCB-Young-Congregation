@@ -17,6 +17,7 @@
   --border: #d4d9e2;
 
   --series-1: #033d60; /* azul institucional da CCB */
+  --series-1-hover: #0056b3; /* mesmo azul de hover de link do site oficial */
   --series-2: #eb6834; /* laranja */
   --series-3: #2aba66; /* verde */
   --series-4: #eda100; /* amarelo */
@@ -26,9 +27,9 @@
   --warning: #fab219;
   --critical: #d0281f;
 
-  --radius: 14px;
-  --radius-sm: 8px;
-  --shadow: 0 1px 2px rgba(12,30,63,0.05), 0 6px 18px rgba(12,30,63,0.06);
+  --radius: 13px;      /* mesmo raio do ".page .box" (cartão) do site oficial */
+  --radius-sm: 6px;    /* mesmo raio dos botões do site oficial */
+  --shadow: 0 5px 15px 0 rgba(12,30,63,0.09); /* mesma sombra do site oficial */
 
   --fonte-titulo: Verdana, Geneva, Arial, sans-serif;
 }
@@ -48,6 +49,7 @@
   --border: rgba(238,241,246,0.12);
 
   --series-1: #5590c4;
+  --series-1-hover: #7fb2e0;
   --series-2: #d95926;
   --series-3: #2fa869;
   --series-4: #c98500;
@@ -89,7 +91,7 @@ body {
 .site-footer { flex: none; }
 
 a { color: var(--series-1); text-decoration: none; }
-a:hover { text-decoration: underline; }
+a:hover { text-decoration: underline; color: var(--series-1-hover); }
 
 .container {
   max-width: 1100px;
@@ -98,20 +100,27 @@ a:hover { text-decoration: underline; }
 }
 
 /* ---------------------------------------------------------------- header */
+/* Duas linhas, como o site oficial: logo em cima (centralizado-ish, com o
+   botão de tema à direita), navegação embaixo com a "Área Restrita" deles
+   virando o chip "Sair" aqui. */
 .topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--border);
   background: var(--surface-1);
+  border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 20;
 }
 
-.topbar-brand {
+.topbar-logo-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.topbar-logo {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -120,46 +129,55 @@ a:hover { text-decoration: underline; }
   color: var(--text-primary);
   white-space: nowrap;
 }
-.topbar-brand:hover { text-decoration: none; }
-.brand-mark {
-  height: 28px;
-  padding: 6px 9px;
-  flex: none;
-  border-radius: 6px;
-  background: var(--series-1);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-.brand-mark img { display: block; height: 100%; width: auto; }
+.topbar-logo:hover { text-decoration: none; }
+.topbar-logo img { display: block; height: 30px; width: auto; }
 
+.topbar-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+  border-top: 1px solid var(--border);
+}
 .topbar-nav {
   display: flex;
   gap: 4px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+.topbar-nav::-webkit-scrollbar { display: none; }
 .topbar-nav a {
+  flex: none;
   color: var(--text-secondary);
   font-size: 14px;
   font-weight: 600;
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
+  padding: 12px;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
 }
-.topbar-nav a:hover { background: var(--border); text-decoration: none; }
-.topbar-nav a.ativo { color: var(--text-primary); background: var(--border); }
+.topbar-nav a:hover { color: var(--series-1); text-decoration: none; }
+.topbar-nav a.ativo { color: var(--series-1); border-bottom-color: var(--series-1); }
 
-.topbar-acoes {
-  display: flex;
-  align-items: center;
-  gap: 14px;
+.chip-restrita {
   flex: none;
-}
-.link-sair {
-  font-size: 13.5px;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 10px 12px;
+  padding: 7px 12px;
+  background: var(--surface-0);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 700;
 }
-.link-sair:hover { color: var(--text-primary); }
+.chip-restrita:hover { text-decoration: none; border-color: var(--series-1); color: var(--series-1); }
 
 .theme-toggle {
   border: 1px solid var(--border);
@@ -186,28 +204,13 @@ a:hover { text-decoration: underline; }
 :root[data-theme="light"] .theme-toggle .icon-sun { display: none; }
 :root[data-theme="light"] .theme-toggle .icon-moon { display: inline-flex; }
 
-/* Cabeçalho responsivo: em telas estreitas a marca some da segunda linha e
-   o menu vira uma faixa que rola de lado, em vez de estourar a largura da
-   tela (o que forçava a página inteira a rolar na horizontal). */
-@media (max-width: 860px) {
-  .topbar { flex-wrap: wrap; row-gap: 8px; }
-  .topbar-brand { order: 1; }
-  .topbar-acoes { order: 2; }
-  .topbar-nav {
-    order: 3;
-    flex: 1 0 100%;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .topbar-nav::-webkit-scrollbar { display: none; }
-  .topbar-nav a { flex: none; }
-}
 @media (max-width: 480px) {
-  .brand-mark { height: 21px; padding: 4px 6px; }
-  .topbar-brand { font-size: 13px; gap: 7px; }
-  .topbar { padding: 12px 14px; }
+  /* o texto ao lado da logo some (a logo já diz o que é); sem isso, logo +
+     texto + botão de tema não cabem numa tela de celular sem estourar. */
+  .topbar-logo span { display: none; }
+  .topbar-logo img { height: 26px; }
+  .topbar-logo-row { padding: 12px 14px; }
+  .topbar-nav-row { padding: 0 14px; }
   .container { padding-left: 14px; padding-right: 14px; }
 }
 
@@ -383,9 +386,20 @@ a:hover { text-decoration: underline; }
   .chart-grid { grid-template-columns: 1fr; }
 }
 
+/* Título + linha horizontal, igual ao "Comunicado Importante ————" do site
+   oficial: o texto vira um item flex e o ::after preenche o resto com um traço. */
 .card h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 15px;
   margin: 0 0 2px;
+}
+.card h2::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--grid-line);
 }
 .card .subtitle {
   font-size: 12.5px;
@@ -482,8 +496,17 @@ table.data-table {
   margin-bottom: 22px;
 }
 .form-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 15px;
   margin: 0 0 4px;
+}
+.form-section h2::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--grid-line);
 }
 .form-section .subtitle {
   font-size: 12.5px;
@@ -521,6 +544,39 @@ table.data-table {
 }
 .field textarea { resize: vertical; min-height: 64px; }
 .field select:disabled { opacity: .5; cursor: not-allowed; }
+
+.resultados-localidade[hidden] { display: none; }
+.resultados-localidade {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 15;
+  margin-top: 4px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  max-height: 260px;
+  overflow-y: auto;
+}
+.resultados-localidade button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  border-bottom: 1px solid var(--grid-line);
+  background: none;
+  padding: 9px 12px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text-primary);
+}
+.resultados-localidade button:last-child { border-bottom: none; }
+.resultados-localidade button:hover { background: var(--surface-0); }
+.resultados-localidade button strong { display: block; font-size: 13.5px; }
+.resultados-localidade button span { display: block; font-size: 12px; color: var(--text-muted); }
+.resultados-localidade .aviso { padding: 10px 12px; font-size: 13px; color: var(--text-muted); }
 
 .rascunho-banner[hidden] { display: none; }
 .rascunho-banner {

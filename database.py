@@ -20,9 +20,9 @@ COLUNAS_RECITATIVOS = COLUNAS_MENINAS + COLUNAS_MENINOS
 RECITATIVOS_LABELS = [
     "1º (crianças)",
     "2º (meninas/meninos)",
-    "3º (moças/moços)",
+    "3º (mocinhas/mocinhos)",
     "4º (moças/moços)",
-    "5º (moças/moços)",
+    "5º (auxiliares)",
 ]
 RECITATIVOS_LABELS_CURTOS = ["1º", "2º", "3º", "4º", "5º"]
 

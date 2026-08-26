@@ -9,33 +9,31 @@
 <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
 </head>
 <body>
-{% from "_icons.html" import icon_sun, icon_moon %}
+{% from "_icons.html" import icon_sun, icon_moon, icon_lock %}
 <header class="topbar">
-  <a class="topbar-brand" href="{{ url_for('menu') }}">
-    <span class="brand-mark" aria-hidden="true">
-      <img src="{{ url_for('static', filename='img/ccb-ribbon-branco.png') }}" alt="">
-    </span>
-    BI · Jovens e Menores
-  </a>
-  {% if session.papel %}
-  <nav class="topbar-nav">
-    <a href="{{ url_for('menu') }}" class="{{ 'ativo' if request.endpoint == 'menu' else '' }}">Menu</a>
-    <a href="{{ url_for('novo_registro') }}" class="{{ 'ativo' if request.endpoint == 'novo_registro' else '' }}">Novo registro</a>
-    <a href="{{ url_for('registros') }}" class="{{ 'ativo' if request.endpoint in ['registros','editar_registro'] else '' }}">Histórico</a>
-    {% if session.papel == 'cooperador' %}
-    <a href="{{ url_for('dashboard') }}" class="{{ 'ativo' if request.endpoint == 'dashboard' else '' }}">Análises</a>
-    {% endif %}
-  </nav>
-  {% endif %}
-  <div class="topbar-acoes">
-    {% if session.papel %}
-    <a href="{{ url_for('sair') }}" class="link-sair">Sair</a>
-    {% endif %}
+  <div class="topbar-logo-row">
+    <a class="topbar-logo" href="{{ url_for('menu') }}">
+      <img src="{{ url_for('static', filename='img/ccb-ribbon.png') }}" alt="CCB">
+      <span>BI · Jovens e Menores</span>
+    </a>
     <button id="theme-toggle" class="theme-toggle" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">
       <span class="icon-sun">{{ icon_sun() }}</span>
       <span class="icon-moon">{{ icon_moon() }}</span>
     </button>
   </div>
+  {% if session.papel %}
+  <div class="topbar-nav-row">
+    <nav class="topbar-nav">
+      <a href="{{ url_for('menu') }}" class="{{ 'ativo' if request.endpoint == 'menu' else '' }}">Menu</a>
+      <a href="{{ url_for('novo_registro') }}" class="{{ 'ativo' if request.endpoint == 'novo_registro' else '' }}">Novo registro</a>
+      <a href="{{ url_for('registros') }}" class="{{ 'ativo' if request.endpoint in ['registros','editar_registro'] else '' }}">Histórico</a>
+      {% if session.papel == 'cooperador' %}
+      <a href="{{ url_for('dashboard') }}" class="{{ 'ativo' if request.endpoint == 'dashboard' else '' }}">Análises</a>
+      {% endif %}
+    </nav>
+    <a href="{{ url_for('sair') }}" class="chip-restrita">{{ icon_lock() }}<span>Sair</span></a>
+  </div>
+  {% endif %}
 </header>
 
 <main class="page-main">
