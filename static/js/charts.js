@@ -293,7 +293,7 @@
       texto.appendChild(valor);
       const nome = document.createElement("span");
       nome.className = "muted";
-      nome.textContent = ` ${serie.nome} · ${formatNum(total)}`;
+      nome.textContent = ` (${formatNum(total)})`;
       texto.appendChild(nome);
       item.appendChild(swatch);
       item.appendChild(texto);
@@ -311,13 +311,16 @@
     // sem rótulo no meio — só um respiro entre os dois lados (a legenda e o
     // subtítulo do cartão já dizem qual é cada posição).
     const gutter = 16;
-    const sidePad = 56; // espaço nas pontas pros valores
+    const sidePad = 30; // só o respiro mínimo pro rótulo do valor (2-3 dígitos)
     const plotH = height - padT - padB;
     const centerX = width / 2;
     const halfWidth = width / 2 - gutter / 2 - sidePad;
 
     const maxVal = Math.max(1, ...esquerda.valores, ...direita.valores);
-    const escala = halfWidth / niceMax(maxVal);
+    // escala direto no maior valor (sem "arredondar pra cima" como nos eixos
+    // numéricos) — a barra mais longa ocupa ~85% da metade do gráfico,
+    // deixando uns 15% de respiro pro rótulo do valor.
+    const escala = (halfWidth * 0.85) / maxVal;
 
     const svg = el("svg", { viewBox: `0 0 ${width} ${height}`, width: "100%", height, role: "img" });
     const tip = ensureTooltip(chartEl);
@@ -353,8 +356,8 @@
       hit.addEventListener("pointermove", (e) => {
         const rect = chartEl.getBoundingClientRect();
         showTooltip(chartEl, tip, e.clientX - rect.left, e.clientY - rect.top - 14, [
-          { color: esquerda.cor, value: formatNum(valEsq), label: `${esquerda.nome} · ${lab}` },
-          { color: direita.cor, value: formatNum(valDir), label: `${direita.nome} · ${lab}` },
+          { color: esquerda.cor, value: formatNum(valEsq), label: lab },
+          { color: direita.cor, value: formatNum(valDir), label: lab },
         ]);
       });
       svg.appendChild(hit);

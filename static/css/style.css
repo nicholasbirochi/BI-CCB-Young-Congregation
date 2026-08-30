@@ -384,15 +384,31 @@ a:hover { text-decoration: underline; color: var(--series-1-hover); }
 
 .heatmap-grade {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 3px;
 }
 .heatmap-bloco {
-  border-radius: var(--radius-sm);
-  padding: 14px 14px 12px;
+  aspect-ratio: 1 / 1;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 6px;
 }
-.heatmap-valor { font-size: 24px; font-weight: 700; line-height: 1.1; }
-.heatmap-rotulo { font-size: 12.5px; margin-top: 4px; opacity: .92; }
+.heatmap-valor { font-size: 22px; font-weight: 700; line-height: 1.1; }
+.heatmap-rotulo {
+  font-size: 11px;
+  margin-top: 3px;
+  opacity: .92;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  max-width: 100%;
+  line-height: 1.2;
+}
 
 .viz-tooltip {
   position: absolute;
