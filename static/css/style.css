@@ -34,32 +34,6 @@
   --fonte-titulo: Verdana, Geneva, Arial, sans-serif;
 }
 
-/* O modo claro é sempre o padrão (não segue a preferência do sistema);
-   o modo escuro só entra quando a pessoa clica no botão de tema. */
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --surface-0: #0b1420;
-  --surface-1: #121c2c;
-  --surface-2: #172236;
-  --text-primary: #eef1f6;
-  --text-secondary: #aab1c4;
-  --text-muted: #78839a;
-  --grid-line: #24304a;
-  --axis-line: #37455f;
-  --border: rgba(238,241,246,0.12);
-
-  --series-1: #5590c4;
-  --series-1-hover: #7fb2e0;
-  --series-2: #d95926;
-  --series-3: #2fa869;
-  --series-4: #c98500;
-
-  --good: #2fa869;
-  --good-text: #4ecb8b;
-  --warning: #fab219;
-  --critical: #e8635c;
-}
-
 * { box-sizing: border-box; }
 
 html, body {
@@ -178,31 +152,6 @@ a:hover { text-decoration: underline; color: var(--series-1-hover); }
   font-weight: 700;
 }
 .chip-restrita:hover { text-decoration: none; border-color: var(--series-1); color: var(--series-1); }
-
-.theme-toggle {
-  border: 1px solid var(--border);
-  background: var(--surface-2);
-  color: var(--text-primary);
-  border-radius: 999px;
-  width: 34px;
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex: none;
-}
-.theme-toggle:hover { background: var(--border); }
-.theme-toggle .icon-sun,
-.theme-toggle .icon-moon {
-  display: inline-flex;
-}
-/* padrão: tema claro -> mostra a lua (clique escurece) */
-.theme-toggle .icon-sun { display: none; }
-:root[data-theme="dark"] .theme-toggle .icon-sun { display: inline-flex; }
-:root[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
-:root[data-theme="light"] .theme-toggle .icon-sun { display: none; }
-:root[data-theme="light"] .theme-toggle .icon-moon { display: inline-flex; }
 
 @media (max-width: 480px) {
   /* o texto ao lado da logo some (a logo já diz o que é); sem isso, logo +
