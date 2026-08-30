@@ -7,9 +7,11 @@ Um arquivo único (dados/ccb.db) guarda todos os registros do formulário
 import os
 import sqlite3
 
-from biblia_dados import BIBLIA_ESTRUTURA, LIVROS_DA_BIBLIA  # noqa: F401 (reexportado)
+from .biblia_dados import BIBLIA_ESTRUTURA, LIVROS_DA_BIBLIA  # noqa: F401 (reexportado)
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# BASE_DIR é a raiz do projeto (um nível acima deste pacote nucleo/), onde
+# ficam as pastas dados/ e static/.
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PATH = os.path.join(BASE_DIR, "dados", "ccb.db")
 
 # Colunas numéricas do quadro de RECITATIVOS, na ordem impressa no formulário.
@@ -24,7 +26,7 @@ RECITATIVOS_LABELS = [
     "4º (moças/moços)",
     "5º (auxiliares)",
 ]
-RECITATIVOS_LABELS_CURTOS = ["1º", "2º", "3º", "4º", "5º"]
+RECITATIVOS_LABELS_CURTOS = ["Crianças", "Meninos(as)", "Mocinhos(as)", "Moços(as)", "Auxiliares"]
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS registros (

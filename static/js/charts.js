@@ -211,13 +211,11 @@
       svg.appendChild(t);
     });
 
-    // área (apenas 1 série) + linhas
+    // área pintada sob cada série (a "base") + a linha por cima
     series.forEach((s) => {
       const pts = s.values.map((v, i) => [xFor(i), yFor(v)]);
-      if (series.length === 1) {
-        const areaPath = ["M", pts[0][0], padT + plotH, ...pts.flatMap((p) => ["L", p[0], p[1]]), "L", pts[pts.length - 1][0], padT + plotH, "Z"].join(" ");
-        svg.appendChild(el("path", { d: areaPath, fill: s.color, opacity: 0.1 }));
-      }
+      const areaPath = ["M", pts[0][0], padT + plotH, ...pts.flatMap((p) => ["L", p[0], p[1]]), "L", pts[pts.length - 1][0], padT + plotH, "Z"].join(" ");
+      svg.appendChild(el("path", { d: areaPath, fill: s.color, opacity: 0.1 }));
       const linePath = pts.map((p, i) => (i === 0 ? "M" : "L") + p[0] + " " + p[1]).join(" ");
       svg.appendChild(el("path", { d: linePath, fill: "none", stroke: s.color, "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round" }));
       const last = pts[pts.length - 1];
@@ -310,7 +308,9 @@
     const rowH = 40;
     const height = labels.length * rowH + 20;
     const padT = 10, padB = 10;
-    const gutter = 34; // espaço central pros rótulos "1º".."5º"
+    // sem rótulo no meio — só um respiro entre os dois lados (a legenda e o
+    // subtítulo do cartão já dizem qual é cada posição).
+    const gutter = 16;
     const sidePad = 56; // espaço nas pontas pros valores
     const plotH = height - padT - padB;
     const centerX = width / 2;
@@ -339,10 +339,6 @@
       svg.appendChild(pathEsq);
       svg.appendChild(pathDir);
 
-      const rotulo = el("text", { x: centerX, y: barY + barH / 1.5, "text-anchor": "middle", fill: cssVar("--text-secondary"), "font-size": 11.5, "font-weight": 700 });
-      rotulo.textContent = lab;
-      svg.appendChild(rotulo);
-
       const labelEsq = el("text", { x: axisEsq - wEsq - 8, y: barY + barH / 1.5, "text-anchor": "end", fill: cssVar("--text-primary"), "font-size": 12, "font-weight": 700 });
       labelEsq.textContent = formatNum(valEsq);
       svg.appendChild(labelEsq);
@@ -351,7 +347,7 @@
       labelDir.textContent = formatNum(valDir);
       svg.appendChild(labelDir);
 
-      const hit = el("rect", { x: 0, y, width, height: rowH, fill: "transparent", cursor: "pointer" });
+      const hit = el("rect", { x: 0, y, width, height: rowH, fill: "transparent", cursor: "default" });
       hit.addEventListener("pointerenter", () => { pathEsq.setAttribute("opacity", 0.82); pathDir.setAttribute("opacity", 0.82); });
       hit.addEventListener("pointerleave", () => { pathEsq.setAttribute("opacity", 1); pathDir.setAttribute("opacity", 1); hideTooltip(tip); });
       hit.addEventListener("pointermove", (e) => {
@@ -507,5 +503,61 @@
     buildLegend(container, series);
   }
 
-  global.CCBCharts = { renderLineChart, renderBarChart, renderPyramidChart };
+  // --------------------------------------------------------------- heatmap
+  // Ranking em formato de mapa de calor: um bloco por item, cor mais forte
+  // = valor mais alto (escala sequencial de um hue só, igual à do resto do
+  // BI). Sem hover/clique — o valor já fica escrito no próprio bloco.
+  const ESCALA_SEQUENCIAL = [
+    { fundo: "#cde2fb", texto: "escuro" },
+    { fundo: "#9ec5f4", texto: "escuro" },
+    { fundo: "#6da7ec", texto: "escuro" },
+    { fundo: "#3987e5", texto: "claro" },
+    { fundo: "#256abf", texto: "claro" },
+    { fundo: "#184f95", texto: "claro" },
+    { fundo: "#0d366b", texto: "claro" },
+  ];
+
+  function renderHeatmap(container, opts) {
+    container.innerHTML = "";
+    const itens = opts.itens || []; // [{ rotulo, valor }]
+
+    if (!itens.length) {
+      container.innerHTML = '<div class="empty-state">Sem dados no período selecionado.</div>';
+      return;
+    }
+
+    const valores = itens.map((i) => i.valor);
+    const minVal = Math.min(...valores);
+    const maxVal = Math.max(...valores);
+
+    const grade = document.createElement("div");
+    grade.className = "heatmap-grade";
+
+    itens.forEach((item) => {
+      const t = maxVal === minVal ? 1 : (item.valor - minVal) / (maxVal - minVal);
+      const passo = ESCALA_SEQUENCIAL[Math.round(t * (ESCALA_SEQUENCIAL.length - 1))];
+
+      const bloco = document.createElement("div");
+      bloco.className = "heatmap-bloco";
+      bloco.style.background = passo.fundo;
+      bloco.style.color = passo.texto === "claro" ? "#ffffff" : cssVar("--text-primary");
+      bloco.style.cursor = "default";
+
+      const valor = document.createElement("div");
+      valor.className = "heatmap-valor";
+      valor.textContent = formatNum(item.valor);
+
+      const rotulo = document.createElement("div");
+      rotulo.className = "heatmap-rotulo";
+      rotulo.textContent = item.rotulo;
+
+      bloco.appendChild(valor);
+      bloco.appendChild(rotulo);
+      grade.appendChild(bloco);
+    });
+
+    container.appendChild(grade);
+  }
+
+  global.CCBCharts = { renderLineChart, renderBarChart, renderPyramidChart, renderHeatmap };
 })(window);

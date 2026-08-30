@@ -21,7 +21,6 @@
       data-rascunho-chave="{{ 'editar-' ~ registro_id if modo == 'editar' else 'novo' }}">
   <div class="form-section">
     <h2>Dados da reunião</h2>
-    <p class="subtitle">Data e presidência.</p>
     <div class="field-grid">
       <div class="field">
         <label for="data">Data *</label>
@@ -45,7 +44,7 @@
         </select>
       </div>
       <div class="field" style="position: relative;">
-        <label for="local">Local / Congregação <span class="hint">(digite pra buscar, precisa de internet)</span></label>
+        <label for="local">Local / Congregação</label>
         <input list="lista-localidades" id="local" name="local" value="{{ registro['local'] }}" placeholder="Nome da igreja/congregação" autocomplete="off">
         <datalist id="lista-localidades">
           {% for loc in localidades %}<option value="{{ loc }}">{% endfor %}
@@ -53,12 +52,10 @@
         <div id="resultados-localidade" class="resultados-localidade" hidden></div>
       </div>
     </div>
-    <p class="subtitle" style="margin:8px 0 0;">Estado e cidade vêm do diretório oficial da CCB — escolher os dois já preenche o campo Local, que continua editável.</p>
   </div>
 
   <div class="form-section">
     <h2>Recitativos</h2>
-    <p class="subtitle">Quantidade de recitativos em cada posição do programa, por naipe.</p>
     <div class="recitativos-table">
       <div class="recitativos-col">
         <h3>Meninas</h3>

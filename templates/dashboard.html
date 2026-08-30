@@ -4,14 +4,29 @@
 <div class="page-header">
   <div>
     <h1>Análises</h1>
-    <p class="subtitle">{{ rotulo_periodo }} · {{ kpis.qtd_reunioes }} reunião(ões){% if localidade_selecionada %} · {{ localidade_selecionada }}{% endif %}.</p>
   </div>
 </div>
 
 <div class="filter-row">
-  {% for chave, rotulo in [("ano","Este ano"), ("tudo","Tudo")] %}
-    <a class="pill {{ 'ativo' if chave_periodo == chave else '' }}" href="{{ url_for('dashboard', periodo=chave, localidade=localidade_selecionada) }}">{{ rotulo }}</a>
+  {% for chave, rotulo in [("tudo","Tudo"), ("ano","Este ano")] %}
+    <a class="pill {{ 'ativo' if chave_periodo == chave else '' }}" href="{{ url_for('dashboard', periodo=chave, localidade=localidade_selecionada, presidencia=presidencia_selecionada) }}">{{ rotulo }}</a>
   {% endfor %}
+  {% if presidencias %}
+  <form class="custom-range" method="get">
+    <input type="hidden" name="periodo" value="{{ chave_periodo }}">
+    {% if chave_periodo == 'personalizado' %}
+    <input type="hidden" name="inicio" value="{{ inicio }}">
+    <input type="hidden" name="fim" value="{{ fim }}">
+    {% endif %}
+    <input type="hidden" name="localidade" value="{{ localidade_selecionada }}">
+    <select name="presidencia" onchange="this.form.submit()">
+      <option value="">Todos os irmãos na presidência</option>
+      {% for nome in presidencias %}
+      <option value="{{ nome }}" {{ 'selected' if nome == presidencia_selecionada else '' }}>{{ nome }}</option>
+      {% endfor %}
+    </select>
+  </form>
+  {% endif %}
   {% if localidades %}
   <form class="custom-range" method="get">
     <input type="hidden" name="periodo" value="{{ chave_periodo }}">
@@ -19,6 +34,7 @@
     <input type="hidden" name="inicio" value="{{ inicio }}">
     <input type="hidden" name="fim" value="{{ fim }}">
     {% endif %}
+    <input type="hidden" name="presidencia" value="{{ presidencia_selecionada }}">
     <select name="localidade" onchange="this.form.submit()">
       <option value="">Todas as localidades</option>
       {% for loc in localidades %}
@@ -40,15 +56,15 @@
   </div>
   <div class="stat-tile">
     <div class="label">Média por reunião</div>
-    <div class="value small">{{ kpis.media_geral }}</div>
+    <div class="value">{{ kpis.media_geral }}</div>
   </div>
   <div class="stat-tile">
     <div class="label">Recitativos individuais</div>
-    <div class="value small">{{ kpis.soma_individuais }}</div>
+    <div class="value">{{ kpis.soma_individuais }}</div>
   </div>
   <div class="stat-tile">
     <div class="label">Visitas</div>
-    <div class="value small">{{ kpis.soma_visitas }}</div>
+    <div class="value">{{ kpis.soma_visitas }}</div>
   </div>
 </div>
 
@@ -135,16 +151,12 @@
       series: dashboardData.individuais_visitas.series.map((s, i) => ({ name: s.nome, color: cor(i), values: s.valores })),
     });
 
-    CCBCharts.renderBarChart(document.getElementById("chart-livros"), {
-      labels: dashboardData.livros.labels,
-      series: [{ name: "Ocorrências", color: cor(0), values: dashboardData.livros.valores }],
-      horizontal: true,
+    CCBCharts.renderHeatmap(document.getElementById("chart-livros"), {
+      itens: dashboardData.livros.labels.map((rotulo, i) => ({ rotulo, valor: dashboardData.livros.valores[i] })),
     });
 
-    CCBCharts.renderBarChart(document.getElementById("chart-visitas"), {
-      labels: dashboardData.visitas_recorrentes.labels,
-      series: [{ name: "Visitas", color: cor(1), values: dashboardData.visitas_recorrentes.valores }],
-      horizontal: true,
+    CCBCharts.renderHeatmap(document.getElementById("chart-visitas"), {
+      itens: dashboardData.visitas_recorrentes.labels.map((rotulo, i) => ({ rotulo, valor: dashboardData.visitas_recorrentes.valores[i] })),
     });
   }
 
