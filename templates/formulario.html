@@ -139,7 +139,7 @@
 
   <div class="form-actions">
     <span class="rascunho-status" id="rascunho-status"></span>
-    <a class="btn" href="{{ url_for('registros') if modo == 'editar' else url_for('menu') }}">Cancelar</a>
+    <a class="btn" href="{{ url_for('registros.registros') if modo == 'editar' else url_for('menu.menu') }}">Cancelar</a>
     <button type="submit" class="btn primary">Salvar registro</button>
   </div>
 </form>
