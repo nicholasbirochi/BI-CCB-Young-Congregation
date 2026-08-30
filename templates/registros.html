@@ -24,9 +24,9 @@
         <th>Data</th>
         <th>Presidência</th>
         <th>Local</th>
+        <th class="num">Total geral</th>
         <th class="num">Meninas</th>
         <th class="num">Meninos</th>
-        <th class="num">Total geral</th>
         <th class="num">Individuais</th>
         <th>Visitas</th>
         <th>Palavra</th>
@@ -39,19 +39,21 @@
         <td>{{ r.data | data_br }}</td>
         <td>{{ r.presidencia or "—" }}</td>
         <td>{{ r.local or "—" }}</td>
+        <td class="num"><strong>{{ r.total_geral }}</strong></td>
         <td class="num">{{ r.total_meninas }}</td>
         <td class="num">{{ r.total_meninos }}</td>
-        <td class="num"><strong>{{ r.total_geral }}</strong></td>
         <td class="num">{{ r.recitativos_individuais }}</td>
         <td>{{ r.visitas | join(", ") or "—" }}</td>
         <td>{% if r.livro %}{{ r.livro }} {{ r.capitulo }}{% if r.versiculo %}:{{ r.versiculo }}{% endif %}{% else %}—{% endif %}</td>
-        <td class="actions">
-          <a class="btn small btn-icone" href="{{ url_for('editar_registro', registro_id=r.id) }}" title="Editar" aria-label="Editar">{{ icon_pencil() }}</a>
-          {% if session.papel == 'cooperador' %}
-          <form method="post" action="{{ url_for('excluir_registro', registro_id=r.id) }}" data-confirmar="Excluir este registro? Essa ação não pode ser desfeita.">
-            <button type="submit" class="btn small danger btn-icone" title="Excluir" aria-label="Excluir">{{ icon_trash() }}</button>
-          </form>
-          {% endif %}
+        <td>
+          <div class="actions">
+            <a class="btn small btn-icone" href="{{ url_for('editar_registro', registro_id=r.id) }}" title="Editar" aria-label="Editar">{{ icon_pencil() }}</a>
+            {% if session.papel == 'cooperador' %}
+            <form method="post" action="{{ url_for('excluir_registro', registro_id=r.id) }}" data-confirmar="Excluir este registro? Essa ação não pode ser desfeita.">
+              <button type="submit" class="btn small danger btn-icone" title="Excluir" aria-label="Excluir">{{ icon_trash() }}</button>
+            </form>
+            {% endif %}
+          </div>
         </td>
       </tr>
       {% endfor %}
