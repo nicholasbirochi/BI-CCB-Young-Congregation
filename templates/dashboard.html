@@ -9,17 +9,9 @@
 </div>
 
 <div class="filter-row">
-  {% for chave, rotulo in [("30","30 dias"), ("90","90 dias"), ("365","365 dias"), ("ano","Este ano"), ("tudo","Tudo")] %}
+  {% for chave, rotulo in [("ano","Este ano"), ("tudo","Tudo")] %}
     <a class="pill {{ 'ativo' if chave_periodo == chave else '' }}" href="{{ url_for('dashboard', periodo=chave, localidade=localidade_selecionada) }}">{{ rotulo }}</a>
   {% endfor %}
-  <form class="custom-range" method="get">
-    <input type="hidden" name="periodo" value="personalizado">
-    <input type="hidden" name="localidade" value="{{ localidade_selecionada }}">
-    <input type="date" name="inicio" value="{{ inicio }}">
-    <span style="color:var(--text-muted); font-size:13px;">até</span>
-    <input type="date" name="fim" value="{{ fim }}">
-    <button class="btn small" type="submit">Aplicar</button>
-  </form>
   {% if localidades %}
   <form class="custom-range" method="get">
     <input type="hidden" name="periodo" value="{{ chave_periodo }}">
@@ -86,22 +78,28 @@
   </div>
 </div>
 
+<div class="card" style="margin-top:16px;">
+  <h2>Visitas mais recorrentes</h2>
+  <p class="subtitle">Igrejas/congregações que mais visitaram no período</p>
+  <div id="chart-visitas"></div>
+</div>
+
 <div class="card table-scroll" style="margin-top:16px;">
   <h2>Últimos registros do período</h2>
   <p class="subtitle">Os 8 mais recentes — veja todos no Histórico.</p>
   {% if ultimos %}
   <table class="data-table">
     <thead>
-      <tr><th>Data</th><th>Presidência</th><th class="num">Total geral</th><th class="num">Individuais</th><th class="num">Visitas</th><th>Palavra</th></tr>
+      <tr><th>Data</th><th>Presidência</th><th class="num">Total geral</th><th class="num">Individuais</th><th>Visitas</th><th>Palavra</th></tr>
     </thead>
     <tbody>
       {% for r in ultimos %}
       <tr>
-        <td><a href="{{ url_for('editar_registro', registro_id=r.id) }}">{{ r.data }}</a></td>
+        <td><a href="{{ url_for('editar_registro', registro_id=r.id) }}">{{ r.data | data_br }}</a></td>
         <td>{{ r.presidencia or "—" }}</td>
         <td class="num"><strong>{{ r.total_geral }}</strong></td>
         <td class="num">{{ r.individuais }}</td>
-        <td class="num">{{ r.visitas }}</td>
+        <td>{{ r.visitas or "—" }}</td>
         <td>{{ r.livro or "—" }}</td>
       </tr>
       {% endfor %}
@@ -126,9 +124,10 @@
       series: [{ name: "Total geral", color: cor(0), values: dashboardData.tendencia.valores }],
     });
 
-    CCBCharts.renderBarChart(document.getElementById("chart-categorias"), {
+    CCBCharts.renderPyramidChart(document.getElementById("chart-categorias"), {
       labels: dashboardData.categorias.labels,
-      series: dashboardData.categorias.series.map((s, i) => ({ name: s.nome, color: cor(i), values: s.valores })),
+      esquerda: { nome: dashboardData.categorias.series[0].nome, cor: cor(0), valores: dashboardData.categorias.series[0].valores },
+      direita: { nome: dashboardData.categorias.series[1].nome, cor: cor(1), valores: dashboardData.categorias.series[1].valores },
     });
 
     CCBCharts.renderLineChart(document.getElementById("chart-individuais"), {
@@ -139,6 +138,12 @@
     CCBCharts.renderBarChart(document.getElementById("chart-livros"), {
       labels: dashboardData.livros.labels,
       series: [{ name: "Ocorrências", color: cor(0), values: dashboardData.livros.valores }],
+      horizontal: true,
+    });
+
+    CCBCharts.renderBarChart(document.getElementById("chart-visitas"), {
+      labels: dashboardData.visitas_recorrentes.labels,
+      series: [{ name: "Visitas", color: cor(1), values: dashboardData.visitas_recorrentes.valores }],
       horizontal: true,
     });
   }
