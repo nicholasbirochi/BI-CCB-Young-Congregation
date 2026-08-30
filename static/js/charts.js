@@ -201,11 +201,17 @@
     // linha de base
     svg.appendChild(el("line", { x1: padL, x2: padL + plotW, y1: padT + plotH, y2: padT + plotH, stroke: cssVar("--axis-line"), "stroke-width": 1 }));
 
-    // rótulos do eixo X (amostrados para não colidir)
+    // rótulos do eixo X — distribuídos em espaçamento uniforme (sempre
+    // incluindo o primeiro e o último) em vez de "a cada N", que deixava
+    // sobra apertada no final e dois rótulos colados um no outro.
     const maxLabels = Math.max(2, Math.floor(plotW / 46));
-    const stepLabel = Math.max(1, Math.ceil(labels.length / maxLabels));
+    const qtdRotulos = Math.min(labels.length, maxLabels);
+    const indicesRotulos = new Set();
+    for (let k = 0; k < qtdRotulos; k++) {
+      indicesRotulos.add(Math.round((k * (labels.length - 1)) / Math.max(1, qtdRotulos - 1)));
+    }
     labels.forEach((lab, i) => {
-      if (i % stepLabel !== 0 && i !== labels.length - 1) return;
+      if (!indicesRotulos.has(i)) return;
       const t = el("text", { x: xFor(i), y: height - 6, "text-anchor": "middle", fill: cssVar("--text-muted"), "font-size": 11 });
       t.textContent = lab;
       svg.appendChild(t);
