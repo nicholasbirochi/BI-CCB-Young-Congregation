@@ -55,7 +55,7 @@
     <div class="value">{{ kpis.soma_geral }}</div>
   </div>
   <div class="stat-tile">
-    <div class="label">Média por reunião</div>
+    <div class="label">Média de recitativos por reunião</div>
     <div class="value">{{ kpis.media_geral }}</div>
   </div>
   <div class="stat-tile">
@@ -71,12 +71,12 @@
 <div class="chart-grid">
   <div class="card">
     <h2>Recitativos ao longo do tempo</h2>
-    <p class="subtitle">Total geral (meninas + meninos) por data da reunião</p>
+    <p class="subtitle">Total geral por data da reunião</p>
     <div id="chart-tendencia"></div>
   </div>
   <div class="card">
     <h2>Meninas x Meninos</h2>
-    <p class="subtitle">Soma por posição do recitativo (crianças → meninas/meninos → mocinhas/mocinhos → moças/moços → auxiliares)</p>
+    <p class="subtitle">Soma por posição do recitativo</p>
     <div id="chart-categorias"></div>
   </div>
 </div>
@@ -102,7 +102,7 @@
 
 <div class="card table-scroll" style="margin-top:16px;">
   <h2>Últimos registros do período</h2>
-  <p class="subtitle">Os 8 mais recentes — veja todos no Histórico.</p>
+  <p class="subtitle">Os 8 mais recentes</p>
   {% if ultimos %}
   <table class="data-table">
     <thead>
