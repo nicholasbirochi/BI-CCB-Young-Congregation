@@ -241,7 +241,7 @@ def dados_do_formulario():
         "meninos_4": campo_int("meninos_4"),
         "meninos_5": campo_int("meninos_5"),
         "recitativos_individuais": campo_int("recitativos_individuais"),
-        "visitas": campo_int("visitas"),
+        "visitas": db.texto_visitas(request.form.get("visitas", "").split(db.SEPARADOR_VISITAS)),
         "livro": request.form.get("livro", "").strip(),
         "capitulo": request.form.get("capitulo", "").strip(),
         "versiculo": request.form.get("versiculo", "").strip(),
@@ -257,10 +257,22 @@ def localidades_conhecidas(conn):
     return [r["local"] for r in linhas]
 
 
+def visitas_conhecidas(conn):
+    """Nomes de igrejas/congregações já registrados como visitantes alguma
+    vez — alimenta as opções (datalist) do campo Visitas."""
+    linhas = conn.execute(
+        "SELECT visitas FROM registros WHERE visitas IS NOT NULL AND TRIM(visitas) != ''"
+    ).fetchall()
+    nomes = set()
+    for r in linhas:
+        nomes.update(db.lista_visitas(r["visitas"]))
+    return sorted(nomes)
+
+
 def periodo_do_filtro():
     """Lê o filtro de período da querystring e devolve (inicio, fim, rotulo, chave)."""
     hoje = date.today()
-    chave = request.args.get("periodo", "90")
+    chave = request.args.get("periodo", "ano")
     inicio_custom = request.args.get("inicio", "")
     fim_custom = request.args.get("fim", "")
 
@@ -274,8 +286,8 @@ def periodo_do_filtro():
     try:
         dias = int(chave)
     except ValueError:
-        dias = 90
-        chave = "90"
+        inicio = date(hoje.year, 1, 1)
+        return inicio.isoformat(), hoje.isoformat(), "Este ano", "ano"
     inicio = hoje - timedelta(days=dias)
     rotulo = f"Últimos {dias} dias"
     return inicio.isoformat(), hoje.isoformat(), rotulo, chave
@@ -356,7 +368,8 @@ def novo_registro():
             return render_template(
                 "formulario.html", registro=dados, livros=db.LIVROS_DA_BIBLIA,
                 biblia_estrutura=db.BIBLIA_ESTRUTURA, localidades=localidades_conhecidas(conn),
-                estados_ccb=list(LOCALIDADES_CCB.keys()), localidades_ccb=LOCALIDADES_CCB, modo="novo",
+                estados_ccb=list(LOCALIDADES_CCB.keys()), localidades_ccb=LOCALIDADES_CCB,
+                visitas_conhecidas=visitas_conhecidas(conn), modo="novo",
             )
         colunas = ", ".join(dados.keys())
         marcadores = ", ".join(["?"] * len(dados))
@@ -379,7 +392,8 @@ def novo_registro():
     return render_template(
         "formulario.html", registro=vazio, livros=db.LIVROS_DA_BIBLIA,
         biblia_estrutura=db.BIBLIA_ESTRUTURA, localidades=localidades_conhecidas(conn),
-        estados_ccb=list(LOCALIDADES_CCB.keys()), localidades_ccb=LOCALIDADES_CCB, modo="novo",
+        estados_ccb=list(LOCALIDADES_CCB.keys()), localidades_ccb=LOCALIDADES_CCB,
+                visitas_conhecidas=visitas_conhecidas(conn), modo="novo",
     )
 
 
@@ -402,6 +416,7 @@ def editar_registro(registro_id):
                 "formulario.html", registro=dados, livros=db.LIVROS_DA_BIBLIA,
                 biblia_estrutura=db.BIBLIA_ESTRUTURA, localidades=localidades_conhecidas(conn),
                 estados_ccb=list(LOCALIDADES_CCB.keys()), localidades_ccb=LOCALIDADES_CCB,
+                visitas_conhecidas=visitas_conhecidas(conn),
                 modo="editar", registro_id=registro_id,
             )
         campos = ", ".join(f"{c} = ?" for c in dados.keys())
@@ -421,6 +436,7 @@ def editar_registro(registro_id):
         "formulario.html", registro=registro, livros=db.LIVROS_DA_BIBLIA,
         biblia_estrutura=db.BIBLIA_ESTRUTURA, localidades=localidades_conhecidas(conn),
         estados_ccb=list(LOCALIDADES_CCB.keys()), localidades_ccb=LOCALIDADES_CCB,
+                visitas_conhecidas=visitas_conhecidas(conn),
         modo="editar", registro_id=registro_id,
     )
 
@@ -465,7 +481,7 @@ def registros():
             "total_meninos": db.total_meninos(r),
             "total_geral": db.total_geral(r),
             "recitativos_individuais": r["recitativos_individuais"],
-            "visitas": r["visitas"],
+            "visitas": db.lista_visitas(r["visitas"]),
             "livro": r["livro"],
             "capitulo": r["capitulo"],
             "versiculo": r["versiculo"],
@@ -496,7 +512,7 @@ def dashboard():
     qtd_reunioes = len(linhas)
     soma_geral = sum(db.total_geral(r) for r in linhas)
     soma_individuais = sum(r["recitativos_individuais"] or 0 for r in linhas)
-    soma_visitas = sum(r["visitas"] or 0 for r in linhas)
+    soma_visitas = sum(len(db.lista_visitas(r["visitas"])) for r in linhas)
     media_geral = round(soma_geral / qtd_reunioes, 1) if qtd_reunioes else 0
 
     # ---- Série temporal: total geral de recitativos por data --------
@@ -523,7 +539,7 @@ def dashboard():
     for r in linhas:
         por_data_extra.setdefault(r["data"], {"individuais": 0, "visitas": 0})
         por_data_extra[r["data"]]["individuais"] += r["recitativos_individuais"] or 0
-        por_data_extra[r["data"]]["visitas"] += r["visitas"] or 0
+        por_data_extra[r["data"]]["visitas"] += len(db.lista_visitas(r["visitas"]))
     serie_individuais = [por_data_extra[d]["individuais"] for d in datas_ordenadas]
     serie_visitas = [por_data_extra[d]["visitas"] for d in datas_ordenadas]
 
@@ -535,6 +551,13 @@ def dashboard():
             contagem_livros[livro] = contagem_livros.get(livro, 0) + 1
     ranking_livros = sorted(contagem_livros.items(), key=lambda x: x[1], reverse=True)[:8]
 
+    # ---- Igrejas que mais visitaram ------------------------------------
+    contagem_visitas = {}
+    for r in linhas:
+        for nome in db.lista_visitas(r["visitas"]):
+            contagem_visitas[nome] = contagem_visitas.get(nome, 0) + 1
+    ranking_visitas = sorted(contagem_visitas.items(), key=lambda x: x[1], reverse=True)[:8]
+
     # ---- Últimos registros do período ---------------------------------
     ultimos = []
     for r in list(linhas)[-8:][::-1]:
@@ -544,7 +567,7 @@ def dashboard():
             "presidencia": r["presidencia"],
             "total_geral": db.total_geral(r),
             "individuais": r["recitativos_individuais"],
-            "visitas": r["visitas"],
+            "visitas": ", ".join(db.lista_visitas(r["visitas"])),
             "livro": r["livro"],
         })
 
@@ -568,6 +591,10 @@ def dashboard():
             "labels": [item[0] for item in ranking_livros],
             "valores": [item[1] for item in ranking_livros],
         },
+        "visitas_recorrentes": {
+            "labels": [item[0] for item in ranking_visitas],
+            "valores": [item[1] for item in ranking_visitas],
+        },
     }
 
     return render_template(
@@ -587,6 +614,7 @@ def dashboard():
         fim=fim if chave_periodo == "personalizado" else "",
         localidades=localidades_conhecidas(conn),
                 estados_ccb=list(LOCALIDADES_CCB.keys()), localidades_ccb=LOCALIDADES_CCB,
+                visitas_conhecidas=visitas_conhecidas(conn),
         localidade_selecionada=localidade,
     )
 
@@ -597,6 +625,15 @@ def _data_curta(iso):
         return d.strftime("%d/%m")
     except ValueError:
         return iso
+
+
+@app.template_filter("data_br")
+def data_br(iso):
+    """Formata uma data ISO (aaaa-mm-dd) como dd/mm/aaaa, do jeito brasileiro."""
+    try:
+        return datetime.strptime(iso, "%Y-%m-%d").strftime("%d/%m/%Y")
+    except (TypeError, ValueError):
+        return iso or ""
 
 
 # --------------------------------------------------------------------------

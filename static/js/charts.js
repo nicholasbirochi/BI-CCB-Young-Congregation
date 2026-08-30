@@ -17,6 +17,24 @@
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   }
 
+  let _medidorCtx = null;
+  function medirTexto(texto, fonte) {
+    if (!_medidorCtx) _medidorCtx = document.createElement("canvas").getContext("2d");
+    _medidorCtx.font = fonte;
+    return _medidorCtx.measureText(texto).width;
+  }
+
+  // Encurta um rótulo com "…" até caber em maxWidth; o nome completo sempre
+  // continua disponível no tooltip ao passar o mouse — nunca some de vez.
+  function truncarRotulo(texto, maxWidth, fonte) {
+    if (medirTexto(texto, fonte) <= maxWidth) return texto;
+    let cortado = texto;
+    while (cortado.length > 1 && medirTexto(cortado + "…", fonte) > maxWidth) {
+      cortado = cortado.slice(0, -1);
+    }
+    return cortado + "…";
+  }
+
   function niceMax(value) {
     if (value <= 0) return 4;
     const magnitude = Math.pow(10, Math.floor(Math.log10(value)));
@@ -132,6 +150,20 @@
     ].join(" ");
   }
 
+  function leftRoundedPath(x, y, w, h, r) {
+    r = Math.min(r, h / 2, Math.max(w, 1));
+    if (w <= 0) return `M ${x} ${y} L ${x} ${y + h} Z`;
+    return [
+      `M ${x + w} ${y}`,
+      `L ${x + r} ${y}`,
+      `Q ${x} ${y} ${x} ${y + r}`,
+      `L ${x} ${y + h - r}`,
+      `Q ${x} ${y + h} ${x + r} ${y + h}`,
+      `L ${x + w} ${y + h}`,
+      `Z`,
+    ].join(" ");
+  }
+
   // ------------------------------------------------------------------ line
   function renderLineChart(container, opts) {
     container.innerHTML = "";
@@ -226,6 +258,131 @@
     buildLegend(container, series);
   }
 
+  // -------------------------------------------------------------- pirâmide
+  // Gráfico "pirâmide etária": duas séries em espelho (uma pra cada lado),
+  // com a categoria no meio — mesma escala nos dois lados pra comparação ser
+  // honesta — e o percentual de cada lado exibido acima do gráfico.
+  function renderPyramidChart(container, opts) {
+    container.innerHTML = "";
+    const labels = opts.labels || [];
+    const esquerda = opts.esquerda || { nome: "", cor: "", valores: [] };
+    const direita = opts.direita || { nome: "", cor: "", valores: [] };
+
+    const hasData = labels.length && (esquerda.valores.some((v) => v) || direita.valores.some((v) => v));
+    if (!hasData) {
+      container.innerHTML = '<div class="empty-state">Sem dados no período selecionado.</div>';
+      return;
+    }
+
+    // ---- resumo de percentual acima do gráfico ----
+    const totalEsq = esquerda.valores.reduce((a, b) => a + b, 0);
+    const totalDir = direita.valores.reduce((a, b) => a + b, 0);
+    const totalGeral = totalEsq + totalDir;
+    const pctEsq = totalGeral ? Math.round((1000 * totalEsq) / totalGeral) / 10 : 0;
+    const pctDir = totalGeral ? Math.round((1000 * totalDir) / totalGeral) / 10 : 0;
+
+    const resumo = document.createElement("div");
+    resumo.className = "piramide-resumo";
+    [[esquerda, pctEsq, totalEsq], [direita, pctDir, totalDir]].forEach(([serie, pct, total]) => {
+      const item = document.createElement("div");
+      item.className = "piramide-resumo-item";
+      const swatch = document.createElement("span");
+      swatch.className = "swatch";
+      swatch.style.background = serie.cor;
+      const texto = document.createElement("span");
+      const valor = document.createElement("strong");
+      valor.textContent = `${pct}%`;
+      texto.appendChild(valor);
+      const nome = document.createElement("span");
+      nome.className = "muted";
+      nome.textContent = ` ${serie.nome} · ${formatNum(total)}`;
+      texto.appendChild(nome);
+      item.appendChild(swatch);
+      item.appendChild(texto);
+      resumo.appendChild(item);
+    });
+    container.appendChild(resumo);
+
+    const chartEl = document.createElement("div");
+    container.appendChild(chartEl);
+
+    const width = Math.max(container.clientWidth || 560, 280);
+    const rowH = 40;
+    const height = labels.length * rowH + 20;
+    const padT = 10, padB = 10;
+    const gutter = 34; // espaço central pros rótulos "1º".."5º"
+    const sidePad = 56; // espaço nas pontas pros valores
+    const plotH = height - padT - padB;
+    const centerX = width / 2;
+    const halfWidth = width / 2 - gutter / 2 - sidePad;
+
+    const maxVal = Math.max(1, ...esquerda.valores, ...direita.valores);
+    const escala = halfWidth / niceMax(maxVal);
+
+    const svg = el("svg", { viewBox: `0 0 ${width} ${height}`, width: "100%", height, role: "img" });
+    const tip = ensureTooltip(chartEl);
+
+    labels.forEach((lab, i) => {
+      const y = padT + i * rowH;
+      const barH = Math.min(24, rowH - 14);
+      const barY = y + (rowH - barH) / 2;
+
+      const valEsq = esquerda.valores[i] || 0;
+      const valDir = direita.valores[i] || 0;
+      const wEsq = valEsq * escala;
+      const wDir = valDir * escala;
+      const axisEsq = centerX - gutter / 2;
+      const axisDir = centerX + gutter / 2;
+
+      const pathEsq = el("path", { d: leftRoundedPath(axisEsq - wEsq, barY, wEsq, barH, 4), fill: esquerda.cor });
+      const pathDir = el("path", { d: rightRoundedPath(axisDir, barY, wDir, barH, 4), fill: direita.cor });
+      svg.appendChild(pathEsq);
+      svg.appendChild(pathDir);
+
+      const rotulo = el("text", { x: centerX, y: barY + barH / 1.5, "text-anchor": "middle", fill: cssVar("--text-secondary"), "font-size": 11.5, "font-weight": 700 });
+      rotulo.textContent = lab;
+      svg.appendChild(rotulo);
+
+      const labelEsq = el("text", { x: axisEsq - wEsq - 8, y: barY + barH / 1.5, "text-anchor": "end", fill: cssVar("--text-primary"), "font-size": 12, "font-weight": 700 });
+      labelEsq.textContent = formatNum(valEsq);
+      svg.appendChild(labelEsq);
+
+      const labelDir = el("text", { x: axisDir + wDir + 8, y: barY + barH / 1.5, "text-anchor": "start", fill: cssVar("--text-primary"), "font-size": 12, "font-weight": 700 });
+      labelDir.textContent = formatNum(valDir);
+      svg.appendChild(labelDir);
+
+      const hit = el("rect", { x: 0, y, width, height: rowH, fill: "transparent", cursor: "pointer" });
+      hit.addEventListener("pointerenter", () => { pathEsq.setAttribute("opacity", 0.82); pathDir.setAttribute("opacity", 0.82); });
+      hit.addEventListener("pointerleave", () => { pathEsq.setAttribute("opacity", 1); pathDir.setAttribute("opacity", 1); hideTooltip(tip); });
+      hit.addEventListener("pointermove", (e) => {
+        const rect = chartEl.getBoundingClientRect();
+        showTooltip(chartEl, tip, e.clientX - rect.left, e.clientY - rect.top - 14, [
+          { color: esquerda.cor, value: formatNum(valEsq), label: `${esquerda.nome} · ${lab}` },
+          { color: direita.cor, value: formatNum(valDir), label: `${direita.nome} · ${lab}` },
+        ]);
+      });
+      svg.appendChild(hit);
+    });
+
+    chartEl.appendChild(svg);
+
+    const legend = document.createElement("div");
+    legend.className = "legend";
+    [esquerda, direita].forEach((serie) => {
+      const item = document.createElement("span");
+      item.className = "item";
+      const swatch = document.createElement("span");
+      swatch.className = "swatch";
+      swatch.style.background = serie.cor;
+      const label = document.createElement("span");
+      label.textContent = serie.nome;
+      item.appendChild(swatch);
+      item.appendChild(label);
+      legend.appendChild(item);
+    });
+    container.appendChild(legend);
+  }
+
   // ------------------------------------------------------------------- bar
   function renderBarChart(container, opts) {
     container.innerHTML = "";
@@ -250,7 +407,13 @@
     if (horizontal) {
       const rowH = 30;
       const height = heightOpt || labels.length * rowH + 20;
-      const padL = 92, padR = 40, padT = 10, padB = 10;
+      const padR = 40, padT = 10, padB = 10;
+      const fonteRotulo = "12px system-ui, -apple-system, sans-serif";
+      // a coluna de rótulos cresce pro nome mais longo, mas nunca passa de
+      // ~42% da largura — o que não couber ali é encurtado com "…" (o nome
+      // completo continua no tooltip ao passar o mouse, nunca some de vez).
+      const maiorRotulo = Math.max(...labels.map((l) => medirTexto(l, fonteRotulo)));
+      const padL = Math.min(Math.max(70, Math.ceil(maiorRotulo) + 22), Math.round(width * 0.42));
       const plotW = width - padL - padR;
       const plotH = height - padT - padB;
       const svg = el("svg", { viewBox: `0 0 ${width} ${height}`, width: "100%", height, role: "img" });
@@ -265,7 +428,7 @@
         const barW = Math.max(2, xFor(val));
 
         const label = el("text", { x: padL - 10, y: barY + barH / 1.5, "text-anchor": "end", fill: cssVar("--text-secondary"), "font-size": 12 });
-        label.textContent = lab;
+        label.textContent = truncarRotulo(lab, padL - 18, fonteRotulo);
         svg.appendChild(label);
 
         const path = el("path", { d: rightRoundedPath(padL, barY, barW, barH, 4), fill: series[0].color });
@@ -344,5 +507,5 @@
     buildLegend(container, series);
   }
 
-  global.CCBCharts = { renderLineChart, renderBarChart };
+  global.CCBCharts = { renderLineChart, renderBarChart, renderPyramidChart };
 })(window);

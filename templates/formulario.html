@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon_plus %}
 {% block titulo %}{{ 'Editar registro' if modo == 'editar' else 'Novo registro' }} · BI Jovens e Menores{% endblock %}
 {% block conteudo %}
 <div class="page-header">
@@ -31,7 +32,7 @@
         <input type="text" id="presidencia" name="presidencia" value="{{ registro['presidencia'] }}" placeholder="Nome de quem presidiu">
       </div>
       <div class="field">
-        <label for="estado">Estado <span class="hint">(opcional)</span></label>
+        <label for="estado">Estado</label>
         <select id="estado">
           <option value="">Selecione...</option>
           {% for uf in estados_ccb %}<option value="{{ uf }}">{{ uf }}</option>{% endfor %}
@@ -44,14 +45,14 @@
         </select>
       </div>
       <div class="field">
-        <label for="local">Local / Congregação <span class="hint">(opcional)</span></label>
+        <label for="local">Local / Congregação</label>
         <input list="lista-localidades" id="local" name="local" value="{{ registro['local'] }}" placeholder="Escolha a cidade ao lado ou digite" autocomplete="off">
         <datalist id="lista-localidades">
           {% for loc in localidades %}<option value="{{ loc }}">{% endfor %}
         </datalist>
       </div>
       <div class="field" style="grid-column: 1 / -1; position: relative;">
-        <label for="busca-localidade">Buscar unidade específica da CCB pelo nome <span class="hint">(opcional, precisa de internet)</span></label>
+        <label for="busca-localidade">Buscar unidade específica da CCB pelo nome <span class="hint">(precisa de internet)</span></label>
         <input type="text" id="busca-localidade" placeholder="Ex.: Vila Esperança" autocomplete="off">
         <div id="resultados-localidade" class="resultados-localidade" hidden></div>
       </div>
@@ -96,14 +97,22 @@
         <input type="number" min="0" id="recitativos_individuais" name="recitativos_individuais" value="{{ registro['recitativos_individuais'] }}">
       </div>
       <div class="field">
-        <label for="visitas">Visitas</label>
-        <input type="number" min="0" id="visitas" name="visitas" value="{{ registro['visitas'] }}">
+        <label for="visita-input">Visitas <span class="hint">(igrejas que visitaram)</span></label>
+        <div class="chip-input">
+          <input type="text" id="visita-input" list="lista-visitas" placeholder="Nome da igreja/congregação" autocomplete="off">
+          <button type="button" class="btn small" id="visita-adicionar">{{ icon_plus(14) }}</button>
+        </div>
+        <datalist id="lista-visitas">
+          {% for v in visitas_conhecidas %}<option value="{{ v }}">{% endfor %}
+        </datalist>
+        <div class="chips" id="visitas-chips"></div>
+        <input type="hidden" id="visitas" name="visitas" value="{{ registro['visitas'] }}">
       </div>
     </div>
   </div>
 
   <div class="form-section">
-    <h2>Palavra <span class="hint">(opcional)</span></h2>
+    <h2>Palavra</h2>
     <p class="subtitle">Só é possível escolher capítulos e versículos que realmente existem no livro.</p>
     <div class="field-grid">
       <div class="field">

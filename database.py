@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS registros (
     meninos_4 INTEGER NOT NULL DEFAULT 0,
     meninos_5 INTEGER NOT NULL DEFAULT 0,
     recitativos_individuais INTEGER NOT NULL DEFAULT 0,
-    visitas INTEGER NOT NULL DEFAULT 0,
+    visitas TEXT NOT NULL DEFAULT '',
     livro TEXT,
     capitulo TEXT,
     versiculo TEXT,
@@ -82,6 +82,24 @@ def total_meninos(row):
 
 def total_geral(row):
     return total_meninas(row) + total_meninos(row)
+
+
+# "Visitas" guarda os NOMES das igrejas/congregações que visitaram (texto
+# separado por ";"), não uma quantidade digitada — a quantidade é derivada
+# contando os nomes da lista.
+SEPARADOR_VISITAS = ";"
+
+
+def lista_visitas(valor):
+    """Converte o texto salvo em "visitas" numa lista de nomes de igrejas."""
+    if not valor:
+        return []
+    return [v.strip() for v in valor.split(SEPARADOR_VISITAS) if v.strip()]
+
+
+def texto_visitas(nomes):
+    """Junta uma lista de nomes de volta no texto salvo em "visitas"."""
+    return f"{SEPARADOR_VISITAS} ".join(dict.fromkeys(n.strip() for n in nomes if n.strip()))
 
 
 def valida_referencia_biblica(livro, capitulo, versiculo):

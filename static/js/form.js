@@ -176,6 +176,60 @@ document.addEventListener("DOMContentLoaded", () => {
     listaResultados.hidden = false;
   }
 
+  // --------------------------------- Visitas: chips de igrejas (em vez de um número) ---------------------------------
+  const inputVisita = document.getElementById("visita-input");
+  const btnVisitaAdicionar = document.getElementById("visita-adicionar");
+  const chipsVisitas = document.getElementById("visitas-chips");
+  const hiddenVisitas = document.getElementById("visitas");
+
+  function listaVisitasAtual() {
+    return hiddenVisitas.value ? hiddenVisitas.value.split(";").map((s) => s.trim()).filter(Boolean) : [];
+  }
+
+  function renderChipsVisitas() {
+    if (!chipsVisitas) return;
+    chipsVisitas.innerHTML = "";
+    listaVisitasAtual().forEach((nome, i) => {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      const texto = document.createElement("span");
+      texto.textContent = nome;
+      const remover = document.createElement("button");
+      remover.type = "button";
+      remover.setAttribute("aria-label", `Remover ${nome}`);
+      remover.textContent = "×";
+      remover.addEventListener("click", () => {
+        const nova = listaVisitasAtual();
+        nova.splice(i, 1);
+        hiddenVisitas.value = nova.join("; ");
+        renderChipsVisitas();
+        hiddenVisitas.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+      chip.appendChild(texto);
+      chip.appendChild(remover);
+      chipsVisitas.appendChild(chip);
+    });
+  }
+
+  function adicionarVisita() {
+    const nome = inputVisita.value.trim();
+    if (!nome) return;
+    const atual = listaVisitasAtual();
+    if (!atual.includes(nome)) atual.push(nome);
+    hiddenVisitas.value = atual.join("; ");
+    inputVisita.value = "";
+    renderChipsVisitas();
+    hiddenVisitas.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+
+  if (inputVisita && btnVisitaAdicionar && chipsVisitas && hiddenVisitas) {
+    btnVisitaAdicionar.addEventListener("click", adicionarVisita);
+    inputVisita.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); adicionarVisita(); }
+    });
+    renderChipsVisitas(); // estado inicial (editando um registro existente)
+  }
+
   // ------------------------------------------------------------- rascunho automático
   const chave = "ccb-bi-rascunho-" + form.getAttribute("data-rascunho-chave");
   const banner = document.getElementById("rascunho-banner");
@@ -208,6 +262,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (selLivro && selCapitulo && selVersiculo) {
       aoMudarLivro(dados.capitulo, dados.versiculo);
     }
+    renderChipsVisitas();
     atualizarTotais();
     restaurando = false;
     salvarRascunho();
