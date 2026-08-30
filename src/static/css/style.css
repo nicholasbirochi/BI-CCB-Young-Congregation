@@ -287,12 +287,14 @@ a:hover { text-decoration: underline; color: var(--series-1-hover); }
   margin: 18px 0;
 }
 /* Todo bloco da linha de filtros (pill, select, campo de data, botão
-   Aplicar) compartilha a mesma fonte, altura e formato de cápsula — só a
-   cor muda pra indicar o que está ativo. Cor/fundo ficam de fora desse
-   bloco comum pra não brigar em especificidade com .btn.primary.
-   <select> não herda a fonte da página por padrão (usa a fonte do sistema)
-   e ignora line-height quando está com a aparência nativa — por isso
-   "appearance: none" abaixo, com uma setinha própria desenhada em CSS. */
+   Aplicar) compartilha a mesma fonte, altura e formato — um retângulo com
+   as pontas arredondadas (mesmo raio dos botões do site oficial), não mais
+   uma cápsula — só a cor muda pra indicar o que está ativo. Cor/fundo
+   ficam de fora desse bloco comum pra não brigar em especificidade com
+   .btn.primary. <select> não herda a fonte da página por padrão (usa a
+   fonte do sistema) e ignora line-height quando está com a aparência
+   nativa — por isso "appearance: none" abaixo, com uma setinha própria
+   desenhada em CSS. */
 .filter-row .pill,
 .filter-row input[type="date"],
 .filter-row select,
@@ -300,11 +302,11 @@ a:hover { text-decoration: underline; color: var(--series-1-hover); }
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
-  height: 34px;
-  border-radius: 999px;
-  padding: 0 14px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  padding: 0 12px;
   font-family: inherit;
-  font-size: 13.5px;
+  font-size: 12.5px;
   line-height: 1;
   min-width: 0;
 }
@@ -326,11 +328,11 @@ a:hover { text-decoration: underline; color: var(--series-1-hover); }
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  padding-right: 30px;
+  padding-right: 28px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23645f77' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 11px center;
-  background-size: 12px;
+  background-position: right 10px center;
+  background-size: 11px;
 }
 .filter-row form.custom-range {
   display: flex;

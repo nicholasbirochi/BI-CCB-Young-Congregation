@@ -1,0 +1,15 @@
+# Ambiente Python
+venv/
+__pycache__/
+*.pyc
+
+# Dados locais (nunca versionar: são os dados reais da congregação)
+dados/*.db
+dados/.chave_sessao
+
+# Sistema
+.DS_Store
+
+# Editor
+.vscode/
+.idea/

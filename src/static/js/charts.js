@@ -362,8 +362,8 @@
       hit.addEventListener("pointermove", (e) => {
         const rect = chartEl.getBoundingClientRect();
         showTooltip(chartEl, tip, e.clientX - rect.left, e.clientY - rect.top - 14, [
-          { color: esquerda.cor, value: formatNum(valEsq), label: lab },
-          { color: direita.cor, value: formatNum(valDir), label: lab },
+          { color: esquerda.cor, value: formatNum(valEsq), label: `${esquerda.nome} · ${lab}` },
+          { color: direita.cor, value: formatNum(valDir), label: `${direita.nome} · ${lab}` },
         ]);
       });
       svg.appendChild(hit);

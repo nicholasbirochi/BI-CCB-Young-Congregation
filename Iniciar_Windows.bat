@@ -15,10 +15,10 @@ if errorlevel 1 (
   exit /b 1
 )
 
-if not exist "venv" (
+if not exist "src\venv" (
   echo Configurando pela primeira vez, aguarde um instante...
-  python -m venv venv
-  call venv\Scripts\activate.bat
+  python -m venv src\venv
+  call src\venv\Scripts\activate.bat
   python -m pip install --upgrade pip >nul
   pip install -r requirements.txt
   if errorlevel 1 (
@@ -29,9 +29,10 @@ if not exist "venv" (
     exit /b 1
   )
 ) else (
-  call venv\Scripts\activate.bat
+  call src\venv\Scripts\activate.bat
 )
 
+cd src
 python app.py
 
 echo.

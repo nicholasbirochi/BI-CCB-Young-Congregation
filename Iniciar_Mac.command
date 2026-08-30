@@ -11,10 +11,10 @@ if ! command -v python3 &> /dev/null; then
   exit 1
 fi
 
-if [ ! -d "venv" ]; then
+if [ ! -d "src/venv" ]; then
   echo "Configurando pela primeira vez, aguarde um instante..."
-  python3 -m venv venv
-  source venv/bin/activate
+  python3 -m venv src/venv
+  source src/venv/bin/activate
   pip install --upgrade pip > /dev/null
   if ! pip install -r requirements.txt; then
     echo ""
@@ -24,9 +24,10 @@ if [ ! -d "venv" ]; then
     exit 1
   fi
 else
-  source venv/bin/activate
+  source src/venv/bin/activate
 fi
 
+cd src
 python3 app.py
 
 echo ""
