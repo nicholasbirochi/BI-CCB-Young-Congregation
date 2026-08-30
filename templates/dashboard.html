@@ -47,7 +47,7 @@
 
 <div class="kpi-row">
   <div class="stat-tile">
-    <div class="label">Reuniões</div>
+    <div class="label">Reuniões totais</div>
     <div class="value">{{ kpis.qtd_reunioes }}</div>
   </div>
   <div class="stat-tile">
@@ -55,7 +55,7 @@
     <div class="value">{{ kpis.soma_geral }}</div>
   </div>
   <div class="stat-tile">
-    <div class="label">Média de recitativos por reunião</div>
+    <div class="label">Média de recitativos</div>
     <div class="value">{{ kpis.media_geral }}</div>
   </div>
   <div class="stat-tile">
@@ -63,7 +63,7 @@
     <div class="value">{{ kpis.soma_individuais }}</div>
   </div>
   <div class="stat-tile">
-    <div class="label">Visitas</div>
+    <div class="label">Visitas totais</div>
     <div class="value">{{ kpis.soma_visitas }}</div>
   </div>
 </div>
@@ -83,21 +83,21 @@
 
 <div class="chart-grid">
   <div class="card">
-    <h2>Individuais x Visitas</h2>
-    <p class="subtitle">Evolução por data da reunião</p>
-    <div id="chart-individuais"></div>
-  </div>
-  <div class="card">
     <h2>Livros mais lidos</h2>
     <p class="subtitle">Ranking da seção "Palavra" no período</p>
     <div id="chart-livros"></div>
   </div>
+  <div class="card">
+    <h2>Visitas mais recorrentes</h2>
+    <p class="subtitle">Igrejas/congregações que mais visitaram no período</p>
+    <div id="chart-visitas"></div>
+  </div>
 </div>
 
 <div class="card" style="margin-top:16px;">
-  <h2>Visitas mais recorrentes</h2>
-  <p class="subtitle">Igrejas/congregações que mais visitaram no período</p>
-  <div id="chart-visitas"></div>
+  <h2>Individuais x Visitas</h2>
+  <p class="subtitle">Evolução por data da reunião</p>
+  <div id="chart-individuais"></div>
 </div>
 
 <div class="card table-scroll" style="margin-top:16px;">
