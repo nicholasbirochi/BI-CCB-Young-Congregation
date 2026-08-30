@@ -9,7 +9,7 @@
 
 <div class="filter-row">
   {% for chave, rotulo in [("tudo","Tudo"), ("ano","Este ano")] %}
-    <a class="pill {{ 'ativo' if chave_periodo == chave else '' }}" href="{{ url_for('dashboard', periodo=chave, localidade=localidade_selecionada, presidencia=presidencia_selecionada) }}">{{ rotulo }}</a>
+    <a class="pill {{ 'ativo' if chave_periodo == chave else '' }}" href="{{ url_for('dashboard.dashboard', periodo=chave, localidade=localidade_selecionada, presidencia=presidencia_selecionada) }}">{{ rotulo }}</a>
   {% endfor %}
   {% if presidencias %}
   <form class="custom-range" method="get">
@@ -120,7 +120,7 @@
     <tbody>
       {% for r in ultimos %}
       <tr>
-        <td><a href="{{ url_for('editar_registro', registro_id=r.id) }}">{{ r.data | data_br }}</a></td>
+        <td><a href="{{ url_for('registros.editar_registro', registro_id=r.id) }}">{{ r.data | data_br }}</a></td>
         <td>{{ r.presidencia or "—" }}</td>
         <td class="num"><strong>{{ r.total_geral }}</strong></td>
         <td class="num">{{ r.individuais }}</td>

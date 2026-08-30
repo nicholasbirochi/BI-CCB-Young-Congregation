@@ -80,3 +80,41 @@ BIBLIA_ESTRUTURA = {
 }
 
 LIVROS_DA_BIBLIA = list(BIBLIA_ESTRUTURA.keys())
+
+
+def valida_referencia_biblica(livro, capitulo, versiculo):
+    """
+    Garante que a seção "Palavra" só aceite um livro, capítulo e versículo
+    que realmente existem na Bíblia. Retorna (ok, mensagem_de_erro).
+    A seção é opcional: se nada foi preenchido, é válida.
+    """
+    livro = (livro or "").strip()
+    capitulo = (capitulo or "").strip()
+    versiculo = (versiculo or "").strip()
+
+    if not livro and not capitulo and not versiculo:
+        return True, None
+
+    estrutura = BIBLIA_ESTRUTURA.get(livro)
+    if estrutura is None:
+        return False, f'"{livro}" não é um livro da Bíblia. Escolha um livro da lista.'
+
+    if not capitulo:
+        return False, "Informe o capítulo lido."
+    try:
+        cap = int(capitulo)
+    except ValueError:
+        return False, "O capítulo precisa ser um número."
+    if cap < 1 or cap > len(estrutura):
+        return False, f"{livro} tem {len(estrutura)} capítulo(s) — o capítulo {cap} não existe."
+
+    if versiculo:
+        try:
+            vers = int(versiculo)
+        except ValueError:
+            return False, "O versículo precisa ser um número."
+        maximo = estrutura[cap - 1]
+        if vers < 1 or vers > maximo:
+            return False, f"{livro} {cap} tem {maximo} versículo(s) — o versículo {vers} não existe."
+
+    return True, None

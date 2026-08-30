@@ -14,7 +14,7 @@ através de um link (e um QR code).
   posição, recitativos individuais, visitas e a seção "Palavra".
 - **Validação bíblica de verdade**: Livro, Capítulo e Versículo são selects
   em cascata que só permitem combinações que existem na Bíblia (dados de
-  versificação embutidos, veja `nucleo/biblia_dados.py`).
+  versificação embutidos, veja `models/biblia.py`).
 - **Localidade oficial da CCB**: os campos Estado/Cidade vêm do diretório
   público da CCB (`static/dados/localidades_ccb.json`, baixado uma única vez
   do site oficial) — funciona 100% offline depois de instalado. Tem também
@@ -64,13 +64,37 @@ build step, sem framework de frontend), gráficos em SVG feitos à mão
 
 ## Estrutura
 
+Organizado em MVC: **models** (dados/regras), **views** (`templates/`, o
+padrão do próprio Flask/Jinja2) e **controllers** (rotas), com uma camada
+extra de **services** para integrações e regras que não são nem "model" nem
+"controller" puro — cada módulo com uma responsabilidade só.
+
 ```
-app.py                          rotas Flask, login, validação, integrações
+app.py                          cria o Flask, registra os blueprints, sobe o servidor
+config.py                       constantes do app (porta, papéis de login, localidade padrão)
 config_acesso.py                as duas senhas de acesso
-nucleo/
-  database.py                   acesso ao SQLite + validação bíblica
-  biblia_dados.py                estrutura da Bíblia (capítulos/versículos)
-templates/                      páginas (Jinja2)
+
+models/                         camada M — dados e regras, sem saber nada de Flask/HTTP
+  database.py                     schema do SQLite, conexão por requisição, helpers de linha
+  biblia.py                       estrutura da Bíblia (capítulos/versículos) + validação
+
+services/                       integrações e listas derivadas do banco
+  localidades_ccb.py              diretório oficial da CCB (estados/cidades + busca ao vivo)
+  sugestoes.py                    localidades/visitas/nomes já usados (autocomplete)
+
+controllers/                    camada C — um Blueprint por área
+  auth.py                          login/logout + decorators de acesso
+  menu.py                          menu e QR code do link de rede
+  localidade_api.py                busca ao vivo de unidades (JSON)
+  registros.py                     novo/editar/excluir registro + histórico
+  dashboard.py                     painel de Análises (KPIs e gráficos)
+
+utils/                          infraestrutura sem regra de negócio
+  rede.py                          IP na rede local, abrir navegador
+  seguranca.py                     chave de sessão (gerada uma vez por instalação)
+  formatacao.py                    datas em formato brasileiro
+
+templates/                      camada V — páginas (Jinja2)
 static/
   css/style.css                  tema, paleta, tipografia
   js/charts.js                   gráficos SVG (linha/barra/pirâmide/heatmap) sem dependências
