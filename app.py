@@ -31,6 +31,12 @@ app.permanent_session_lifetime = timedelta(days=90)
 
 PORT = 8000
 
+# Localidade padrão desta congregação — pré-preenche o formulário de um
+# registro novo pra não precisar escolher de novo toda semana.
+LOCAL_PADRAO = "Batistini"
+ESTADO_PADRAO = "São Paulo"
+CIDADE_PADRAO = "São Bernardo Do Campo"
+
 PAPEIS = {
     "cooperador": "Cooperador de Jovens",
     "contagem": "Irmãos da Contagem",
@@ -269,6 +275,22 @@ def visitas_conhecidas(conn):
     return sorted(nomes)
 
 
+def nomes_conhecidos(conn):
+    """Nomes de irmãos já usados em Presidência ou Presidido por — não existe
+    uma lista pública dos irmãos no ministério (isso fica atrás da Área
+    Restrita do site da CCB, que exige login administrativo), então a
+    sugestão aprende sozinha com o que já foi digitado certo antes, pra
+    reduzir erro de digitação nas próximas vezes."""
+    linhas = conn.execute("SELECT presidencia, presidido_por FROM registros").fetchall()
+    nomes = set()
+    for r in linhas:
+        if r["presidencia"] and r["presidencia"].strip():
+            nomes.add(r["presidencia"].strip())
+        if r["presidido_por"] and r["presidido_por"].strip():
+            nomes.add(r["presidido_por"].strip())
+    return sorted(nomes)
+
+
 def periodo_do_filtro():
     """Lê o filtro de período da querystring e devolve (inicio, fim, rotulo, chave)."""
     hoje = date.today()
@@ -369,7 +391,7 @@ def novo_registro():
                 "formulario.html", registro=dados, livros=db.LIVROS_DA_BIBLIA,
                 biblia_estrutura=db.BIBLIA_ESTRUTURA, localidades=localidades_conhecidas(conn),
                 estados_ccb=list(LOCALIDADES_CCB.keys()), localidades_ccb=LOCALIDADES_CCB,
-                visitas_conhecidas=visitas_conhecidas(conn), modo="novo",
+                visitas_conhecidas=visitas_conhecidas(conn), nomes_conhecidos=nomes_conhecidos(conn), modo="novo",
             )
         colunas = ", ".join(dados.keys())
         marcadores = ", ".join(["?"] * len(dados))
@@ -383,7 +405,7 @@ def novo_registro():
 
     vazio = {
         "data": date.today().isoformat(),
-        "presidencia": "", "local": "",
+        "presidencia": "", "local": LOCAL_PADRAO,
         "meninas_1": "", "meninas_2": "", "meninas_3": "", "meninas_4": "", "meninas_5": "",
         "meninos_1": "", "meninos_2": "", "meninos_3": "", "meninos_4": "", "meninos_5": "",
         "recitativos_individuais": "", "visitas": "",
@@ -393,7 +415,8 @@ def novo_registro():
         "formulario.html", registro=vazio, livros=db.LIVROS_DA_BIBLIA,
         biblia_estrutura=db.BIBLIA_ESTRUTURA, localidades=localidades_conhecidas(conn),
         estados_ccb=list(LOCALIDADES_CCB.keys()), localidades_ccb=LOCALIDADES_CCB,
-                visitas_conhecidas=visitas_conhecidas(conn), modo="novo",
+        estado_padrao=ESTADO_PADRAO, cidade_padrao=CIDADE_PADRAO,
+                visitas_conhecidas=visitas_conhecidas(conn), nomes_conhecidos=nomes_conhecidos(conn), modo="novo",
     )
 
 
@@ -416,7 +439,7 @@ def editar_registro(registro_id):
                 "formulario.html", registro=dados, livros=db.LIVROS_DA_BIBLIA,
                 biblia_estrutura=db.BIBLIA_ESTRUTURA, localidades=localidades_conhecidas(conn),
                 estados_ccb=list(LOCALIDADES_CCB.keys()), localidades_ccb=LOCALIDADES_CCB,
-                visitas_conhecidas=visitas_conhecidas(conn),
+                visitas_conhecidas=visitas_conhecidas(conn), nomes_conhecidos=nomes_conhecidos(conn),
                 modo="editar", registro_id=registro_id,
             )
         campos = ", ".join(f"{c} = ?" for c in dados.keys())
@@ -436,7 +459,7 @@ def editar_registro(registro_id):
         "formulario.html", registro=registro, livros=db.LIVROS_DA_BIBLIA,
         biblia_estrutura=db.BIBLIA_ESTRUTURA, localidades=localidades_conhecidas(conn),
         estados_ccb=list(LOCALIDADES_CCB.keys()), localidades_ccb=LOCALIDADES_CCB,
-                visitas_conhecidas=visitas_conhecidas(conn),
+                visitas_conhecidas=visitas_conhecidas(conn), nomes_conhecidos=nomes_conhecidos(conn),
         modo="editar", registro_id=registro_id,
     )
 
@@ -614,7 +637,7 @@ def dashboard():
         fim=fim if chave_periodo == "personalizado" else "",
         localidades=localidades_conhecidas(conn),
                 estados_ccb=list(LOCALIDADES_CCB.keys()), localidades_ccb=LOCALIDADES_CCB,
-                visitas_conhecidas=visitas_conhecidas(conn),
+                visitas_conhecidas=visitas_conhecidas(conn), nomes_conhecidos=nomes_conhecidos(conn),
         localidade_selecionada=localidade,
     )
 

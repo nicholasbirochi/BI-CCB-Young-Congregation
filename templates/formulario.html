@@ -29,13 +29,13 @@
       </div>
       <div class="field">
         <label for="presidencia">Presidência</label>
-        <input type="text" id="presidencia" name="presidencia" value="{{ registro['presidencia'] }}" placeholder="Nome de quem presidiu">
+        <input type="text" list="lista-nomes" id="presidencia" name="presidencia" value="{{ registro['presidencia'] }}" placeholder="Nome de quem presidiu" autocomplete="off">
       </div>
       <div class="field">
         <label for="estado">Estado</label>
         <select id="estado">
           <option value="">Selecione...</option>
-          {% for uf in estados_ccb %}<option value="{{ uf }}">{{ uf }}</option>{% endfor %}
+          {% for uf in estados_ccb %}<option value="{{ uf }}" {{ 'selected' if uf == estado_padrao }}>{{ uf }}</option>{% endfor %}
         </select>
       </div>
       <div class="field">
@@ -44,16 +44,12 @@
           <option value="">—</option>
         </select>
       </div>
-      <div class="field">
-        <label for="local">Local / Congregação</label>
-        <input list="lista-localidades" id="local" name="local" value="{{ registro['local'] }}" placeholder="Escolha a cidade ao lado ou digite" autocomplete="off">
+      <div class="field" style="position: relative;">
+        <label for="local">Local / Congregação <span class="hint">(digite pra buscar, precisa de internet)</span></label>
+        <input list="lista-localidades" id="local" name="local" value="{{ registro['local'] }}" placeholder="Nome da igreja/congregação" autocomplete="off">
         <datalist id="lista-localidades">
           {% for loc in localidades %}<option value="{{ loc }}">{% endfor %}
         </datalist>
-      </div>
-      <div class="field" style="grid-column: 1 / -1; position: relative;">
-        <label for="busca-localidade">Buscar unidade específica da CCB pelo nome <span class="hint">(precisa de internet)</span></label>
-        <input type="text" id="busca-localidade" placeholder="Ex.: Vila Esperança" autocomplete="off">
         <div id="resultados-localidade" class="resultados-localidade" hidden></div>
       </div>
     </div>
@@ -136,7 +132,10 @@
       </div>
       <div class="field">
         <label for="presidido_por">Presidido por</label>
-        <input type="text" id="presidido_por" name="presidido_por" value="{{ registro['presidido_por'] }}">
+        <input type="text" list="lista-nomes" id="presidido_por" name="presidido_por" value="{{ registro['presidido_por'] }}" autocomplete="off">
+        <datalist id="lista-nomes">
+          {% for nome in nomes_conhecidos %}<option value="{{ nome }}">{% endfor %}
+        </datalist>
       </div>
     </div>
   </div>
@@ -152,6 +151,7 @@
   window.BIBLIA_ESTRUTURA = {{ biblia_estrutura | tojson }};
   window.REGISTRO_ATUAL = { capitulo: {{ registro['capitulo']|tojson }}, versiculo: {{ registro['versiculo']|tojson }} };
   window.LOCALIDADES_CCB = {{ localidades_ccb | tojson }};
+  window.CIDADE_PADRAO = {{ cidade_padrao | default('') | tojson }};
 </script>
 <script src="{{ url_for('static', filename='js/form.js') }}" defer></script>
 {% endblock %}

@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const selCidade = document.getElementById("cidade");
   const campoLocal = document.getElementById("local");
 
-  function popularCidades(estado) {
+  function popularCidades(estado, valorPadrao) {
     const cidades = LOCALIDADES[estado] || [];
     selCidade.innerHTML = "";
     const optVazia = document.createElement("option");
@@ -97,6 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const opt = document.createElement("option");
       opt.value = cidade;
       opt.textContent = cidade;
+      if (valorPadrao && cidade === valorPadrao) opt.selected = true;
       selCidade.appendChild(opt);
     });
     selCidade.disabled = cidades.length === 0;
@@ -107,20 +108,24 @@ document.addEventListener("DOMContentLoaded", () => {
     selCidade.addEventListener("change", () => {
       if (!selCidade.value) return;
       campoLocal.value = `${selCidade.value} - ${selEstado.value}`;
-      // dispara o autosave de rascunho, que já escuta o campo Local
-      campoLocal.dispatchEvent(new Event("input", { bubbles: true }));
+      agendarSalvamento();
     });
+    // Estado inicial: se o servidor já marcou um estado padrão (registro novo),
+    // popula e pré-seleciona a cidade correspondente — sem mexer no que já
+    // estiver escrito no campo Local.
+    if (selEstado.value) {
+      popularCidades(selEstado.value, window.CIDADE_PADRAO || "");
+    }
   }
 
-  // --------------------------- busca ao vivo de unidades (nome específico) ---------------------------
-  const campoBusca = document.getElementById("busca-localidade");
+  // --------------------------- busca ao vivo de unidades (direto no campo Local) ---------------------------
   const listaResultados = document.getElementById("resultados-localidade");
   let temporizadorBusca = null;
 
-  if (campoBusca && listaResultados && campoLocal) {
-    campoBusca.addEventListener("input", () => {
+  if (listaResultados && campoLocal) {
+    campoLocal.addEventListener("input", () => {
       clearTimeout(temporizadorBusca);
-      const termo = campoBusca.value.trim();
+      const termo = campoLocal.value.trim();
       if (termo.length < 3) {
         listaResultados.hidden = true;
         return;
@@ -129,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.addEventListener("click", (e) => {
-      if (e.target !== campoBusca && !listaResultados.contains(e.target)) {
+      if (e.target !== campoLocal && !listaResultados.contains(e.target)) {
         listaResultados.hidden = true;
       }
     });
@@ -147,12 +152,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (resultados === null) {
       const aviso = document.createElement("div");
       aviso.className = "aviso";
-      aviso.textContent = "Não foi possível buscar agora (sem internet?). Digite o nome direto no campo Local.";
+      aviso.textContent = "Não foi possível buscar agora (sem internet?). Pode digitar o nome direto.";
       listaResultados.appendChild(aviso);
     } else if (resultados.length === 0) {
       const aviso = document.createElement("div");
       aviso.className = "aviso";
-      aviso.textContent = "Nada encontrado com esse nome.";
+      aviso.textContent = "Nada encontrado com esse nome — pode continuar digitando na mão.";
       listaResultados.appendChild(aviso);
     } else {
       resultados.forEach((item) => {
@@ -166,8 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.appendChild(local);
         btn.addEventListener("click", () => {
           campoLocal.value = `${item.nome} — ${item.cidade}`;
-          campoLocal.dispatchEvent(new Event("input", { bubbles: true }));
-          campoBusca.value = "";
+          agendarSalvamento();
           listaResultados.hidden = true;
         });
         listaResultados.appendChild(btn);
