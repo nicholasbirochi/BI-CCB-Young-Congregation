@@ -644,8 +644,10 @@ def dashboard():
         ultimos=ultimos,
         rotulo_periodo=rotulo_periodo,
         chave_periodo=chave_periodo,
-        inicio=inicio if chave_periodo == "personalizado" else "",
-        fim=fim if chave_periodo == "personalizado" else "",
+        # Pré-preenche os campos de data com o período em uso — só fica em
+        # branco no "Tudo", já que 0000-01-01/9999-12-31 não é uma data real.
+        inicio=inicio if chave_periodo != "tudo" else "",
+        fim=fim if chave_periodo != "tudo" else "",
         localidades=localidades_conhecidas(conn),
                 estados_ccb=list(LOCALIDADES_CCB.keys()), localidades_ccb=LOCALIDADES_CCB,
                 visitas_conhecidas=visitas_conhecidas(conn), nomes_conhecidos=nomes_conhecidos(conn),

@@ -43,11 +43,20 @@
     </select>
   </form>
   {% endif %}
+  <form class="custom-range" method="get">
+    <input type="hidden" name="periodo" value="personalizado">
+    <input type="hidden" name="localidade" value="{{ localidade_selecionada }}">
+    <input type="hidden" name="presidencia" value="{{ presidencia_selecionada }}">
+    <input type="date" name="inicio" value="{{ inicio }}" required>
+    <span class="muted">até</span>
+    <input type="date" name="fim" value="{{ fim }}" required>
+    <button type="submit" class="btn small {{ 'primary' if chave_periodo == 'personalizado' else '' }}">Aplicar</button>
+  </form>
 </div>
 
 <div class="kpi-row">
   <div class="stat-tile">
-    <div class="label">Reuniões totais</div>
+    <div class="label">Reuniões totais no período</div>
     <div class="value">{{ kpis.qtd_reunioes }}</div>
   </div>
   <div class="stat-tile">
@@ -63,7 +72,7 @@
     <div class="value">{{ kpis.soma_individuais }}</div>
   </div>
   <div class="stat-tile">
-    <div class="label">Visitas totais</div>
+    <div class="label">Visitas totais no período</div>
     <div class="value">{{ kpis.soma_visitas }}</div>
   </div>
 </div>
@@ -81,7 +90,7 @@
   </div>
 </div>
 
-<div class="chart-grid">
+<div class="chart-grid iguais">
   <div class="card">
     <h2>Livros mais lidos</h2>
     <p class="subtitle">Ranking da seção "Palavra" no período</p>
