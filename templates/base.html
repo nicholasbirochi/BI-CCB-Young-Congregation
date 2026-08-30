@@ -9,17 +9,13 @@
 <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
 </head>
 <body>
-{% from "_icons.html" import icon_sun, icon_moon, icon_lock %}
+{% from "_icons.html" import icon_lock %}
 <header class="topbar">
   <div class="topbar-logo-row">
     <a class="topbar-logo" href="{{ url_for('menu') }}">
       <img src="{{ url_for('static', filename='img/ccb-ribbon.png') }}" alt="CCB">
       <span>BI · Jovens e Menores</span>
     </a>
-    <button id="theme-toggle" class="theme-toggle" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">
-      <span class="icon-sun">{{ icon_sun() }}</span>
-      <span class="icon-moon">{{ icon_moon() }}</span>
-    </button>
   </div>
   {% if session.papel %}
   <div class="topbar-nav-row">

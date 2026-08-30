@@ -145,6 +145,5 @@
 
   montar();
   window.addEventListener("resize", () => { clearTimeout(window.__rt); window.__rt = setTimeout(montar, 150); });
-  document.getElementById("theme-toggle") && document.getElementById("theme-toggle").addEventListener("click", () => setTimeout(montar, 50));
 </script>
 {% endblock %}
