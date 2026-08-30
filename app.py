@@ -24,7 +24,7 @@ import requests
 from flask import Flask, flash, g, redirect, render_template, request, session, url_for
 
 import config_acesso
-import database as db
+from nucleo import database as db
 
 app = Flask(__name__)
 app.permanent_session_lifetime = timedelta(days=90)
@@ -291,6 +291,16 @@ def nomes_conhecidos(conn):
     return sorted(nomes)
 
 
+def presidencias_conhecidas(conn):
+    """Nomes já usados no campo Presidência (do culto) — alimenta o filtro
+    "Todos os irmãos na presidência" do Análises. Não mistura com Presidido
+    por (esse é quem preside a leitura da Palavra, um papel diferente)."""
+    linhas = conn.execute(
+        "SELECT DISTINCT presidencia FROM registros WHERE presidencia IS NOT NULL AND TRIM(presidencia) != '' ORDER BY presidencia"
+    ).fetchall()
+    return [r["presidencia"] for r in linhas]
+
+
 def periodo_do_filtro():
     """Lê o filtro de período da querystring e devolve (inicio, fim, rotulo, chave)."""
     hoje = date.today()
@@ -523,12 +533,13 @@ def dashboard():
     conn = get_db()
     inicio, fim, rotulo_periodo, chave_periodo = periodo_do_filtro()
     localidade = request.args.get("localidade", "").strip()
+    presidencia_filtro = request.args.get("presidencia", "").strip()
 
     linhas = conn.execute(
         """SELECT * FROM registros
-           WHERE data BETWEEN ? AND ? AND (? = '' OR local = ?)
+           WHERE data BETWEEN ? AND ? AND (? = '' OR local = ?) AND (? = '' OR presidencia = ?)
            ORDER BY data ASC, id ASC""",
-        (inicio, fim, localidade, localidade),
+        (inicio, fim, localidade, localidade, presidencia_filtro, presidencia_filtro),
     ).fetchall()
 
     # ---- KPIs -------------------------------------------------------
@@ -639,6 +650,8 @@ def dashboard():
                 estados_ccb=list(LOCALIDADES_CCB.keys()), localidades_ccb=LOCALIDADES_CCB,
                 visitas_conhecidas=visitas_conhecidas(conn), nomes_conhecidos=nomes_conhecidos(conn),
         localidade_selecionada=localidade,
+        presidencias=presidencias_conhecidas(conn),
+        presidencia_selecionada=presidencia_filtro,
     )
 
 

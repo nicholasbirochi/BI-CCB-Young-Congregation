@@ -254,6 +254,9 @@ a:hover { text-decoration: underline; color: var(--series-1-hover); }
   margin: 20px 0;
 }
 .stat-tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   background: var(--surface-1);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -265,14 +268,15 @@ a:hover { text-decoration: underline; color: var(--series-1-hover); }
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .02em;
+  line-height: 1.3;
+  min-height: 2.6em;
 }
 .stat-tile .value {
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 700;
-  margin-top: 6px;
+  margin-top: 10px;
   font-variant-numeric: tabular-nums;
 }
-.stat-tile .value.small { font-size: 22px; }
 
 /* ------------------------------------------------------------- filtros */
 .filter-row {
@@ -377,6 +381,18 @@ a:hover { text-decoration: underline; color: var(--series-1-hover); }
 .piramide-resumo-item .swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
 .piramide-resumo-item strong { font-size: 18px; color: var(--text-primary); }
 .piramide-resumo-item .muted { font-size: 12.5px; color: var(--text-muted); }
+
+.heatmap-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: 8px;
+}
+.heatmap-bloco {
+  border-radius: var(--radius-sm);
+  padding: 14px 14px 12px;
+}
+.heatmap-valor { font-size: 24px; font-weight: 700; line-height: 1.1; }
+.heatmap-rotulo { font-size: 12.5px; margin-top: 4px; opacity: .92; }
 
 .viz-tooltip {
   position: absolute;

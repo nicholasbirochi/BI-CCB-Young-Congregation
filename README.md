@@ -14,7 +14,7 @@ através de um link (e um QR code).
   posição, recitativos individuais, visitas e a seção "Palavra".
 - **Validação bíblica de verdade**: Livro, Capítulo e Versículo são selects
   em cascata que só permitem combinações que existem na Bíblia (dados de
-  versificação embutidos, veja `biblia_dados.py`).
+  versificação embutidos, veja `nucleo/biblia_dados.py`).
 - **Localidade oficial da CCB**: os campos Estado/Cidade vêm do diretório
   público da CCB (`static/dados/localidades_ccb.json`, baixado uma única vez
   do site oficial) — funciona 100% offline depois de instalado. Tem também
@@ -65,15 +65,22 @@ build step, sem framework de frontend), gráficos em SVG feitos à mão
 ## Estrutura
 
 ```
-app.py                    rotas Flask, login, validação
-database.py                acesso ao SQLite + validação bíblica
-biblia_dados.py            estrutura da Bíblia (capítulos/versículos)
-config_acesso.py           as duas senhas de acesso
-templates/                 páginas (Jinja2)
-static/css/style.css       tema (claro/escuro), paleta, tipografia
-static/js/charts.js        gráficos SVG (linha/barra) sem dependências
-static/js/form.js          cascatas do formulário + rascunho automático
-static/dados/localidades_ccb.json   estados/cidades (diretório oficial CCB)
+app.py                          rotas Flask, login, validação, integrações
+config_acesso.py                as duas senhas de acesso
+nucleo/
+  database.py                   acesso ao SQLite + validação bíblica
+  biblia_dados.py                estrutura da Bíblia (capítulos/versículos)
+templates/                      páginas (Jinja2)
+static/
+  css/style.css                  tema, paleta, tipografia
+  js/charts.js                   gráficos SVG (linha/barra/pirâmide/heatmap) sem dependências
+  js/form.js                     cascatas do formulário + rascunho automático
+  js/main.js                     utilidades pequenas (copiar link, confirmar exclusão)
+  img/                            logo e favicon oficiais da CCB
+  dados/localidades_ccb.json     estados/cidades (diretório oficial CCB)
+dados/                           banco SQLite + chave de sessão (não versionados)
+docs/                            capturas de tela do README
+Iniciar_Windows.bat / Iniciar_Mac.command   atalhos de "duplo clique"
 ```
 
 ## Licença
