@@ -92,21 +92,15 @@
 
 <div class="chart-grid iguais">
   <div class="card">
-    <h2>Livros mais lidos</h2>
-    <p class="subtitle">Ranking da seção "Palavra" no período</p>
-    <div id="chart-livros"></div>
+    <h2>Individuais x Visitas</h2>
+    <p class="subtitle">Evolução por data da reunião</p>
+    <div id="chart-individuais"></div>
   </div>
   <div class="card">
     <h2>Visitas mais recorrentes</h2>
     <p class="subtitle">Igrejas/congregações que mais visitaram no período</p>
     <div id="chart-visitas"></div>
   </div>
-</div>
-
-<div class="card" style="margin-top:16px;">
-  <h2>Individuais x Visitas</h2>
-  <p class="subtitle">Evolução por data da reunião</p>
-  <div id="chart-individuais"></div>
 </div>
 
 <div class="card table-scroll" style="margin-top:16px;">
@@ -158,10 +152,6 @@
     CCBCharts.renderLineChart(document.getElementById("chart-individuais"), {
       labels: dashboardData.individuais_visitas.labels,
       series: dashboardData.individuais_visitas.series.map((s, i) => ({ name: s.nome, color: cor(i), values: s.valores })),
-    });
-
-    CCBCharts.renderHeatmap(document.getElementById("chart-livros"), {
-      itens: dashboardData.livros.labels.map((rotulo, i) => ({ rotulo, valor: dashboardData.livros.valores[i] })),
     });
 
     CCBCharts.renderHeatmap(document.getElementById("chart-visitas"), {
