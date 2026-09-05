@@ -71,8 +71,14 @@
     return tip;
   }
 
-  function showTooltip(container, tip, x, y, rowsHtml) {
+  function showTooltip(container, tip, x, y, rowsHtml, titulo) {
     tip.innerHTML = "";
+    if (titulo) {
+      const t = document.createElement("div");
+      t.className = "titulo";
+      t.textContent = titulo;
+      tip.appendChild(t);
+    }
     rowsHtml.forEach((row) => {
       const line = document.createElement("div");
       if (row.color) {
@@ -391,10 +397,14 @@
       hit.addEventListener("pointerleave", () => { pathEsq.setAttribute("opacity", 1); pathDir.setAttribute("opacity", 1); hideTooltip(tip); });
       hit.addEventListener("pointermove", (e) => {
         const rect = chartEl.getBoundingClientRect();
+        // a categoria (ex.: "Meninos(as)") vira o título do tooltip, uma
+        // vez só — cada linha abaixo só precisa dizer o naipe, sem repetir
+        // a categoria (que por coincidência às vezes tem nome parecido,
+        // tipo a própria categoria "Meninos(as)").
         showTooltip(chartEl, tip, e.clientX - rect.left, e.clientY - rect.top - 14, [
-          { color: esquerda.cor, value: formatNum(valEsq), label: `${esquerda.nome} · ${lab}` },
-          { color: direita.cor, value: formatNum(valDir), label: `${direita.nome} · ${lab}` },
-        ]);
+          { color: esquerda.cor, value: formatNum(valEsq), label: esquerda.nome },
+          { color: direita.cor, value: formatNum(valDir), label: direita.nome },
+        ], lab);
       });
       svg.appendChild(hit);
     });
