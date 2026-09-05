@@ -285,6 +285,10 @@
     const pctEsq = totalGeral ? Math.round((1000 * totalEsq) / totalGeral) / 10 : 0;
     const pctDir = totalGeral ? Math.round((1000 * totalDir) / totalGeral) / 10 : 0;
 
+    // O nome de cada lado (Meninas/Meninos) já entra aqui, junto com a
+    // bolinha de cor — por isso não repetimos a mesma bolinha numa legenda
+    // separada embaixo do gráfico (era redundante: duas bolinhas para o
+    // mesmo par de séries).
     const resumo = document.createElement("div");
     resumo.className = "piramide-resumo";
     [[esquerda, pctEsq, totalEsq], [direita, pctDir, totalDir]].forEach(([serie, pct, total]) => {
@@ -294,13 +298,21 @@
       swatch.className = "swatch";
       swatch.style.background = serie.cor;
       const texto = document.createElement("span");
+      texto.className = "piramide-resumo-texto";
+      const nome = document.createElement("span");
+      nome.className = "nome";
+      nome.textContent = serie.nome;
+      const valores = document.createElement("span");
+      valores.className = "valores";
       const valor = document.createElement("strong");
       valor.textContent = `${pct}%`;
-      texto.appendChild(valor);
-      const nome = document.createElement("span");
-      nome.className = "muted";
-      nome.textContent = ` (${formatNum(total)})`;
+      valores.appendChild(valor);
+      const totalEl = document.createElement("span");
+      totalEl.className = "muted";
+      totalEl.textContent = ` (${formatNum(total)})`;
+      valores.appendChild(totalEl);
       texto.appendChild(nome);
+      texto.appendChild(valores);
       item.appendChild(swatch);
       item.appendChild(texto);
       resumo.appendChild(item);
@@ -370,22 +382,6 @@
     });
 
     chartEl.appendChild(svg);
-
-    const legend = document.createElement("div");
-    legend.className = "legend";
-    [esquerda, direita].forEach((serie) => {
-      const item = document.createElement("span");
-      item.className = "item";
-      const swatch = document.createElement("span");
-      swatch.className = "swatch";
-      swatch.style.background = serie.cor;
-      const label = document.createElement("span");
-      label.textContent = serie.nome;
-      item.appendChild(swatch);
-      item.appendChild(label);
-      legend.appendChild(item);
-    });
-    container.appendChild(legend);
   }
 
   // ------------------------------------------------------------------- bar
