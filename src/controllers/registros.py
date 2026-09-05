@@ -58,13 +58,17 @@ def _dados_do_formulario():
 def _contexto_formulario(conn, **extra):
     """Dados que toda renderização do formulário precisa (localidades, listas
     de sugestão, estrutura da Bíblia) — pra não repetir em três rotas."""
+    # Visitas também é alimentado pela base de localidades (as mesmas
+    # congregações já usadas no campo Local podem muito bem aparecer como
+    # visitantes um dia) — não só pelo próprio histórico de visitas.
+    localidades = localidades_conhecidas(conn)
     contexto = {
         "livros": biblia.LIVROS_DA_BIBLIA,
         "biblia_estrutura": biblia.BIBLIA_ESTRUTURA,
-        "localidades": localidades_conhecidas(conn),
+        "localidades": localidades,
         "estados_ccb": list(LOCALIDADES_CCB.keys()),
         "localidades_ccb": LOCALIDADES_CCB,
-        "visitas_conhecidas": visitas_conhecidas(conn),
+        "visitas_conhecidas": sorted(set(visitas_conhecidas(conn)) | set(localidades)),
         "nomes_conhecidos": nomes_conhecidos(conn),
     }
     contexto.update(extra)
