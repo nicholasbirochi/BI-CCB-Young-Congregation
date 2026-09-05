@@ -414,8 +414,13 @@ a:hover { text-decoration: underline; color: var(--series-1-hover); }
    com a cor das barras dela embaixo, não só coladas uma na outra à esquerda. */
 .piramide-resumo-item { display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: 1 1 0; }
 .piramide-resumo-item .swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
-.piramide-resumo-item strong { font-size: 18px; color: var(--text-primary); }
-.piramide-resumo-item .muted { font-size: 12.5px; color: var(--text-muted); }
+/* nome (Meninas/Meninos) + valor empilhados — a bolinha de cor já identifica
+   o lado, então o nome só precisa aparecer aqui (sem repetir numa legenda
+   à parte embaixo do gráfico). */
+.piramide-resumo-texto { display: flex; flex-direction: column; gap: 1px; }
+.piramide-resumo-texto .nome { font-size: 12.5px; color: var(--text-secondary); }
+.piramide-resumo-texto .valores strong { font-size: 18px; color: var(--text-primary); }
+.piramide-resumo-texto .valores .muted { font-size: 12.5px; color: var(--text-muted); }
 
 .heatmap-grade {
   display: grid;
