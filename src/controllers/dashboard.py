@@ -103,14 +103,6 @@ def dashboard():
     serie_individuais = [por_data_extra[d]["individuais"] for d in datas_ordenadas]
     serie_visitas = [por_data_extra[d]["visitas"] for d in datas_ordenadas]
 
-    # ---- Livros mais lidos --------------------------------------------
-    contagem_livros = {}
-    for r in linhas:
-        livro = (r["livro"] or "").strip()
-        if livro:
-            contagem_livros[livro] = contagem_livros.get(livro, 0) + 1
-    ranking_livros = sorted(contagem_livros.items(), key=lambda x: x[1], reverse=True)[:8]
-
     # ---- Igrejas que mais visitaram ------------------------------------
     contagem_visitas = {}
     for r in linhas:
@@ -146,10 +138,6 @@ def dashboard():
                 {"nome": "Recitativos individuais", "valores": serie_individuais},
                 {"nome": "Visitas", "valores": serie_visitas},
             ],
-        },
-        "livros": {
-            "labels": [item[0] for item in ranking_livros],
-            "valores": [item[1] for item in ranking_livros],
         },
         "visitas_recorrentes": {
             "labels": [item[0] for item in ranking_visitas],

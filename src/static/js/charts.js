@@ -150,6 +150,23 @@
     ].join(" ");
   }
 
+  // Comandos SVG (sem o "M" inicial) que ligam pts com uma curva suave —
+  // Bézier quadrática usando cada ponto real como controle e o ponto médio
+  // até o próximo como destino. Sem isso, cada virada de subida/descida do
+  // gráfico de linha vira uma "ponta" (quina) em vez de uma curva.
+  function comandosSuaves(pts) {
+    if (pts.length < 2) return "";
+    if (pts.length === 2) return `L ${pts[1][0]} ${pts[1][1]}`;
+    let d = "";
+    for (let i = 1; i < pts.length - 1; i++) {
+      const mx = (pts[i][0] + pts[i + 1][0]) / 2;
+      const my = (pts[i][1] + pts[i + 1][1]) / 2;
+      d += `Q ${pts[i][0]} ${pts[i][1]} ${mx} ${my} `;
+    }
+    const last = pts[pts.length - 1];
+    return d + `L ${last[0]} ${last[1]}`;
+  }
+
   function leftRoundedPath(x, y, w, h, r) {
     r = Math.min(r, h / 2, Math.max(w, 1));
     if (w <= 0) return `M ${x} ${y} L ${x} ${y + h} Z`;
@@ -220,9 +237,10 @@
     // área pintada sob cada série (a "base") + a linha por cima
     series.forEach((s) => {
       const pts = s.values.map((v, i) => [xFor(i), yFor(v)]);
-      const areaPath = ["M", pts[0][0], padT + plotH, ...pts.flatMap((p) => ["L", p[0], p[1]]), "L", pts[pts.length - 1][0], padT + plotH, "Z"].join(" ");
+      const curva = comandosSuaves(pts);
+      const areaPath = `M ${pts[0][0]} ${padT + plotH} L ${pts[0][0]} ${pts[0][1]} ${curva} L ${pts[pts.length - 1][0]} ${padT + plotH} Z`;
       svg.appendChild(el("path", { d: areaPath, fill: s.color, opacity: 0.1 }));
-      const linePath = pts.map((p, i) => (i === 0 ? "M" : "L") + p[0] + " " + p[1]).join(" ");
+      const linePath = `M ${pts[0][0]} ${pts[0][1]} ${curva}`;
       svg.appendChild(el("path", { d: linePath, fill: "none", stroke: s.color, "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round" }));
       const last = pts[pts.length - 1];
       svg.appendChild(el("circle", { cx: last[0], cy: last[1], r: 5, fill: s.color, stroke: cssVar("--surface-1"), "stroke-width": 2 }));
