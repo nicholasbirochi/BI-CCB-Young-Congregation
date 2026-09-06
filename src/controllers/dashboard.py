@@ -9,7 +9,8 @@ from controllers.auth import login_obrigatorio, somente_cooperador
 from models.database import (
     COLUNAS_MENINAS,
     COLUNAS_MENINOS,
-    RECITATIVOS_LABELS_CURTOS,
+    RECITATIVOS_LABELS_MENINAS,
+    RECITATIVOS_LABELS_MENINOS,
     get_db,
     lista_visitas,
     total_geral,
@@ -126,10 +127,9 @@ def dashboard():
     dashboard_data = {
         "tendencia": {"labels": serie_labels, "valores": serie_total},
         "categorias": {
-            "labels": RECITATIVOS_LABELS_CURTOS,
             "series": [
-                {"nome": "Meninas", "valores": soma_meninas_pos},
-                {"nome": "Meninos", "valores": soma_meninos_pos},
+                {"nome": "Meninas", "valores": soma_meninas_pos, "labels": RECITATIVOS_LABELS_MENINAS},
+                {"nome": "Meninos", "valores": soma_meninos_pos, "labels": RECITATIVOS_LABELS_MENINOS},
             ],
         },
         "individuais_visitas": {

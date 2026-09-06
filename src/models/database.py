@@ -30,7 +30,11 @@ RECITATIVOS_LABELS = [
     "4º (moças/moços)",
     "5º (auxiliares)",
 ]
-RECITATIVOS_LABELS_CURTOS = ["Crianças", "Meninos(as)", "Mocinhos(as)", "Moços(as)", "Auxiliares"]
+# Mesmas 5 posições, mas com o termo certo de cada naipe (usadas no
+# gráfico Meninas x Meninos — nas posições 1 e 5 o termo é o mesmo dos
+# dois lados; nas 2, 3 e 4 cada lado tem o seu).
+RECITATIVOS_LABELS_MENINAS = ["Crianças", "Meninas", "Mocinhas", "Moças", "Auxiliares"]
+RECITATIVOS_LABELS_MENINOS = ["Crianças", "Meninos", "Mocinhos", "Moços", "Auxiliares"]
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS registros (

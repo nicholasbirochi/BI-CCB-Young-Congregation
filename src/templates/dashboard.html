@@ -144,9 +144,8 @@
     });
 
     CCBCharts.renderPyramidChart(document.getElementById("chart-categorias"), {
-      labels: dashboardData.categorias.labels,
-      esquerda: { nome: dashboardData.categorias.series[0].nome, cor: cor(0), valores: dashboardData.categorias.series[0].valores },
-      direita: { nome: dashboardData.categorias.series[1].nome, cor: cor(1), valores: dashboardData.categorias.series[1].valores },
+      esquerda: { nome: dashboardData.categorias.series[0].nome, cor: cor(0), valores: dashboardData.categorias.series[0].valores, labels: dashboardData.categorias.series[0].labels },
+      direita: { nome: dashboardData.categorias.series[1].nome, cor: cor(1), valores: dashboardData.categorias.series[1].valores, labels: dashboardData.categorias.series[1].labels },
     });
 
     CCBCharts.renderLineChart(document.getElementById("chart-individuais"), {

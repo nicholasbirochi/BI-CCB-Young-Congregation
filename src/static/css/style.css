@@ -469,13 +469,6 @@ a:hover { text-decoration: underline; color: var(--series-1-hover); }
 }
 .viz-tooltip.visivel { opacity: 1; }
 .viz-tooltip .muted { color: var(--text-muted); font-weight: 500; margin-left: 4px;}
-.viz-tooltip .titulo {
-  color: var(--text-muted);
-  font-weight: 500;
-  margin-bottom: 3px;
-  padding-bottom: 3px;
-  border-bottom: 1px solid rgba(255,255,255,0.18);
-}
 
 .empty-state {
   text-align: center;
