@@ -71,14 +71,8 @@
     return tip;
   }
 
-  function showTooltip(container, tip, x, y, rowsHtml, titulo) {
+  function showTooltip(container, tip, x, y, rowsHtml) {
     tip.innerHTML = "";
-    if (titulo) {
-      const t = document.createElement("div");
-      t.className = "titulo";
-      t.textContent = titulo;
-      tip.appendChild(t);
-    }
     rowsHtml.forEach((row) => {
       const line = document.createElement("div");
       if (row.color) {
@@ -292,11 +286,13 @@
   // honesta — e o percentual de cada lado exibido acima do gráfico.
   function renderPyramidChart(container, opts) {
     container.innerHTML = "";
-    const labels = opts.labels || [];
-    const esquerda = opts.esquerda || { nome: "", cor: "", valores: [] };
-    const direita = opts.direita || { nome: "", cor: "", valores: [] };
+    const esquerda = opts.esquerda || { nome: "", cor: "", valores: [], labels: [] };
+    const direita = opts.direita || { nome: "", cor: "", valores: [], labels: [] };
+    // cada lado tem seu próprio termo por posição (ex.: "Mocinhas" x
+    // "Mocinhos") — só coincidem nas pontas (Crianças / Auxiliares).
+    const qtdLinhas = Math.max(esquerda.valores.length, direita.valores.length);
 
-    const hasData = labels.length && (esquerda.valores.some((v) => v) || direita.valores.some((v) => v));
+    const hasData = qtdLinhas && (esquerda.valores.some((v) => v) || direita.valores.some((v) => v));
     if (!hasData) {
       container.innerHTML = '<div class="empty-state">Sem dados no período selecionado.</div>';
       return;
@@ -348,7 +344,7 @@
 
     const width = Math.max(container.clientWidth || 560, 280);
     const rowH = 40;
-    const height = labels.length * rowH + 20;
+    const height = qtdLinhas * rowH + 20;
     const padT = 10, padB = 10;
     // sem rótulo no meio — só um respiro entre os dois lados (a legenda e o
     // subtítulo do cartão já dizem qual é cada posição).
@@ -367,7 +363,7 @@
     const svg = el("svg", { viewBox: `0 0 ${width} ${height}`, width: "100%", height, role: "img" });
     const tip = ensureTooltip(chartEl);
 
-    labels.forEach((lab, i) => {
+    Array.from({ length: qtdLinhas }).forEach((_, i) => {
       const y = padT + i * rowH;
       const barH = Math.min(24, rowH - 14);
       const barY = y + (rowH - barH) / 2;
@@ -397,14 +393,13 @@
       hit.addEventListener("pointerleave", () => { pathEsq.setAttribute("opacity", 1); pathDir.setAttribute("opacity", 1); hideTooltip(tip); });
       hit.addEventListener("pointermove", (e) => {
         const rect = chartEl.getBoundingClientRect();
-        // a categoria (ex.: "Meninos(as)") vira o título do tooltip, uma
-        // vez só — cada linha abaixo só precisa dizer o naipe, sem repetir
-        // a categoria (que por coincidência às vezes tem nome parecido,
-        // tipo a própria categoria "Meninos(as)").
+        // cada lado usa o termo certo daquela posição (ex.: "Mocinhas" à
+        // esquerda, "Mocinhos" à direita) — não o nome genérico do naipe
+        // (Meninas/Meninos), que nem sempre é o termo usado ali.
         showTooltip(chartEl, tip, e.clientX - rect.left, e.clientY - rect.top - 14, [
-          { color: esquerda.cor, value: formatNum(valEsq), label: esquerda.nome },
-          { color: direita.cor, value: formatNum(valDir), label: direita.nome },
-        ], lab);
+          { color: esquerda.cor, value: formatNum(valEsq), label: esquerda.labels[i] },
+          { color: direita.cor, value: formatNum(valDir), label: direita.labels[i] },
+        ]);
       });
       svg.appendChild(hit);
     });
