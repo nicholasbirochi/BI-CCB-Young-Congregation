@@ -15,6 +15,7 @@ from models.database import (
     total_meninas,
     total_meninos,
 )
+from models.paises import PAISES_POR_CONTINENTE
 from services.localidades_ccb import LOCALIDADES_CCB
 from services.sugestoes import localidades_conhecidas, nomes_conhecidos, visitas_conhecidas
 
@@ -35,17 +36,20 @@ def _dados_do_formulario():
     return {
         "data": request.form.get("data", "").strip(),
         "presidencia": request.form.get("presidencia", "").strip(),
+        "pais": request.form.get("pais", "").strip() or config.PAIS_PADRAO,
         "local": request.form.get("local", "").strip(),
         "meninas_1": _campo_int("meninas_1"),
         "meninas_2": _campo_int("meninas_2"),
         "meninas_3": _campo_int("meninas_3"),
         "meninas_4": _campo_int("meninas_4"),
         "meninas_5": _campo_int("meninas_5"),
+        "meninas_6": _campo_int("meninas_6"),
         "meninos_1": _campo_int("meninos_1"),
         "meninos_2": _campo_int("meninos_2"),
         "meninos_3": _campo_int("meninos_3"),
         "meninos_4": _campo_int("meninos_4"),
         "meninos_5": _campo_int("meninos_5"),
+        "meninos_6": _campo_int("meninos_6"),
         "recitativos_individuais": _campo_int("recitativos_individuais"),
         "visitas": texto_visitas(request.form.get("visitas", "").split(";")),
         "livro": request.form.get("livro", "").strip(),
@@ -70,6 +74,7 @@ def _contexto_formulario(conn, **extra):
         "localidades_ccb": LOCALIDADES_CCB,
         "visitas_conhecidas": sorted(set(visitas_conhecidas(conn)) | set(localidades)),
         "nomes_conhecidos": nomes_conhecidos(conn),
+        "paises_por_continente": PAISES_POR_CONTINENTE,
     }
     contexto.update(extra)
     return contexto
@@ -106,9 +111,9 @@ def novo_registro():
 
     vazio = {
         "data": date.today().isoformat(),
-        "presidencia": "", "local": config.LOCAL_PADRAO,
-        "meninas_1": "", "meninas_2": "", "meninas_3": "", "meninas_4": "", "meninas_5": "",
-        "meninos_1": "", "meninos_2": "", "meninos_3": "", "meninos_4": "", "meninos_5": "",
+        "presidencia": "", "pais": config.PAIS_PADRAO, "local": config.LOCAL_PADRAO,
+        "meninas_1": "", "meninas_2": "", "meninas_3": "", "meninas_4": "", "meninas_5": "", "meninas_6": "",
+        "meninos_1": "", "meninos_2": "", "meninos_3": "", "meninos_4": "", "meninos_5": "", "meninos_6": "",
         "recitativos_individuais": "", "visitas": "",
         "livro": "", "capitulo": "", "versiculo": "", "presidido_por": "",
     }

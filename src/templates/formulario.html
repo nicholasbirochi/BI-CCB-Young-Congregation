@@ -26,6 +26,22 @@
         <label for="data">Data *</label>
         <input type="date" id="data" name="data" value="{{ registro['data'] }}" required>
       </div>
+      <div class="field">
+        <label for="presidencia">Presidência</label>
+        <input type="text" list="lista-nomes" id="presidencia" name="presidencia" value="{{ registro['presidencia'] }}" placeholder="Nome de quem presidiu" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="pais">País</label>
+        <select id="pais" name="pais">
+          {% for continente, lista in paises_por_continente.items() %}
+          <optgroup label="{{ continente }}">
+            {% for p in lista %}
+            <option value="{{ p }}" {{ 'selected' if registro['pais'] == p else '' }}>{{ p }}</option>
+            {% endfor %}
+          </optgroup>
+          {% endfor %}
+        </select>
+      </div>
       <div class="field" style="position: relative;">
         <label for="local">Local / Congregação</label>
         <input list="lista-localidades" id="local" name="local" value="{{ registro['local'] }}" placeholder="Nome da igreja/congregação" autocomplete="off">
@@ -47,10 +63,6 @@
           <option value="">—</option>
         </select>
       </div>
-      <div class="field">
-        <label for="presidencia">Presidência</label>
-        <input type="text" list="lista-nomes" id="presidencia" name="presidencia" value="{{ registro['presidencia'] }}" placeholder="Nome de quem presidiu" autocomplete="off">
-      </div>
     </div>
   </div>
 
@@ -58,21 +70,23 @@
     <h2>Recitativos</h2>
     <div class="recitativos-table">
       <div class="recitativos-col">
-        <h3>Meninas</h3>
+        <h3>Irmãs</h3>
         <div class="recitativos-linha"><label for="meninas_1">1º (crianças)</label><input type="number" min="0" id="meninas_1" name="meninas_1" value="{{ registro['meninas_1'] }}"></div>
         <div class="recitativos-linha"><label for="meninas_2">2º (meninas)</label><input type="number" min="0" id="meninas_2" name="meninas_2" value="{{ registro['meninas_2'] }}"></div>
         <div class="recitativos-linha"><label for="meninas_3">3º (mocinhas)</label><input type="number" min="0" id="meninas_3" name="meninas_3" value="{{ registro['meninas_3'] }}"></div>
         <div class="recitativos-linha"><label for="meninas_4">4º (moças)</label><input type="number" min="0" id="meninas_4" name="meninas_4" value="{{ registro['meninas_4'] }}"></div>
-        <div class="recitativos-linha"><label for="meninas_5">5º (auxiliares)</label><input type="number" min="0" id="meninas_5" name="meninas_5" value="{{ registro['meninas_5'] }}"></div>
+        <div class="recitativos-linha"><label for="meninas_5">Continuação</label><input type="number" min="0" id="meninas_5" name="meninas_5" value="{{ registro['meninas_5'] }}"></div>
+        <div class="recitativos-linha"><label for="meninas_6">Particular</label><input type="number" min="0" id="meninas_6" name="meninas_6" value="{{ registro['meninas_6'] }}"></div>
         <div class="recitativos-total"><span>Total</span><span id="total-meninas">0</span></div>
       </div>
       <div class="recitativos-col">
-        <h3>Meninos</h3>
+        <h3>Irmãos</h3>
         <div class="recitativos-linha"><label for="meninos_1">1º (crianças)</label><input type="number" min="0" id="meninos_1" name="meninos_1" value="{{ registro['meninos_1'] }}"></div>
         <div class="recitativos-linha"><label for="meninos_2">2º (meninos)</label><input type="number" min="0" id="meninos_2" name="meninos_2" value="{{ registro['meninos_2'] }}"></div>
         <div class="recitativos-linha"><label for="meninos_3">3º (mocinhos)</label><input type="number" min="0" id="meninos_3" name="meninos_3" value="{{ registro['meninos_3'] }}"></div>
         <div class="recitativos-linha"><label for="meninos_4">4º (moços)</label><input type="number" min="0" id="meninos_4" name="meninos_4" value="{{ registro['meninos_4'] }}"></div>
-        <div class="recitativos-linha"><label for="meninos_5">5º (auxiliares)</label><input type="number" min="0" id="meninos_5" name="meninos_5" value="{{ registro['meninos_5'] }}"></div>
+        <div class="recitativos-linha"><label for="meninos_5">Continuação</label><input type="number" min="0" id="meninos_5" name="meninos_5" value="{{ registro['meninos_5'] }}"></div>
+        <div class="recitativos-linha"><label for="meninos_6">Particular</label><input type="number" min="0" id="meninos_6" name="meninos_6" value="{{ registro['meninos_6'] }}"></div>
         <div class="recitativos-total"><span>Total</span><span id="total-meninos">0</span></div>
       </div>
     </div>

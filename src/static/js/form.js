@@ -9,8 +9,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const campo = (nome) => form.querySelector(`[name="${nome}"]`);
 
   // ------------------------------------------------------ totais dos recitativos
-  const camposMeninas = ["meninas_1", "meninas_2", "meninas_3", "meninas_4", "meninas_5"];
-  const camposMeninos = ["meninos_1", "meninos_2", "meninos_3", "meninos_4", "meninos_5"];
+  const camposMeninas = ["meninas_1", "meninas_2", "meninas_3", "meninas_4", "meninas_5", "meninas_6"];
+  const camposMeninos = ["meninos_1", "meninos_2", "meninos_3", "meninos_4", "meninos_5", "meninos_6"];
 
   function soma(nomes) {
     return nomes.reduce((acc, nome) => {

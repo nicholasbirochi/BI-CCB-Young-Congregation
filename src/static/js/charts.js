@@ -71,8 +71,14 @@
     return tip;
   }
 
-  function showTooltip(container, tip, x, y, rowsHtml) {
+  function showTooltip(container, tip, x, y, rowsHtml, titulo) {
     tip.innerHTML = "";
+    if (titulo) {
+      const cabecalho = document.createElement("div");
+      cabecalho.className = "titulo";
+      cabecalho.textContent = titulo;
+      tip.appendChild(cabecalho);
+    }
     rowsHtml.forEach((row) => {
       const line = document.createElement("div");
       if (row.color) {
@@ -185,6 +191,10 @@
   function renderLineChart(container, opts) {
     container.innerHTML = "";
     const labels = opts.labels || [];
+    // data completa (dd/mm/aaaa) pro título do tooltip — o rótulo do eixo
+    // fica só dd/mm pra não ocupar espaço, mas sozinho é ambíguo quando o
+    // período cobre mais de um ano.
+    const datasCompletas = opts.datasCompletas || labels;
     const series = opts.series || [];
     const height = opts.height || 230;
 
@@ -261,7 +271,7 @@
       crosshair.setAttribute("x2", x);
       crosshair.setAttribute("opacity", 1);
       const rows = series.map((s) => ({ color: s.color, value: formatNum(s.values[i]), label: s.name }));
-      showTooltip(container, tip, x, yFor(Math.max(...series.map((s) => s.values[i]))) - 10, rows);
+      showTooltip(container, tip, x, yFor(Math.max(...series.map((s) => s.values[i]))) - 10, rows, datasCompletas[i]);
     }
 
     hitLayer.addEventListener("pointermove", (e) => {

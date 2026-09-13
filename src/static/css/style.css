@@ -346,6 +346,16 @@ a:hover { text-decoration: underline; color: var(--series-1-hover); }
   .filter-row form.custom-range,
   .filter-row select { flex: 1 1 100%; }
   .filter-row input[type="date"] { max-width: none; flex: 1 1 120px; }
+  /* <select> às vezes ignora o encolhimento do flexbox e usa a largura da
+     opção mais comprida (ex.: um nome de localidade grande) mesmo com
+     min-width:0 — "width: 100%" força o tamanho certo independente disso,
+     cortando com reticências se ainda sobrar texto longo. */
+  .filter-row select {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 @media (max-width: 360px) {
   /* nessa largura os dois campos de data lado a lado ficam espremidos
@@ -469,12 +479,71 @@ a:hover { text-decoration: underline; color: var(--series-1-hover); }
 }
 .viz-tooltip.visivel { opacity: 1; }
 .viz-tooltip .muted { color: var(--text-muted); font-weight: 500; margin-left: 4px;}
+.viz-tooltip .titulo {
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 3px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid rgba(255,255,255,0.18);
+  white-space: nowrap;
+}
 
 .empty-state {
   text-align: center;
   padding: 40px 20px;
   color: var(--text-muted);
   font-size: 14px;
+}
+
+/* ----------------------------------------------------- importacao fotos */
+.import-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.import-layout {
+  display: grid;
+  grid-template-columns: minmax(360px, 0.95fr) minmax(420px, 1.05fr);
+  gap: 16px;
+  align-items: start;
+  margin-top: 16px;
+}
+
+.import-photo-card {
+  position: sticky;
+  top: 16px;
+}
+
+.import-photo {
+  display: block;
+  width: 100%;
+  max-height: 78vh;
+  object-fit: contain;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #111;
+}
+
+.import-form .field-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.import-rec-table {
+  margin: 14px 0;
+}
+
+@media (max-width: 980px) {
+  .import-layout {
+    grid-template-columns: 1fr;
+  }
+  .import-photo-card {
+    position: static;
+  }
+  .import-form .field-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ------------------------------------------------------------- tabela */
