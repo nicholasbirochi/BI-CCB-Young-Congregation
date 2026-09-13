@@ -39,10 +39,10 @@
         <td>{{ r.data | data_br }}</td>
         <td>{{ r.presidencia or "—" }}</td>
         <td>{{ r.local or "—" }}</td>
-        <td class="num"><strong>{{ r.total_geral }}</strong></td>
-        <td class="num">{{ r.total_meninas }}</td>
-        <td class="num">{{ r.total_meninos }}</td>
-        <td class="num">{{ r.recitativos_individuais }}</td>
+        <td class="num"><strong>{{ r.total_geral | numero_br }}</strong></td>
+        <td class="num">{{ r.total_meninas | numero_br }}</td>
+        <td class="num">{{ r.total_meninos | numero_br }}</td>
+        <td class="num">{{ r.recitativos_individuais | numero_br }}</td>
         <td>{{ r.visitas | join(", ") or "—" }}</td>
         <td>{% if r.livro %}{{ r.livro }} {{ r.capitulo }}{% if r.versiculo %}:{{ r.versiculo }}{% endif %}{% else %}—{% endif %}</td>
         <td>

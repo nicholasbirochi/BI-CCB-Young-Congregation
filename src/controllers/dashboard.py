@@ -7,8 +7,8 @@ from flask import Blueprint, render_template, request
 
 from controllers.auth import login_obrigatorio, somente_cooperador
 from models.database import (
-    COLUNAS_MENINAS,
-    COLUNAS_MENINOS,
+    COLUNAS_GRAFICO_MENINAS,
+    COLUNAS_GRAFICO_MENINOS,
     RECITATIVOS_LABELS_MENINAS,
     RECITATIVOS_LABELS_MENINOS,
     get_db,
@@ -91,12 +91,16 @@ def dashboard():
     serie_total = [por_data[d]["meninas"] + por_data[d]["meninos"] for d in datas_ordenadas]
 
     # ---- Irmãs x Irmãos por posição do recitativo --------------------
-    soma_meninas_pos = [0] * len(COLUNAS_MENINAS)
-    soma_meninos_pos = [0] * len(COLUNAS_MENINOS)
+    # Usa só as 3 posições do formulário ATUAL (crianças, meninas/meninos,
+    # moças/moços) — registros de 2022/2023 têm mais 3 colunas (mocinhas,
+    # continuação, particular) do formulário antigo, que ficam de fora
+    # deste gráfico específico para não misturar os dois modelos.
+    soma_meninas_pos = [0] * len(COLUNAS_GRAFICO_MENINAS)
+    soma_meninos_pos = [0] * len(COLUNAS_GRAFICO_MENINOS)
     for r in linhas:
-        for i, c in enumerate(COLUNAS_MENINAS):
+        for i, c in enumerate(COLUNAS_GRAFICO_MENINAS):
             soma_meninas_pos[i] += r[c] or 0
-        for i, c in enumerate(COLUNAS_MENINOS):
+        for i, c in enumerate(COLUNAS_GRAFICO_MENINOS):
             soma_meninos_pos[i] += r[c] or 0
 
     # ---- Individuais x Visitas ao longo do tempo ---------------------

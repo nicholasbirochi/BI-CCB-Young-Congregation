@@ -54,14 +54,21 @@
         <label for="estado">Estado <span class="hint">(vem da localidade)</span></label>
         <select id="estado" disabled>
           <option value="">—</option>
-          {% for uf in estados_ccb %}<option value="{{ uf }}" {{ 'selected' if uf == estado_padrao }}>{{ uf }}</option>{% endfor %}
+          {% for uf in estados_ccb %}<option value="{{ uf }}" {{ 'selected' if uf == registro['estado'] else '' }}>{{ uf }}</option>{% endfor %}
         </select>
+        <!-- O select acima fica "disabled" de propósito (não dá pra digitar um
+             estado que não bate com o Local) — por isso não é ele quem viaja
+             no POST; quem carrega o valor de verdade pro servidor é este
+             campo oculto, mantido em dia pelo form.js sempre que o estado é
+             (re)derivado. -->
+        <input type="hidden" id="estado-oculto" name="estado" value="{{ registro['estado'] }}">
       </div>
       <div class="field">
         <label for="cidade">Cidade</label>
         <select id="cidade" disabled>
           <option value="">—</option>
         </select>
+        <input type="hidden" id="cidade-oculto" name="cidade" value="{{ registro['cidade'] }}">
       </div>
     </div>
   </div>
@@ -161,9 +168,18 @@
 
 <script>
   window.BIBLIA_ESTRUTURA = {{ biblia_estrutura | tojson }};
-  window.REGISTRO_ATUAL = { capitulo: {{ registro['capitulo']|tojson }}, versiculo: {{ registro['versiculo']|tojson }} };
+  window.REGISTRO_ATUAL = {
+    capitulo: {{ registro['capitulo']|tojson }}, versiculo: {{ registro['versiculo']|tojson }},
+    estado: {{ registro['estado']|default('', true)|tojson }}, cidade: {{ registro['cidade']|default('', true)|tojson }},
+  };
   window.LOCALIDADES_CCB = {{ localidades_ccb | tojson }};
-  window.CIDADE_PADRAO = {{ cidade_padrao | default('') | tojson }};
+  // Usados só como último recurso pelo form.js, quando o texto do Local não
+  // bate com nenhuma cidade da base oficial (ex.: "Batistini" é um bairro,
+  // não uma cidade) — cai no Estado/Cidade padrão desta congregação em vez
+  // de deixar os campos em branco.
+  window.LOCAL_PADRAO = {{ local_padrao | default('', true) | tojson }};
+  window.ESTADO_PADRAO = {{ estado_padrao | default('', true) | tojson }};
+  window.CIDADE_PADRAO = {{ cidade_padrao | default('', true) | tojson }};
 </script>
 <script src="{{ url_for('static', filename='js/form.js') }}" defer></script>
 {% endblock %}

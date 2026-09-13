@@ -38,6 +38,8 @@ def _dados_do_formulario():
         "presidencia": request.form.get("presidencia", "").strip(),
         "pais": request.form.get("pais", "").strip() or config.PAIS_PADRAO,
         "local": request.form.get("local", "").strip(),
+        "estado": request.form.get("estado", "").strip(),
+        "cidade": request.form.get("cidade", "").strip(),
         "meninas_1": _campo_int("meninas_1"),
         "meninas_2": _campo_int("meninas_2"),
         "meninas_3": _campo_int("meninas_3"),
@@ -75,6 +77,14 @@ def _contexto_formulario(conn, **extra):
         "visitas_conhecidas": sorted(set(visitas_conhecidas(conn)) | set(localidades)),
         "nomes_conhecidos": nomes_conhecidos(conn),
         "paises_por_continente": PAISES_POR_CONTINENTE,
+        # Passados sempre (não só em registro novo): é o que permite o
+        # Estado/Cidade se autopreencherem mesmo quando o Local digitado é
+        # um bairro (ex.: "Batistini") que não existe como cidade na base
+        # oficial da CCB — nesse caso o JS cai pro padrão desta congregação
+        # em vez de deixar os campos em branco.
+        "local_padrao": config.LOCAL_PADRAO,
+        "estado_padrao": config.ESTADO_PADRAO,
+        "cidade_padrao": config.CIDADE_PADRAO,
     }
     contexto.update(extra)
     return contexto
@@ -112,6 +122,7 @@ def novo_registro():
     vazio = {
         "data": date.today().isoformat(),
         "presidencia": "", "pais": config.PAIS_PADRAO, "local": config.LOCAL_PADRAO,
+        "estado": config.ESTADO_PADRAO, "cidade": config.CIDADE_PADRAO,
         "meninas_1": "", "meninas_2": "", "meninas_3": "", "meninas_4": "", "meninas_5": "", "meninas_6": "",
         "meninos_1": "", "meninos_2": "", "meninos_3": "", "meninos_4": "", "meninos_5": "", "meninos_6": "",
         "recitativos_individuais": "", "visitas": "",
@@ -119,10 +130,7 @@ def novo_registro():
     }
     return render_template(
         "formulario.html",
-        **_contexto_formulario(
-            conn, registro=vazio, modo="novo",
-            estado_padrao=config.ESTADO_PADRAO, cidade_padrao=config.CIDADE_PADRAO,
-        ),
+        **_contexto_formulario(conn, registro=vazio, modo="novo"),
     )
 
 
