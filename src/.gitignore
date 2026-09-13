@@ -4,7 +4,7 @@ __pycache__/
 *.pyc
 
 # Dados locais (nunca versionar: são os dados reais da congregação)
-dados/*.db
+dados/*.db*
 dados/.chave_sessao
 
 # Sistema

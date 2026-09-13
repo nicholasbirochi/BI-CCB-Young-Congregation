@@ -84,7 +84,7 @@
     <div id="chart-tendencia"></div>
   </div>
   <div class="card">
-    <h2>Meninas x Meninos</h2>
+    <h2>Irmãs x Irmãos</h2>
     <p class="subtitle">Soma por posição do recitativo</p>
     <div id="chart-categorias"></div>
   </div>
@@ -140,6 +140,7 @@
   function montar() {
     CCBCharts.renderLineChart(document.getElementById("chart-tendencia"), {
       labels: dashboardData.tendencia.labels,
+      datasCompletas: dashboardData.tendencia.datasCompletas,
       series: [{ name: "Total geral", color: cor(0), values: dashboardData.tendencia.valores }],
     });
 
@@ -150,6 +151,7 @@
 
     CCBCharts.renderLineChart(document.getElementById("chart-individuais"), {
       labels: dashboardData.individuais_visitas.labels,
+      datasCompletas: dashboardData.individuais_visitas.datasCompletas,
       series: dashboardData.individuais_visitas.series.map((s, i) => ({ name: s.nome, color: cor(i), values: s.valores })),
     });
 

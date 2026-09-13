@@ -24,7 +24,7 @@ from services.sugestoes import (
     presidencias_conhecidas,
     visitas_conhecidas,
 )
-from utils.formatacao import data_curta
+from utils.formatacao import data_br, data_curta
 
 bp = Blueprint("dashboard", __name__)
 
@@ -84,11 +84,15 @@ def dashboard():
         por_data[r["data"]]["meninos"] += total_meninos(r)
     datas_ordenadas = sorted(por_data.keys())
     serie_labels = [data_curta(d) for d in datas_ordenadas]
+    # Rótulo do eixo é só dd/mm (pra não ocupar espaço à toa), mas o
+    # tooltip do gráfico mostra a data completa — sem isso, pontos de anos
+    # diferentes com o mesmo dd/mm ficam ambíguos ao passar o mouse.
+    serie_datas_completas = [data_br(d) for d in datas_ordenadas]
     serie_total = [por_data[d]["meninas"] + por_data[d]["meninos"] for d in datas_ordenadas]
 
-    # ---- Meninas x Meninos por posição do recitativo -----------------
-    soma_meninas_pos = [0, 0, 0, 0, 0]
-    soma_meninos_pos = [0, 0, 0, 0, 0]
+    # ---- Irmãs x Irmãos por posição do recitativo --------------------
+    soma_meninas_pos = [0] * len(COLUNAS_MENINAS)
+    soma_meninos_pos = [0] * len(COLUNAS_MENINOS)
     for r in linhas:
         for i, c in enumerate(COLUNAS_MENINAS):
             soma_meninas_pos[i] += r[c] or 0
@@ -125,15 +129,16 @@ def dashboard():
         })
 
     dashboard_data = {
-        "tendencia": {"labels": serie_labels, "valores": serie_total},
+        "tendencia": {"labels": serie_labels, "datasCompletas": serie_datas_completas, "valores": serie_total},
         "categorias": {
             "series": [
-                {"nome": "Meninas", "valores": soma_meninas_pos, "labels": RECITATIVOS_LABELS_MENINAS},
-                {"nome": "Meninos", "valores": soma_meninos_pos, "labels": RECITATIVOS_LABELS_MENINOS},
+                {"nome": "Irmãs", "valores": soma_meninas_pos, "labels": RECITATIVOS_LABELS_MENINAS},
+                {"nome": "Irmãos", "valores": soma_meninos_pos, "labels": RECITATIVOS_LABELS_MENINOS},
             ],
         },
         "individuais_visitas": {
             "labels": serie_labels,
+            "datasCompletas": serie_datas_completas,
             "series": [
                 {"nome": "Recitativos individuais", "valores": serie_individuais},
                 {"nome": "Visitas", "valores": serie_visitas},

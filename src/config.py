@@ -11,6 +11,7 @@ PORT = 8000
 LOCAL_PADRAO = "Batistini"
 ESTADO_PADRAO = "São Paulo"
 CIDADE_PADRAO = "São Bernardo Do Campo"
+PAIS_PADRAO = "Brasil"
 
 PAPEIS = {
     "cooperador": "Cooperador de Jovens",

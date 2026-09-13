@@ -18,9 +18,11 @@ from flask import g
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PATH = os.path.join(BASE_DIR, "dados", "ccb.db")
 
-# Colunas numéricas do quadro de RECITATIVOS, na ordem impressa no formulário.
-COLUNAS_MENINAS = ["meninas_1", "meninas_2", "meninas_3", "meninas_4", "meninas_5"]
-COLUNAS_MENINOS = ["meninos_1", "meninos_2", "meninos_3", "meninos_4", "meninos_5"]
+# Colunas numéricas do quadro de RECITATIVOS, na ordem impressa nas fotos
+# do caderno: crianças, meninas/meninos, mocinhas/mocinhos, moças/moços,
+# continuação e particular.
+COLUNAS_MENINAS = ["meninas_1", "meninas_2", "meninas_3", "meninas_4", "meninas_5", "meninas_6"]
+COLUNAS_MENINOS = ["meninos_1", "meninos_2", "meninos_3", "meninos_4", "meninos_5", "meninos_6"]
 COLUNAS_RECITATIVOS = COLUNAS_MENINAS + COLUNAS_MENINOS
 
 RECITATIVOS_LABELS = [
@@ -28,30 +30,33 @@ RECITATIVOS_LABELS = [
     "2º (meninas/meninos)",
     "3º (mocinhas/mocinhos)",
     "4º (moças/moços)",
-    "5º (auxiliares)",
+    "Continuação",
+    "Particular",
 ]
-# Mesmas 5 posições, mas com o termo certo de cada naipe (usadas no
-# gráfico Meninas x Meninos — nas posições 1 e 5 o termo é o mesmo dos
-# dois lados; nas 2, 3 e 4 cada lado tem o seu).
-RECITATIVOS_LABELS_MENINAS = ["Crianças", "Meninas", "Mocinhas", "Moças", "Auxiliares"]
-RECITATIVOS_LABELS_MENINOS = ["Crianças", "Meninos", "Mocinhos", "Moços", "Auxiliares"]
+# Mesmas posições, mas com o termo certo de cada naipe (usadas no gráfico
+# Irmãs x Irmãos).
+RECITATIVOS_LABELS_MENINAS = ["Crianças", "Meninas", "Mocinhas", "Moças", "Continuação", "Particular"]
+RECITATIVOS_LABELS_MENINOS = ["Crianças", "Meninos", "Mocinhos", "Moços", "Continuação", "Particular"]
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS registros (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     data TEXT NOT NULL,
     presidencia TEXT,
+    pais TEXT NOT NULL DEFAULT 'Brasil',
     local TEXT,
     meninas_1 INTEGER NOT NULL DEFAULT 0,
     meninas_2 INTEGER NOT NULL DEFAULT 0,
     meninas_3 INTEGER NOT NULL DEFAULT 0,
     meninas_4 INTEGER NOT NULL DEFAULT 0,
     meninas_5 INTEGER NOT NULL DEFAULT 0,
+    meninas_6 INTEGER NOT NULL DEFAULT 0,
     meninos_1 INTEGER NOT NULL DEFAULT 0,
     meninos_2 INTEGER NOT NULL DEFAULT 0,
     meninos_3 INTEGER NOT NULL DEFAULT 0,
     meninos_4 INTEGER NOT NULL DEFAULT 0,
     meninos_5 INTEGER NOT NULL DEFAULT 0,
+    meninos_6 INTEGER NOT NULL DEFAULT 0,
     recitativos_individuais INTEGER NOT NULL DEFAULT 0,
     visitas TEXT NOT NULL DEFAULT '',
     livro TEXT,
@@ -77,9 +82,18 @@ def init_db():
     conn = get_connection()
     try:
         conn.executescript(SCHEMA)
+        _garantir_colunas_recitativos(conn)
         conn.commit()
     finally:
         conn.close()
+
+
+def _garantir_colunas_recitativos(conn):
+    """Atualiza bancos antigos sem apagar registros já digitados."""
+    existentes = {row["name"] for row in conn.execute("PRAGMA table_info(registros)").fetchall()}
+    for coluna in COLUNAS_RECITATIVOS:
+        if coluna not in existentes:
+            conn.execute(f"ALTER TABLE registros ADD COLUMN {coluna} INTEGER NOT NULL DEFAULT 0")
 
 
 def get_db():
