@@ -33,10 +33,18 @@ RECITATIVOS_LABELS = [
     "Continuação",
     "Particular",
 ]
-# Mesmas posições, mas com o termo certo de cada naipe (usadas no gráfico
-# Irmãs x Irmãos).
-RECITATIVOS_LABELS_MENINAS = ["Crianças", "Meninas", "Mocinhas", "Moças", "Continuação", "Particular"]
-RECITATIVOS_LABELS_MENINOS = ["Crianças", "Meninos", "Mocinhos", "Moços", "Continuação", "Particular"]
+
+# O gráfico "Irmãs x Irmãos" segue o formulário ATUAL da congregação (só 3
+# posições: crianças, meninas/meninos, moças/moços) — não as 6 colunas do
+# caderno antigo. "Mocinhas/Mocinhos", "Continuação" e "Particular" só
+# existem em registros de 2022/2023 (formulário anterior); manter esses 3
+# de fora do gráfico evita misturar dois modelos de formulário diferentes
+# na mesma barra. Os valores continuam 100% guardados no banco (contam
+# nos KPIs de total) — só não entram nesse gráfico específico.
+COLUNAS_GRAFICO_MENINAS = ["meninas_1", "meninas_2", "meninas_4"]
+COLUNAS_GRAFICO_MENINOS = ["meninos_1", "meninos_2", "meninos_4"]
+RECITATIVOS_LABELS_MENINAS = ["Crianças", "Meninas", "Moças"]
+RECITATIVOS_LABELS_MENINOS = ["Crianças", "Meninos", "Moços"]
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS registros (
@@ -45,6 +53,8 @@ CREATE TABLE IF NOT EXISTS registros (
     presidencia TEXT,
     pais TEXT NOT NULL DEFAULT 'Brasil',
     local TEXT,
+    estado TEXT,
+    cidade TEXT,
     meninas_1 INTEGER NOT NULL DEFAULT 0,
     meninas_2 INTEGER NOT NULL DEFAULT 0,
     meninas_3 INTEGER NOT NULL DEFAULT 0,
@@ -83,6 +93,7 @@ def init_db():
     try:
         conn.executescript(SCHEMA)
         _garantir_colunas_recitativos(conn)
+        _garantir_colunas_localizacao(conn)
         conn.commit()
     finally:
         conn.close()
@@ -94,6 +105,16 @@ def _garantir_colunas_recitativos(conn):
     for coluna in COLUNAS_RECITATIVOS:
         if coluna not in existentes:
             conn.execute(f"ALTER TABLE registros ADD COLUMN {coluna} INTEGER NOT NULL DEFAULT 0")
+
+
+def _garantir_colunas_localizacao(conn):
+    """Bancos criados antes do campo Estado/Cidade existir também ganham as
+    colunas sem perder nada do que já foi digitado (mesma lógica de
+    _garantir_colunas_recitativos, só que pra colunas de texto)."""
+    existentes = {row["name"] for row in conn.execute("PRAGMA table_info(registros)").fetchall()}
+    for coluna in ("estado", "cidade"):
+        if coluna not in existentes:
+            conn.execute(f"ALTER TABLE registros ADD COLUMN {coluna} TEXT")
 
 
 def get_db():

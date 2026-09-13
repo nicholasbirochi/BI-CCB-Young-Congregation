@@ -19,3 +19,20 @@ def data_br(iso):
         return datetime.strptime(iso, "%Y-%m-%d").strftime("%d/%m/%Y")
     except (TypeError, ValueError):
         return iso or ""
+
+
+def numero_br(valor):
+    """Formata um inteiro com ponto de milhar, do jeito brasileiro (12345 -> "12.345")."""
+    try:
+        return f"{int(valor):,}".replace(",", ".")
+    except (TypeError, ValueError):
+        return valor
+
+
+def decimal_br(valor):
+    """Formata um decimal com vírgula, do jeito brasileiro (96.5 -> "96,5")."""
+    try:
+        inteiro, frac = f"{float(valor):,.1f}".split(".")
+        return f"{inteiro.replace(',', '.')},{frac}"
+    except (TypeError, ValueError):
+        return valor

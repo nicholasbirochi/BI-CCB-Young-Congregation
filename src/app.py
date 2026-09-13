@@ -20,7 +20,7 @@ from flask import Flask
 
 import config
 from models import database as db
-from utils.formatacao import data_br
+from utils.formatacao import data_br, decimal_br, numero_br
 from utils.rede import abrir_navegador, get_lan_ip
 from utils.seguranca import obter_secret_key
 
@@ -29,6 +29,8 @@ app.permanent_session_lifetime = timedelta(days=90)
 app.secret_key = obter_secret_key(db.BASE_DIR)
 app.teardown_appcontext(db.close_db)
 app.template_filter("data_br")(data_br)
+app.template_filter("numero_br")(numero_br)
+app.template_filter("decimal_br")(decimal_br)
 
 # Controllers (Blueprints) — importados depois que `app` já existe acima,
 # porque cada um usa @bp.route (não @app.route direto) e é registrado aqui.

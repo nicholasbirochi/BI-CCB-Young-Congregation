@@ -84,12 +84,17 @@ document.addEventListener("DOMContentLoaded", () => {
   // Quem manda agora é o Local: Estado e Cidade só retratam onde ele fica e
   // ficam sempre desabilitados (não dá pra "destravar" e escolher um estado
   // que não bate com o que foi digitado no Local — evita os dois campos
-  // saírem dessincronizados). A base usada pra descobrir o estado a partir
-  // da cidade é a mesma baixada do diretório oficial da CCB
-  // (window.LOCALIDADES_CCB, veja services/localidades_ccb.py).
+  // saírem dessincronizados). Por serem desabilitados, os <select> nunca
+  // são enviados no POST — quem carrega o valor de verdade são os campos
+  // ocultos (estado-oculto/cidade-oculto), mantidos em dia aqui. A base
+  // usada pra descobrir o estado a partir da cidade é a mesma baixada do
+  // diretório oficial da CCB (window.LOCALIDADES_CCB, veja
+  // services/localidades_ccb.py).
   const LOCALIDADES = window.LOCALIDADES_CCB || {};
   const selEstado = document.getElementById("estado");
   const selCidade = document.getElementById("cidade");
+  const estadoOculto = document.getElementById("estado-oculto");
+  const cidadeOculto = document.getElementById("cidade-oculto");
   const campoLocal = document.getElementById("local");
 
   function normalizar(texto) {
@@ -109,6 +114,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // ("Cidade/SP", "Cidade - SP") — tira isso antes de comparar com a base.
   function limparSufixoUF(cidade) {
     return (cidade || "").replace(/\s*[\/\-]\s*[A-Za-z]{2}$/, "").trim();
+  }
+
+  // Depois de qualquer mudança nos <select> (desabilitados, não viajam no
+  // POST), copia o valor pros campos ocultos — são eles que de fato chegam
+  // no servidor e ficam salvos no registro.
+  function sincronizarCamposOcultos() {
+    if (estadoOculto) estadoOculto.value = selEstado.value;
+    if (cidadeOculto) cidadeOculto.value = selCidade.value;
   }
 
   function popularCidades(estado, cidadeSelecionada) {
@@ -134,6 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
       opt.selected = true;
       selCidade.appendChild(opt);
     }
+    sincronizarCamposOcultos();
   }
 
   function selecionarEstadoCidade(estado, cidade) {
@@ -145,8 +159,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // Tenta descobrir Estado/Cidade a partir do texto livre do campo Local —
   // cobre o formato que a própria busca ao vivo gera ("Nome — Cidade"), o
   // formato antigo ("Cidade - Estado") e o caso de já ser só o nome da
-  // cidade. Se nada bater, deixa os dois em branco: o que de fato é salvo
-  // é sempre o texto do campo Local, isso aqui é só um retrato dele.
+  // cidade. Se nada bater com a base oficial de cidades, mas o texto for a
+  // localidade padrão desta congregação (ex.: "Batistini", que é bairro, não
+  // cidade, então nunca vai bater sozinho), cai no Estado/Cidade padrão
+  // configurado em vez de deixar em branco. Só em último caso mesmo é que
+  // fica vazio.
   function derivarLocalizacao(texto) {
     const partes = (texto || "").split(/—| - /).map((p) => p.trim()).filter(Boolean);
     const candidatos = partes.length > 1 ? [partes[partes.length - 1], partes[0]] : [(texto || "").trim()];
@@ -157,15 +174,20 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
     }
+    if (window.LOCAL_PADRAO && normalizar(texto) === normalizar(window.LOCAL_PADRAO)) {
+      selecionarEstadoCidade(window.ESTADO_PADRAO || "", window.CIDADE_PADRAO || "");
+      return;
+    }
     selecionarEstadoCidade("", "");
   }
 
   if (selEstado && selCidade && campoLocal) {
-    // Se o servidor já marcou a localidade padrão desta congregação
-    // (registro novo, sem erro de validação), usa Estado/Cidade padrão
-    // direto; senão tenta derivar do que já está escrito (edição).
-    if (selEstado.value && window.CIDADE_PADRAO) {
-      popularCidades(selEstado.value, window.CIDADE_PADRAO);
+    // O servidor já manda o Estado/Cidade salvos de verdade no registro
+    // (novo registro já nasce com o padrão desta congregação; edição traz o
+    // que estava gravado) — usa isso direto em vez de tentar redescobrir a
+    // partir do texto do Local, que pode nem bater com a base oficial.
+    if (registroAtual.estado || registroAtual.cidade) {
+      selecionarEstadoCidade(registroAtual.estado, registroAtual.cidade);
     } else {
       derivarLocalizacao(campoLocal.value);
     }
