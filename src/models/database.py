@@ -68,7 +68,10 @@ CREATE TABLE IF NOT EXISTS registros (
     meninos_5 INTEGER NOT NULL DEFAULT 0,
     meninos_6 INTEGER NOT NULL DEFAULT 0,
     recitativos_individuais INTEGER NOT NULL DEFAULT 0,
+    testemunhos INTEGER NOT NULL DEFAULT 0,
     visitas TEXT NOT NULL DEFAULT '',
+    auxiliares_presentes TEXT NOT NULL DEFAULT '',
+    oracao_pai_nosso TEXT,
     livro TEXT,
     capitulo TEXT,
     versiculo TEXT,
@@ -94,6 +97,7 @@ def init_db():
         conn.executescript(SCHEMA)
         _garantir_colunas_recitativos(conn)
         _garantir_colunas_localizacao(conn)
+        _garantir_colunas_formulario_atual(conn)
         conn.commit()
     finally:
         conn.close()
@@ -115,6 +119,19 @@ def _garantir_colunas_localizacao(conn):
     for coluna in ("estado", "cidade"):
         if coluna not in existentes:
             conn.execute(f"ALTER TABLE registros ADD COLUMN {coluna} TEXT")
+
+
+def _garantir_colunas_formulario_atual(conn):
+    """Bancos criados antes do formulário atual (folha solta, a partir de
+    out/2024) ganhar os campos Auxiliares Presentes/Oração Pai
+    Nosso/Testemunhos também ganham as colunas, sem apagar nada."""
+    existentes = {row["name"] for row in conn.execute("PRAGMA table_info(registros)").fetchall()}
+    if "auxiliares_presentes" not in existentes:
+        conn.execute("ALTER TABLE registros ADD COLUMN auxiliares_presentes TEXT NOT NULL DEFAULT ''")
+    if "oracao_pai_nosso" not in existentes:
+        conn.execute("ALTER TABLE registros ADD COLUMN oracao_pai_nosso TEXT NOT NULL DEFAULT ''")
+    if "testemunhos" not in existentes:
+        conn.execute("ALTER TABLE registros ADD COLUMN testemunhos INTEGER NOT NULL DEFAULT 0")
 
 
 def get_db():

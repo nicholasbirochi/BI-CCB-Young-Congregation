@@ -17,9 +17,25 @@ from models.database import (
 )
 from models.paises import PAISES_POR_CONTINENTE
 from services.localidades_ccb import LOCALIDADES_CCB
-from services.sugestoes import localidades_conhecidas, nomes_conhecidos, visitas_conhecidas
+from services.sugestoes import (
+    auxiliares_conhecidos,
+    localidades_conhecidas,
+    nomes_conhecidos,
+    visitas_conhecidas,
+)
 
 bp = Blueprint("registros", __name__)
+
+# Colunas que só existem no caderno antigo (2022/2023): mocinhas/mocinhos,
+# continuação e particular. O formulário atual (folha solta, a partir de
+# out/2024) só tem crianças/meninas(os)/moças(os) — essas 6 ficam escondidas
+# por padrão e só aparecem abertas ao editar um registro antigo que já tem
+# algum valor nelas (pra não esconder dado real nem parecer que sumiu).
+CAMPOS_RECITATIVOS_ANTIGOS = ["meninas_3", "meninas_5", "meninas_6", "meninos_3", "meninos_5", "meninos_6"]
+
+
+def _tem_campos_antigos(registro):
+    return any(int(registro[c] or 0) for c in CAMPOS_RECITATIVOS_ANTIGOS)
 
 
 def _campo_int(nome):
@@ -53,7 +69,10 @@ def _dados_do_formulario():
         "meninos_5": _campo_int("meninos_5"),
         "meninos_6": _campo_int("meninos_6"),
         "recitativos_individuais": _campo_int("recitativos_individuais"),
+        "testemunhos": _campo_int("testemunhos"),
         "visitas": texto_visitas(request.form.get("visitas", "").split(";")),
+        "auxiliares_presentes": texto_visitas(request.form.get("auxiliares_presentes", "").split(";")),
+        "oracao_pai_nosso": request.form.get("oracao_pai_nosso", "").strip(),
         "livro": request.form.get("livro", "").strip(),
         "capitulo": request.form.get("capitulo", "").strip(),
         "versiculo": request.form.get("versiculo", "").strip(),
@@ -76,6 +95,7 @@ def _contexto_formulario(conn, **extra):
         "localidades_ccb": LOCALIDADES_CCB,
         "visitas_conhecidas": sorted(set(visitas_conhecidas(conn)) | set(localidades)),
         "nomes_conhecidos": nomes_conhecidos(conn),
+        "auxiliares_conhecidos": auxiliares_conhecidos(conn),
         "paises_por_continente": PAISES_POR_CONTINENTE,
         # Passados sempre (não só em registro novo): é o que permite o
         # Estado/Cidade se autopreencherem mesmo quando o Local digitado é
@@ -107,7 +127,7 @@ def novo_registro():
             flash(erro, "erro")
             return render_template(
                 "formulario.html",
-                **_contexto_formulario(conn, registro=dados, modo="novo"),
+                **_contexto_formulario(conn, registro=dados, modo="novo", tem_campos_antigos=_tem_campos_antigos(dados)),
             )
         colunas = ", ".join(dados.keys())
         marcadores = ", ".join(["?"] * len(dados))
@@ -125,12 +145,13 @@ def novo_registro():
         "estado": config.ESTADO_PADRAO, "cidade": config.CIDADE_PADRAO,
         "meninas_1": "", "meninas_2": "", "meninas_3": "", "meninas_4": "", "meninas_5": "", "meninas_6": "",
         "meninos_1": "", "meninos_2": "", "meninos_3": "", "meninos_4": "", "meninos_5": "", "meninos_6": "",
-        "recitativos_individuais": "", "visitas": "",
+        "recitativos_individuais": "", "testemunhos": "", "visitas": "",
+        "auxiliares_presentes": "", "oracao_pai_nosso": "",
         "livro": "", "capitulo": "", "versiculo": "", "presidido_por": "",
     }
     return render_template(
         "formulario.html",
-        **_contexto_formulario(conn, registro=vazio, modo="novo"),
+        **_contexto_formulario(conn, registro=vazio, modo="novo", tem_campos_antigos=False),
     )
 
 
@@ -151,7 +172,10 @@ def editar_registro(registro_id):
             flash(erro, "erro")
             return render_template(
                 "formulario.html",
-                **_contexto_formulario(conn, registro=dados, modo="editar", registro_id=registro_id),
+                **_contexto_formulario(
+                    conn, registro=dados, modo="editar", registro_id=registro_id,
+                    tem_campos_antigos=_tem_campos_antigos(dados),
+                ),
             )
         campos = ", ".join(f"{c} = ?" for c in dados.keys())
         conn.execute(
@@ -168,7 +192,10 @@ def editar_registro(registro_id):
         return redirect(url_for("registros.registros"))
     return render_template(
         "formulario.html",
-        **_contexto_formulario(conn, registro=registro, modo="editar", registro_id=registro_id),
+        **_contexto_formulario(
+            conn, registro=registro, modo="editar", registro_id=registro_id,
+            tem_campos_antigos=_tem_campos_antigos(registro),
+        ),
     )
 
 
@@ -209,6 +236,7 @@ def registros():
             "total_meninos": total_meninos(r),
             "total_geral": total_geral(r),
             "recitativos_individuais": r["recitativos_individuais"],
+            "testemunhos": r["testemunhos"],
             "visitas": lista_visitas(r["visitas"]),
             "livro": r["livro"],
             "capitulo": r["capitulo"],
