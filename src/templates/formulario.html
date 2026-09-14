@@ -44,7 +44,7 @@
       </div>
       <div class="field">
         <label for="pais">País <span class="hint">(vem da localidade)</span></label>
-        <select id="pais" name="pais">
+        <select id="pais" disabled>
           {% for continente, lista in paises_por_continente.items() %}
           <optgroup label="{{ continente }}">
             {% for p in lista %}
@@ -53,6 +53,9 @@
           </optgroup>
           {% endfor %}
         </select>
+        <!-- Mesmo esquema do Estado: select travado (só a localidade decide o
+             país), o campo oculto abaixo é quem de fato viaja no POST. -->
+        <input type="hidden" id="pais-oculto" name="pais" value="{{ registro['pais'] }}">
       </div>
       <div class="field">
         <label for="estado">Estado <span class="hint">(vem da localidade)</span></label>

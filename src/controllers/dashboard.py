@@ -74,7 +74,7 @@ def dashboard():
     soma_geral = sum(total_geral(r) for r in linhas)
     soma_individuais = sum(r["recitativos_individuais"] or 0 for r in linhas)
     soma_visitas = sum(len(lista_visitas(r["visitas"])) for r in linhas)
-    media_geral = round(soma_geral / qtd_reunioes, 1) if qtd_reunioes else 0
+    media_geral = round(soma_geral / qtd_reunioes) if qtd_reunioes else 0
 
     # ---- Série temporal: total geral de recitativos por data --------
     por_data = {}
