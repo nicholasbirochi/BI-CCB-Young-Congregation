@@ -13,6 +13,7 @@ os Blueprints de cada área (controllers/) e sobe o servidor. As rotas e
 regras de negócio de verdade moram em controllers/, services/ e models/
 — veja o README para o mapa completo da estrutura MVC.
 """
+import os
 import threading
 from datetime import timedelta
 
@@ -31,6 +32,22 @@ app.teardown_appcontext(db.close_db)
 app.template_filter("data_br")(data_br)
 app.template_filter("numero_br")(numero_br)
 app.template_filter("decimal_br")(decimal_br)
+
+
+@app.url_defaults
+def _versionar_estaticos(endpoint, values):
+    """Toda vez que um template usa url_for('static', filename=...), gruda
+    "?v=<data de modificação do arquivo>" no link. Sem isso, o navegador
+    (principalmente celular) pode continuar usando um form.js/style.css
+    antigo do cache mesmo depois de o arquivo mudar de verdade — daí uma
+    correção que já está no servidor parece "não ter acontecido" na tela
+    de quem já tinha visitado o site antes."""
+    if endpoint == "static" and "filename" in values:
+        caminho = os.path.join(app.static_folder, values["filename"])
+        try:
+            values["v"] = int(os.path.getmtime(caminho))
+        except OSError:
+            pass
 
 # Controllers (Blueprints) — importados depois que `app` já existe acima,
 # porque cada um usa @bp.route (não @app.route direto) e é registrado aqui.

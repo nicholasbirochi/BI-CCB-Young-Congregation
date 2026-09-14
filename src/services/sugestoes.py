@@ -27,20 +27,6 @@ def visitas_conhecidas(conn):
     return sorted(nomes)
 
 
-def auxiliares_conhecidos(conn):
-    """Nomes de auxiliares já registrados como presentes alguma vez —
-    alimenta as opções (datalist) do campo Auxiliares Presentes. Reaproveita
-    lista_visitas/texto_visitas: o formato salvo (nomes separados por ";")
-    é o mesmo, só o significado do campo é diferente."""
-    linhas = conn.execute(
-        "SELECT auxiliares_presentes FROM registros WHERE auxiliares_presentes IS NOT NULL AND TRIM(auxiliares_presentes) != ''"
-    ).fetchall()
-    nomes = set()
-    for r in linhas:
-        nomes.update(lista_visitas(r["auxiliares_presentes"]))
-    return sorted(nomes)
-
-
 def nomes_conhecidos(conn):
     """Nomes de irmãos já usados em Presidência, Presidido por ou Oração Pai
     Nosso — não existe uma lista pública dos irmãos no ministério (isso fica
