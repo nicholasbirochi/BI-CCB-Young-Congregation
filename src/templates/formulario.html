@@ -30,10 +30,10 @@
         <label for="presidencia">Presidência</label>
         <input type="text" list="lista-nomes" id="presidencia" name="presidencia" value="{{ registro['presidencia'] }}" placeholder="Nome de quem presidiu" autocomplete="off">
       </div>
-      <div class="field">
-        <label for="oracao_pai_nosso">Oração Pai Nosso</label>
-        <input type="text" list="lista-nomes" id="oracao_pai_nosso" name="oracao_pai_nosso" value="{{ registro['oracao_pai_nosso'] | default('', true) }}" placeholder="Quem fez a oração" autocomplete="off">
-      </div>
+      <!-- Oração Pai Nosso não faz parte do formulário atual — o campo
+           continua existindo no banco (registros antigos que já têm um
+           valor não podem perder ele), só não aparece mais pra digitar. -->
+      <input type="hidden" name="oracao_pai_nosso" value="{{ registro['oracao_pai_nosso'] | default('', true) }}">
       <div class="field">
         <label for="pais">País</label>
         <select id="pais" name="pais">
@@ -86,8 +86,11 @@
         <div class="recitativos-linha"><label for="meninas_2">Meninas</label><input type="number" min="0" id="meninas_2" name="meninas_2" value="{{ registro['meninas_2'] }}"></div>
         <div class="recitativos-linha"><label for="meninas_3">Mocinhas</label><input type="number" min="0" id="meninas_3" name="meninas_3" value="{{ registro['meninas_3'] }}"></div>
         <div class="recitativos-linha"><label for="meninas_4">Moças</label><input type="number" min="0" id="meninas_4" name="meninas_4" value="{{ registro['meninas_4'] }}"></div>
-        <div class="recitativos-linha"><label for="meninas_5">Continuação</label><input type="number" min="0" id="meninas_5" name="meninas_5" value="{{ registro['meninas_5'] }}"></div>
-        <div class="recitativos-linha"><label for="meninas_6">Particular</label><input type="number" min="0" id="meninas_6" name="meninas_6" value="{{ registro['meninas_6'] }}"></div>
+        <!-- Continuação/Particular não fazem parte do formulário atual — seguem
+             existindo no banco (registros antigos não podem perder o valor),
+             só não aparecem mais como campo pra digitar. -->
+        <input type="hidden" name="meninas_5" value="{{ registro['meninas_5'] }}">
+        <input type="hidden" name="meninas_6" value="{{ registro['meninas_6'] }}">
         <div class="recitativos-total"><span>Total</span><span id="total-meninas">0</span></div>
       </div>
       <div class="recitativos-col">
@@ -96,8 +99,8 @@
         <div class="recitativos-linha"><label for="meninos_2">Meninos</label><input type="number" min="0" id="meninos_2" name="meninos_2" value="{{ registro['meninos_2'] }}"></div>
         <div class="recitativos-linha"><label for="meninos_3">Mocinhos</label><input type="number" min="0" id="meninos_3" name="meninos_3" value="{{ registro['meninos_3'] }}"></div>
         <div class="recitativos-linha"><label for="meninos_4">Moços</label><input type="number" min="0" id="meninos_4" name="meninos_4" value="{{ registro['meninos_4'] }}"></div>
-        <div class="recitativos-linha"><label for="meninos_5">Continuação</label><input type="number" min="0" id="meninos_5" name="meninos_5" value="{{ registro['meninos_5'] }}"></div>
-        <div class="recitativos-linha"><label for="meninos_6">Particular</label><input type="number" min="0" id="meninos_6" name="meninos_6" value="{{ registro['meninos_6'] }}"></div>
+        <input type="hidden" name="meninos_5" value="{{ registro['meninos_5'] }}">
+        <input type="hidden" name="meninos_6" value="{{ registro['meninos_6'] }}">
         <div class="recitativos-total"><span>Total</span><span id="total-meninos">0</span></div>
       </div>
     </div>
@@ -118,10 +121,10 @@
         <label for="recitativos_individuais">Recitativos individuais</label>
         <input type="number" min="0" id="recitativos_individuais" name="recitativos_individuais" value="{{ registro['recitativos_individuais'] }}">
       </div>
-      <div class="field">
-        <label for="testemunhos">Testemunhos</label>
-        <input type="number" min="0" id="testemunhos" name="testemunhos" value="{{ registro['testemunhos'] }}">
-      </div>
+      <!-- Testemunhos não faz parte do formulário atual — segue existindo no
+           banco (registros antigos não podem perder o valor), só não aparece
+           mais como campo pra digitar. -->
+      <input type="hidden" name="testemunhos" value="{{ registro['testemunhos'] }}">
       <div class="field">
         <label for="visita-input">Visitas <span class="hint">(igrejas que visitaram)</span></label>
         <div class="chip-input" style="position: relative;">
