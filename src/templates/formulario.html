@@ -74,49 +74,36 @@
         </select>
         <input type="hidden" id="cidade-oculto" name="cidade" value="{{ registro['cidade'] }}">
       </div>
-      <div class="field" style="position: relative;">
-        <label for="auxiliar-input">Auxiliares presentes</label>
-        <div class="chip-input">
-          <input type="text" id="auxiliar-input" list="lista-auxiliares" placeholder="Nome do auxiliar" autocomplete="off">
-          <button type="button" class="btn small" id="auxiliar-adicionar">{{ icon_plus(14) }}</button>
-        </div>
-        <datalist id="lista-auxiliares">
-          {% for nome in auxiliares_conhecidos %}<option value="{{ nome }}">{% endfor %}
-        </datalist>
-        <div class="chips" id="auxiliares-chips"></div>
-        <input type="hidden" id="auxiliares_presentes" name="auxiliares_presentes" value="{{ registro['auxiliares_presentes'] }}">
-      </div>
     </div>
   </div>
 
   <div class="form-section">
     <h2>Recitativos</h2>
-    <p class="subtitle">
-      Campos do formulário do caderno antigo (mocinhas/mocinhos, continuação, particular) —
-      <button type="button" class="link-botao" id="toggle-campos-antigos">{{ 'ocultar' if tem_campos_antigos else 'mostrar' }}</button>,
-      só existem em registros de antes de out/2024.
-    </p>
     <div class="recitativos-table">
       <div class="recitativos-col">
         <h3>Irmãs</h3>
         <div class="recitativos-linha"><label for="meninas_1">Crianças</label><input type="number" min="0" id="meninas_1" name="meninas_1" value="{{ registro['meninas_1'] }}"></div>
         <div class="recitativos-linha"><label for="meninas_2">Meninas</label><input type="number" min="0" id="meninas_2" name="meninas_2" value="{{ registro['meninas_2'] }}"></div>
-        <div class="recitativos-linha campo-antigo" {{ '' if tem_campos_antigos else 'hidden' }}><label for="meninas_3">Mocinhas</label><input type="number" min="0" id="meninas_3" name="meninas_3" value="{{ registro['meninas_3'] }}"></div>
+        <div class="recitativos-linha"><label for="meninas_3">Mocinhas</label><input type="number" min="0" id="meninas_3" name="meninas_3" value="{{ registro['meninas_3'] }}"></div>
         <div class="recitativos-linha"><label for="meninas_4">Moças</label><input type="number" min="0" id="meninas_4" name="meninas_4" value="{{ registro['meninas_4'] }}"></div>
-        <div class="recitativos-linha campo-antigo" {{ '' if tem_campos_antigos else 'hidden' }}><label for="meninas_5">Continuação</label><input type="number" min="0" id="meninas_5" name="meninas_5" value="{{ registro['meninas_5'] }}"></div>
-        <div class="recitativos-linha campo-antigo" {{ '' if tem_campos_antigos else 'hidden' }}><label for="meninas_6">Particular</label><input type="number" min="0" id="meninas_6" name="meninas_6" value="{{ registro['meninas_6'] }}"></div>
+        <div class="recitativos-linha"><label for="meninas_5">Continuação</label><input type="number" min="0" id="meninas_5" name="meninas_5" value="{{ registro['meninas_5'] }}"></div>
+        <div class="recitativos-linha"><label for="meninas_6">Particular</label><input type="number" min="0" id="meninas_6" name="meninas_6" value="{{ registro['meninas_6'] }}"></div>
         <div class="recitativos-total"><span>Total</span><span id="total-meninas">0</span></div>
       </div>
       <div class="recitativos-col">
         <h3>Irmãos</h3>
         <div class="recitativos-linha"><label for="meninos_1">Crianças</label><input type="number" min="0" id="meninos_1" name="meninos_1" value="{{ registro['meninos_1'] }}"></div>
         <div class="recitativos-linha"><label for="meninos_2">Meninos</label><input type="number" min="0" id="meninos_2" name="meninos_2" value="{{ registro['meninos_2'] }}"></div>
-        <div class="recitativos-linha campo-antigo" {{ '' if tem_campos_antigos else 'hidden' }}><label for="meninos_3">Mocinhos</label><input type="number" min="0" id="meninos_3" name="meninos_3" value="{{ registro['meninos_3'] }}"></div>
+        <div class="recitativos-linha"><label for="meninos_3">Mocinhos</label><input type="number" min="0" id="meninos_3" name="meninos_3" value="{{ registro['meninos_3'] }}"></div>
         <div class="recitativos-linha"><label for="meninos_4">Moços</label><input type="number" min="0" id="meninos_4" name="meninos_4" value="{{ registro['meninos_4'] }}"></div>
-        <div class="recitativos-linha campo-antigo" {{ '' if tem_campos_antigos else 'hidden' }}><label for="meninos_5">Continuação</label><input type="number" min="0" id="meninos_5" name="meninos_5" value="{{ registro['meninos_5'] }}"></div>
-        <div class="recitativos-linha campo-antigo" {{ '' if tem_campos_antigos else 'hidden' }}><label for="meninos_6">Particular</label><input type="number" min="0" id="meninos_6" name="meninos_6" value="{{ registro['meninos_6'] }}"></div>
+        <div class="recitativos-linha"><label for="meninos_5">Continuação</label><input type="number" min="0" id="meninos_5" name="meninos_5" value="{{ registro['meninos_5'] }}"></div>
+        <div class="recitativos-linha"><label for="meninos_6">Particular</label><input type="number" min="0" id="meninos_6" name="meninos_6" value="{{ registro['meninos_6'] }}"></div>
         <div class="recitativos-total"><span>Total</span><span id="total-meninos">0</span></div>
       </div>
+    </div>
+    <div class="field" style="max-width:240px; margin-top:14px;">
+      <label for="auxiliares_presentes">Auxiliares presentes</label>
+      <input type="number" min="0" id="auxiliares_presentes" name="auxiliares_presentes" value="{{ registro['auxiliares_presentes'] }}">
     </div>
     <div class="total-geral-box">
       <div class="value" id="total-geral">0</div>

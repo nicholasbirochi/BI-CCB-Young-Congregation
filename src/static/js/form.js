@@ -264,11 +264,9 @@ document.addEventListener("DOMContentLoaded", () => {
     agendarSalvamento();
   });
 
-  // --------------------------------- Chips de nomes (Visitas, Auxiliares presentes) ---------------------------------
-  // Os dois campos guardam uma lista de nomes separados por "; " — mesma
-  // lógica de chip pros dois, só muda qual input/hidden/lista cada um usa.
-  // Devolve a função "adicionar" pra quem quiser plugar a busca ao vivo de
-  // localidades também (caso do campo Visitas).
+  // --------------------------------- Visitas: chips de igrejas (lista de nomes) ---------------------------------
+  // Guarda uma lista de nomes separados por "; ". Devolve a função
+  // "adicionar" pra quem quiser plugar a busca ao vivo de localidades também.
   function criarChipsDeNomes({ inputEl, botaoEl, chipsEl, hiddenEl }) {
     if (!inputEl || !chipsEl || !hiddenEl) return null;
 
@@ -339,31 +337,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  const chipsAuxiliares = criarChipsDeNomes({
-    inputEl: document.getElementById("auxiliar-input"),
-    botaoEl: document.getElementById("auxiliar-adicionar"),
-    chipsEl: document.getElementById("auxiliares-chips"),
-    hiddenEl: document.getElementById("auxiliares_presentes"),
-  });
-
   function renderChipsVisitas() { if (chipsVisitas) chipsVisitas.renderChips(); }
-  function renderChipsAuxiliares() { if (chipsAuxiliares) chipsAuxiliares.renderChips(); }
-
-  // -------------------------------- Recitativos: campos do formulário antigo --------------------------------
-  // Mocinhas/Mocinhos, Continuação e Particular só existem em registros de
-  // antes de out/2024 — ficam escondidos por padrão (o formulário atual só
-  // tem Crianças/Meninas(os)/Moças(os)) e só aparecem abertos automaticamente
-  // ao editar um registro que já tem algum valor neles (veja tem_campos_antigos
-  // em controllers/registros.py).
-  const btnToggleAntigos = document.getElementById("toggle-campos-antigos");
-  const camposAntigos = document.querySelectorAll(".campo-antigo");
-  if (btnToggleAntigos && camposAntigos.length) {
-    btnToggleAntigos.addEventListener("click", () => {
-      const mostrar = camposAntigos[0].hidden;
-      camposAntigos.forEach((el) => { el.hidden = !mostrar; });
-      btnToggleAntigos.textContent = mostrar ? "ocultar" : "mostrar";
-    });
-  }
 
   // ------------------------------------------------------------- rascunho automático
   const chave = "ccb-bi-rascunho-" + form.getAttribute("data-rascunho-chave");
@@ -399,7 +373,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (campoLocal) derivarLocalizacao(campoLocal.value);
     renderChipsVisitas();
-    renderChipsAuxiliares();
     atualizarTotais();
     restaurando = false;
     salvarRascunho();
