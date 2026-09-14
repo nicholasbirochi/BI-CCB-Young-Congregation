@@ -96,6 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const selPais = document.getElementById("pais");
   const estadoOculto = document.getElementById("estado-oculto");
   const cidadeOculto = document.getElementById("cidade-oculto");
+  const paisOculto = document.getElementById("pais-oculto");
   const campoLocal = document.getElementById("local");
 
   function normalizar(texto) {
@@ -123,6 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function sincronizarCamposOcultos() {
     if (estadoOculto) estadoOculto.value = selEstado.value;
     if (cidadeOculto) cidadeOculto.value = selCidade.value;
+    if (paisOculto && selPais) paisOculto.value = selPais.value;
   }
 
   function popularCidades(estado, cidadeSelecionada) {
@@ -154,11 +156,12 @@ document.addEventListener("DOMContentLoaded", () => {
   function selecionarEstadoCidade(estado, cidade) {
     const estadoValido = estado && [...selEstado.options].some((o) => o.value === estado);
     selEstado.value = estadoValido ? estado : "";
-    popularCidades(selEstado.value, cidade || "");
     // A base de localidades (LOCALIDADES_CCB) só tem cidades brasileiras —
-    // achou um Estado válido a partir do Local, então o País é Brasil.
-    // Continua editável na mão pra quem realmente precisar de outro país.
+    // achou um Estado válido a partir do Local, então o País é Brasil. Fica
+    // travado igual o Estado (só a localidade decide); precisa vir antes de
+    // popularCidades, que é quem de fato copia os três pros campos ocultos.
     if (estadoValido && selPais) selPais.value = "Brasil";
+    popularCidades(selEstado.value, cidade || "");
   }
 
   // Tenta descobrir Estado/Cidade a partir do texto livre do campo Local —
