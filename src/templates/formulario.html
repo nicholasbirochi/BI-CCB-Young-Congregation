@@ -34,8 +34,16 @@
            continua existindo no banco (registros antigos que já têm um
            valor não podem perder ele), só não aparece mais pra digitar. -->
       <input type="hidden" name="oracao_pai_nosso" value="{{ registro['oracao_pai_nosso'] | default('', true) }}">
+      <div class="field" style="position: relative;">
+        <label for="local">Local / Congregação</label>
+        <input list="lista-localidades" id="local" name="local" value="{{ registro['local'] }}" placeholder="Nome da igreja/congregação" autocomplete="off">
+        <datalist id="lista-localidades">
+          {% for loc in localidades %}<option value="{{ loc }}">{% endfor %}
+        </datalist>
+        <div id="resultados-localidade" class="resultados-localidade" hidden></div>
+      </div>
       <div class="field">
-        <label for="pais">País</label>
+        <label for="pais">País <span class="hint">(vem da localidade)</span></label>
         <select id="pais" name="pais">
           {% for continente, lista in paises_por_continente.items() %}
           <optgroup label="{{ continente }}">
@@ -45,14 +53,6 @@
           </optgroup>
           {% endfor %}
         </select>
-      </div>
-      <div class="field" style="position: relative;">
-        <label for="local">Local / Congregação</label>
-        <input list="lista-localidades" id="local" name="local" value="{{ registro['local'] }}" placeholder="Nome da igreja/congregação" autocomplete="off">
-        <datalist id="lista-localidades">
-          {% for loc in localidades %}<option value="{{ loc }}">{% endfor %}
-        </datalist>
-        <div id="resultados-localidade" class="resultados-localidade" hidden></div>
       </div>
       <div class="field">
         <label for="estado">Estado <span class="hint">(vem da localidade)</span></label>
@@ -67,13 +67,16 @@
              (re)derivado. -->
         <input type="hidden" id="estado-oculto" name="estado" value="{{ registro['estado'] }}">
       </div>
-      <div class="field">
-        <label for="cidade">Cidade</label>
-        <select id="cidade" disabled>
-          <option value="">—</option>
-        </select>
-        <input type="hidden" id="cidade-oculto" name="cidade" value="{{ registro['cidade'] }}">
-      </div>
+      <!-- Cidade não tem campo próprio na tela (esta congregação é sempre a
+           mesma cidade) — continua sendo derivada e guardada no banco pelo
+           form.js, só não aparece mais como linha separada. O <select> abaixo
+           segue existindo (escondido) porque a lógica em form.js usa ele pra
+           montar a lista de cidades do estado antes de copiar o valor pro
+           campo oculto que de fato viaja no POST. -->
+      <select id="cidade" hidden>
+        <option value="">—</option>
+      </select>
+      <input type="hidden" id="cidade-oculto" name="cidade" value="{{ registro['cidade'] }}">
     </div>
   </div>
 
@@ -86,6 +89,7 @@
         <div class="recitativos-linha"><label for="meninas_2">Meninas</label><input type="number" min="0" id="meninas_2" name="meninas_2" value="{{ registro['meninas_2'] }}"></div>
         <div class="recitativos-linha"><label for="meninas_3">Mocinhas</label><input type="number" min="0" id="meninas_3" name="meninas_3" value="{{ registro['meninas_3'] }}"></div>
         <div class="recitativos-linha"><label for="meninas_4">Moças</label><input type="number" min="0" id="meninas_4" name="meninas_4" value="{{ registro['meninas_4'] }}"></div>
+        <div class="recitativos-linha"><label for="auxiliares_femininos">Auxiliares</label><input type="number" min="0" id="auxiliares_femininos" name="auxiliares_femininos" value="{{ registro['auxiliares_femininos'] }}"></div>
         <!-- Continuação/Particular não fazem parte do formulário atual — seguem
              existindo no banco (registros antigos não podem perder o valor),
              só não aparecem mais como campo pra digitar. -->
@@ -99,14 +103,11 @@
         <div class="recitativos-linha"><label for="meninos_2">Meninos</label><input type="number" min="0" id="meninos_2" name="meninos_2" value="{{ registro['meninos_2'] }}"></div>
         <div class="recitativos-linha"><label for="meninos_3">Mocinhos</label><input type="number" min="0" id="meninos_3" name="meninos_3" value="{{ registro['meninos_3'] }}"></div>
         <div class="recitativos-linha"><label for="meninos_4">Moços</label><input type="number" min="0" id="meninos_4" name="meninos_4" value="{{ registro['meninos_4'] }}"></div>
+        <div class="recitativos-linha"><label for="auxiliares_masculinos">Auxiliares</label><input type="number" min="0" id="auxiliares_masculinos" name="auxiliares_masculinos" value="{{ registro['auxiliares_masculinos'] }}"></div>
         <input type="hidden" name="meninos_5" value="{{ registro['meninos_5'] }}">
         <input type="hidden" name="meninos_6" value="{{ registro['meninos_6'] }}">
         <div class="recitativos-total"><span>Total</span><span id="total-meninos">0</span></div>
       </div>
-    </div>
-    <div class="field" style="max-width:240px; margin-top:14px;">
-      <label for="auxiliares_presentes">Auxiliares presentes</label>
-      <input type="number" min="0" id="auxiliares_presentes" name="auxiliares_presentes" value="{{ registro['auxiliares_presentes'] }}">
     </div>
     <div class="total-geral-box">
       <div class="value" id="total-geral">0</div>

@@ -55,7 +55,8 @@ def _dados_do_formulario():
         "recitativos_individuais": _campo_int("recitativos_individuais"),
         "testemunhos": _campo_int("testemunhos"),
         "visitas": texto_visitas(request.form.get("visitas", "").split(";")),
-        "auxiliares_presentes": _campo_int("auxiliares_presentes"),
+        "auxiliares_masculinos": _campo_int("auxiliares_masculinos"),
+        "auxiliares_femininos": _campo_int("auxiliares_femininos"),
         "oracao_pai_nosso": request.form.get("oracao_pai_nosso", "").strip(),
         "livro": request.form.get("livro", "").strip(),
         "capitulo": request.form.get("capitulo", "").strip(),
@@ -129,7 +130,7 @@ def novo_registro():
         "meninas_1": "", "meninas_2": "", "meninas_3": "", "meninas_4": "", "meninas_5": "", "meninas_6": "",
         "meninos_1": "", "meninos_2": "", "meninos_3": "", "meninos_4": "", "meninos_5": "", "meninos_6": "",
         "recitativos_individuais": "", "testemunhos": "", "visitas": "",
-        "auxiliares_presentes": "", "oracao_pai_nosso": "",
+        "auxiliares_masculinos": "", "auxiliares_femininos": "", "oracao_pai_nosso": "",
         "livro": "", "capitulo": "", "versiculo": "", "presidido_por": "",
     }
     return render_template(

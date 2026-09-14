@@ -91,10 +91,12 @@ def dashboard():
     serie_total = [por_data[d]["meninas"] + por_data[d]["meninos"] for d in datas_ordenadas]
 
     # ---- Irmãs x Irmãos por posição do recitativo --------------------
-    # Usa só as 3 posições do formulário ATUAL (crianças, meninas/meninos,
-    # moças/moços) — registros de 2022/2023 têm mais 3 colunas (mocinhas,
-    # continuação, particular) do formulário antigo, que ficam de fora
-    # deste gráfico específico para não misturar os dois modelos.
+    # Usa as 4 posições do formulário ATUAL (crianças, meninas/meninos,
+    # mocinhas/mocinhos, moças/moços) — Continuação e Particular (posições
+    # 5 e 6) só existiam no formulário antigo e ficam de fora deste gráfico
+    # específico para não misturar os dois modelos. Depois soma uma 5ª
+    # posição "Auxiliares", que vem de colunas próprias (não faz parte do
+    # quadro de recitativos).
     soma_meninas_pos = [0] * len(COLUNAS_GRAFICO_MENINAS)
     soma_meninos_pos = [0] * len(COLUNAS_GRAFICO_MENINOS)
     for r in linhas:
@@ -102,6 +104,10 @@ def dashboard():
             soma_meninas_pos[i] += r[c] or 0
         for i, c in enumerate(COLUNAS_GRAFICO_MENINOS):
             soma_meninos_pos[i] += r[c] or 0
+    soma_meninas_pos.append(sum(r["auxiliares_femininos"] or 0 for r in linhas))
+    soma_meninos_pos.append(sum(r["auxiliares_masculinos"] or 0 for r in linhas))
+    labels_meninas = RECITATIVOS_LABELS_MENINAS + ["Auxiliares"]
+    labels_meninos = RECITATIVOS_LABELS_MENINOS + ["Auxiliares"]
 
     # ---- Individuais x Visitas ao longo do tempo ---------------------
     por_data_extra = {}
@@ -136,8 +142,8 @@ def dashboard():
         "tendencia": {"labels": serie_labels, "datasCompletas": serie_datas_completas, "valores": serie_total},
         "categorias": {
             "series": [
-                {"nome": "Irmãs", "valores": soma_meninas_pos, "labels": RECITATIVOS_LABELS_MENINAS},
-                {"nome": "Irmãos", "valores": soma_meninos_pos, "labels": RECITATIVOS_LABELS_MENINOS},
+                {"nome": "Irmãs", "valores": soma_meninas_pos, "labels": labels_meninas},
+                {"nome": "Irmãos", "valores": soma_meninos_pos, "labels": labels_meninos},
             ],
         },
         "individuais_visitas": {
