@@ -34,17 +34,18 @@ RECITATIVOS_LABELS = [
     "Particular",
 ]
 
-# O gráfico "Irmãs x Irmãos" segue o formulário ATUAL da congregação (só 3
-# posições: crianças, meninas/meninos, moças/moços) — não as 6 colunas do
-# caderno antigo. "Mocinhas/Mocinhos", "Continuação" e "Particular" só
-# existem em registros de 2022/2023 (formulário anterior); manter esses 3
-# de fora do gráfico evita misturar dois modelos de formulário diferentes
-# na mesma barra. Os valores continuam 100% guardados no banco (contam
-# nos KPIs de total) — só não entram nesse gráfico específico.
-COLUNAS_GRAFICO_MENINAS = ["meninas_1", "meninas_2", "meninas_4"]
-COLUNAS_GRAFICO_MENINOS = ["meninos_1", "meninos_2", "meninos_4"]
-RECITATIVOS_LABELS_MENINAS = ["Crianças", "Meninas", "Moças"]
-RECITATIVOS_LABELS_MENINOS = ["Crianças", "Meninos", "Moços"]
+# O gráfico "Irmãs x Irmãos" segue o formulário ATUAL da congregação:
+# crianças, meninas/meninos, mocinhas/mocinhos, moças/moços — as 4 posições
+# que continuam sendo digitadas hoje. "Continuação" e "Particular" (posições
+# 5 e 6) não fazem mais parte do formulário atual; ficam de fora do gráfico
+# mas continuam 100% guardados no banco (contam nos KPIs de total). O
+# gráfico ainda ganha uma 5ª posição "Auxiliares" (controllers/dashboard.py),
+# somada à parte porque vem de colunas próprias (auxiliares_masculinos/
+# auxiliares_femininos), não do quadro de recitativos.
+COLUNAS_GRAFICO_MENINAS = ["meninas_1", "meninas_2", "meninas_3", "meninas_4"]
+COLUNAS_GRAFICO_MENINOS = ["meninos_1", "meninos_2", "meninos_3", "meninos_4"]
+RECITATIVOS_LABELS_MENINAS = ["Crianças", "Meninas", "Mocinhas", "Moças"]
+RECITATIVOS_LABELS_MENINOS = ["Crianças", "Meninos", "Mocinhos", "Moços"]
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS registros (
@@ -71,6 +72,8 @@ CREATE TABLE IF NOT EXISTS registros (
     testemunhos INTEGER NOT NULL DEFAULT 0,
     visitas TEXT NOT NULL DEFAULT '',
     auxiliares_presentes TEXT NOT NULL DEFAULT '',
+    auxiliares_masculinos INTEGER NOT NULL DEFAULT 0,
+    auxiliares_femininos INTEGER NOT NULL DEFAULT 0,
     oracao_pai_nosso TEXT,
     livro TEXT,
     capitulo TEXT,
@@ -128,6 +131,10 @@ def _garantir_colunas_formulario_atual(conn):
     existentes = {row["name"] for row in conn.execute("PRAGMA table_info(registros)").fetchall()}
     if "auxiliares_presentes" not in existentes:
         conn.execute("ALTER TABLE registros ADD COLUMN auxiliares_presentes TEXT NOT NULL DEFAULT ''")
+    if "auxiliares_masculinos" not in existentes:
+        conn.execute("ALTER TABLE registros ADD COLUMN auxiliares_masculinos INTEGER NOT NULL DEFAULT 0")
+    if "auxiliares_femininos" not in existentes:
+        conn.execute("ALTER TABLE registros ADD COLUMN auxiliares_femininos INTEGER NOT NULL DEFAULT 0")
     if "oracao_pai_nosso" not in existentes:
         conn.execute("ALTER TABLE registros ADD COLUMN oracao_pai_nosso TEXT NOT NULL DEFAULT ''")
     if "testemunhos" not in existentes:

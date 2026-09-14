@@ -93,6 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const LOCALIDADES = window.LOCALIDADES_CCB || {};
   const selEstado = document.getElementById("estado");
   const selCidade = document.getElementById("cidade");
+  const selPais = document.getElementById("pais");
   const estadoOculto = document.getElementById("estado-oculto");
   const cidadeOculto = document.getElementById("cidade-oculto");
   const campoLocal = document.getElementById("local");
@@ -154,6 +155,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const estadoValido = estado && [...selEstado.options].some((o) => o.value === estado);
     selEstado.value = estadoValido ? estado : "";
     popularCidades(selEstado.value, cidade || "");
+    // A base de localidades (LOCALIDADES_CCB) só tem cidades brasileiras —
+    // achou um Estado válido a partir do Local, então o País é Brasil.
+    // Continua editável na mão pra quem realmente precisar de outro país.
+    if (estadoValido && selPais) selPais.value = "Brasil";
   }
 
   // Tenta descobrir Estado/Cidade a partir do texto livre do campo Local —
