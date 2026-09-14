@@ -27,19 +27,32 @@ def visitas_conhecidas(conn):
     return sorted(nomes)
 
 
-def nomes_conhecidos(conn):
-    """Nomes de irmãos já usados em Presidência ou Presidido por — não existe
-    uma lista pública dos irmãos no ministério (isso fica atrás da Área
-    Restrita do site da CCB, que exige login administrativo), então a
-    sugestão aprende sozinha com o que já foi digitado certo antes, pra
-    reduzir erro de digitação nas próximas vezes."""
-    linhas = conn.execute("SELECT presidencia, presidido_por FROM registros").fetchall()
+def auxiliares_conhecidos(conn):
+    """Nomes de auxiliares já registrados como presentes alguma vez —
+    alimenta as opções (datalist) do campo Auxiliares Presentes. Reaproveita
+    lista_visitas/texto_visitas: o formato salvo (nomes separados por ";")
+    é o mesmo, só o significado do campo é diferente."""
+    linhas = conn.execute(
+        "SELECT auxiliares_presentes FROM registros WHERE auxiliares_presentes IS NOT NULL AND TRIM(auxiliares_presentes) != ''"
+    ).fetchall()
     nomes = set()
     for r in linhas:
-        if r["presidencia"] and r["presidencia"].strip():
-            nomes.add(r["presidencia"].strip())
-        if r["presidido_por"] and r["presidido_por"].strip():
-            nomes.add(r["presidido_por"].strip())
+        nomes.update(lista_visitas(r["auxiliares_presentes"]))
+    return sorted(nomes)
+
+
+def nomes_conhecidos(conn):
+    """Nomes de irmãos já usados em Presidência, Presidido por ou Oração Pai
+    Nosso — não existe uma lista pública dos irmãos no ministério (isso fica
+    atrás da Área Restrita do site da CCB, que exige login administrativo),
+    então a sugestão aprende sozinha com o que já foi digitado certo antes,
+    pra reduzir erro de digitação nas próximas vezes."""
+    linhas = conn.execute("SELECT presidencia, presidido_por, oracao_pai_nosso FROM registros").fetchall()
+    nomes = set()
+    for r in linhas:
+        for campo in ("presidencia", "presidido_por", "oracao_pai_nosso"):
+            if r[campo] and r[campo].strip():
+                nomes.add(r[campo].strip())
     return sorted(nomes)
 
 

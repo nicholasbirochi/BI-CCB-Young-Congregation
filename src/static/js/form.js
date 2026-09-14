@@ -264,71 +264,105 @@ document.addEventListener("DOMContentLoaded", () => {
     agendarSalvamento();
   });
 
-  // --------------------------------- Visitas: chips de igrejas (em vez de um número) ---------------------------------
-  const inputVisita = document.getElementById("visita-input");
-  const btnVisitaAdicionar = document.getElementById("visita-adicionar");
-  const chipsVisitas = document.getElementById("visitas-chips");
-  const hiddenVisitas = document.getElementById("visitas");
-  const resultadosVisita = document.getElementById("resultados-visita");
+  // --------------------------------- Chips de nomes (Visitas, Auxiliares presentes) ---------------------------------
+  // Os dois campos guardam uma lista de nomes separados por "; " — mesma
+  // lógica de chip pros dois, só muda qual input/hidden/lista cada um usa.
+  // Devolve a função "adicionar" pra quem quiser plugar a busca ao vivo de
+  // localidades também (caso do campo Visitas).
+  function criarChipsDeNomes({ inputEl, botaoEl, chipsEl, hiddenEl }) {
+    if (!inputEl || !chipsEl || !hiddenEl) return null;
 
-  function listaVisitasAtual() {
-    return hiddenVisitas.value ? hiddenVisitas.value.split(";").map((s) => s.trim()).filter(Boolean) : [];
-  }
+    function listaAtual() {
+      return hiddenEl.value ? hiddenEl.value.split(";").map((s) => s.trim()).filter(Boolean) : [];
+    }
 
-  function renderChipsVisitas() {
-    if (!chipsVisitas) return;
-    chipsVisitas.innerHTML = "";
-    listaVisitasAtual().forEach((nome, i) => {
-      const chip = document.createElement("span");
-      chip.className = "chip";
-      const texto = document.createElement("span");
-      texto.textContent = nome;
-      const remover = document.createElement("button");
-      remover.type = "button";
-      remover.setAttribute("aria-label", `Remover ${nome}`);
-      remover.textContent = "×";
-      remover.addEventListener("click", () => {
-        const nova = listaVisitasAtual();
-        nova.splice(i, 1);
-        hiddenVisitas.value = nova.join("; ");
-        renderChipsVisitas();
-        hiddenVisitas.dispatchEvent(new Event("input", { bubbles: true }));
+    function renderChips() {
+      chipsEl.innerHTML = "";
+      listaAtual().forEach((nome, i) => {
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        const texto = document.createElement("span");
+        texto.textContent = nome;
+        const remover = document.createElement("button");
+        remover.type = "button";
+        remover.setAttribute("aria-label", `Remover ${nome}`);
+        remover.textContent = "×";
+        remover.addEventListener("click", () => {
+          const nova = listaAtual();
+          nova.splice(i, 1);
+          hiddenEl.value = nova.join("; ");
+          renderChips();
+          hiddenEl.dispatchEvent(new Event("input", { bubbles: true }));
+        });
+        chip.appendChild(texto);
+        chip.appendChild(remover);
+        chipsEl.appendChild(chip);
       });
-      chip.appendChild(texto);
-      chip.appendChild(remover);
-      chipsVisitas.appendChild(chip);
+    }
+
+    function adicionarNome(nome) {
+      if (!nome) return;
+      const atual = listaAtual();
+      if (!atual.includes(nome)) atual.push(nome);
+      hiddenEl.value = atual.join("; ");
+      renderChips();
+      hiddenEl.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    function adicionarDoInput() {
+      adicionarNome(inputEl.value.trim());
+      inputEl.value = "";
+    }
+
+    if (botaoEl) botaoEl.addEventListener("click", adicionarDoInput);
+    inputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); adicionarDoInput(); }
     });
+    renderChips(); // estado inicial (editando um registro existente)
+
+    return { adicionarNome, renderChips };
   }
 
-  // Usada tanto pelo botão "+"/Enter (nome digitado à mão) quanto pela
-  // busca ao vivo na base de localidades (nome escolhido de um resultado
-  // real do diretório oficial da CCB).
-  function adicionarNomeVisita(nome) {
-    if (!nome) return;
-    const atual = listaVisitasAtual();
-    if (!atual.includes(nome)) atual.push(nome);
-    hiddenVisitas.value = atual.join("; ");
-    renderChipsVisitas();
-    hiddenVisitas.dispatchEvent(new Event("input", { bubbles: true }));
-  }
-
-  function adicionarVisita() {
-    adicionarNomeVisita(inputVisita.value.trim());
-    inputVisita.value = "";
-  }
-
-  if (inputVisita && btnVisitaAdicionar && chipsVisitas && hiddenVisitas) {
-    btnVisitaAdicionar.addEventListener("click", adicionarVisita);
-    inputVisita.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") { e.preventDefault(); adicionarVisita(); }
-    });
-    // Visitas também é alimentado pela base de localidades: a mesma busca
-    // ao vivo do campo Local, aqui adicionando direto como chip.
-    ativarBuscaLocalidade(inputVisita, resultadosVisita, (item) => {
-      adicionarNomeVisita(`${item.nome} — ${item.cidade}`);
+  const chipsVisitas = criarChipsDeNomes({
+    inputEl: document.getElementById("visita-input"),
+    botaoEl: document.getElementById("visita-adicionar"),
+    chipsEl: document.getElementById("visitas-chips"),
+    hiddenEl: document.getElementById("visitas"),
+  });
+  // Visitas também é alimentado pela base de localidades: a mesma busca ao
+  // vivo do campo Local, aqui adicionando direto como chip.
+  if (chipsVisitas) {
+    const inputVisita = document.getElementById("visita-input");
+    ativarBuscaLocalidade(inputVisita, document.getElementById("resultados-visita"), (item) => {
+      chipsVisitas.adicionarNome(`${item.nome} — ${item.cidade}`);
       inputVisita.value = "";
     });
-    renderChipsVisitas(); // estado inicial (editando um registro existente)
+  }
+
+  const chipsAuxiliares = criarChipsDeNomes({
+    inputEl: document.getElementById("auxiliar-input"),
+    botaoEl: document.getElementById("auxiliar-adicionar"),
+    chipsEl: document.getElementById("auxiliares-chips"),
+    hiddenEl: document.getElementById("auxiliares_presentes"),
+  });
+
+  function renderChipsVisitas() { if (chipsVisitas) chipsVisitas.renderChips(); }
+  function renderChipsAuxiliares() { if (chipsAuxiliares) chipsAuxiliares.renderChips(); }
+
+  // -------------------------------- Recitativos: campos do formulário antigo --------------------------------
+  // Mocinhas/Mocinhos, Continuação e Particular só existem em registros de
+  // antes de out/2024 — ficam escondidos por padrão (o formulário atual só
+  // tem Crianças/Meninas(os)/Moças(os)) e só aparecem abertos automaticamente
+  // ao editar um registro que já tem algum valor neles (veja tem_campos_antigos
+  // em controllers/registros.py).
+  const btnToggleAntigos = document.getElementById("toggle-campos-antigos");
+  const camposAntigos = document.querySelectorAll(".campo-antigo");
+  if (btnToggleAntigos && camposAntigos.length) {
+    btnToggleAntigos.addEventListener("click", () => {
+      const mostrar = camposAntigos[0].hidden;
+      camposAntigos.forEach((el) => { el.hidden = !mostrar; });
+      btnToggleAntigos.textContent = mostrar ? "ocultar" : "mostrar";
+    });
   }
 
   // ------------------------------------------------------------- rascunho automático
@@ -365,6 +399,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (campoLocal) derivarLocalizacao(campoLocal.value);
     renderChipsVisitas();
+    renderChipsAuxiliares();
     atualizarTotais();
     restaurando = false;
     salvarRascunho();
