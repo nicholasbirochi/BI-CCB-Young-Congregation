@@ -142,6 +142,7 @@
       labels: dashboardData.tendencia.labels,
       datasCompletas: dashboardData.tendencia.datasCompletas,
       series: [{ name: "Total geral", color: cor(0), values: dashboardData.tendencia.valores }],
+      stepY: 100,
     });
 
     CCBCharts.renderPyramidChart(document.getElementById("chart-categorias"), {
