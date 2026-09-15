@@ -651,6 +651,53 @@ table.data-table {
 .field textarea { resize: vertical; min-height: 64px; }
 .field select:disabled { opacity: .5; cursor: not-allowed; }
 
+.muted { color: var(--text-muted); }
+
+/* Intervalo de versículo (De/até): "Capítulo inteiro" é uma opção dentro do
+   próprio select de início — ao escolher ela, o "até" some (o select ou o
+   "até" ficam com o atributo hidden, que aqui precisa de reforço porque o
+   container é flex e a regra nativa de [hidden] perde de especificidade). */
+.versiculo-range { display: flex; align-items: center; gap: 8px; }
+.versiculo-range select { flex: 1; min-width: 0; }
+.versiculo-range [hidden] { display: none; }
+
+/* Contador (Recitativos individuais): dois botões dentro do próprio campo,
+   no lugar da setinha nativa do <input type=number> — feia e inconsistente
+   entre navegadores. */
+.stepper {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.stepper-btn {
+  flex: none;
+  width: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.stepper-btn:hover { background: var(--border); color: var(--text-primary); }
+.stepper-btn:active { filter: brightness(.95); }
+.field .stepper input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  text-align: center;
+  border-radius: 0;
+}
+.field .stepper input:focus { outline: none; }
+.stepper input::-webkit-inner-spin-button,
+.stepper input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.stepper input[type="number"] { -moz-appearance: textfield; }
+
 .resultados-localidade[hidden] { display: none; }
 .resultados-localidade {
   position: absolute;
