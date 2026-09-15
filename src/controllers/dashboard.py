@@ -37,6 +37,15 @@ def _periodo_do_filtro():
     fim_custom = request.args.get("fim", "")
 
     if chave == "personalizado" and inicio_custom and fim_custom:
+        # O <input type="date" max="..."> já trava isso no navegador, mas
+        # alguém digitando a data direto na URL passaria por cima — trava de
+        # novo aqui: não deixa filtrar período que ainda nem chegou.
+        inicio_custom = min(inicio_custom, hoje.isoformat())
+        fim_custom = min(fim_custom, hoje.isoformat())
+        # Nem período "de trás pra frente" (fim antes do início) — se vier
+        # assim, inverte em vez de dar erro.
+        if fim_custom < inicio_custom:
+            inicio_custom, fim_custom = fim_custom, inicio_custom
         return inicio_custom, fim_custom, "Personalizado", chave
     if chave == "tudo":
         return "0000-01-01", "9999-12-31", "Todo o histórico", chave
@@ -177,6 +186,9 @@ def dashboard():
         # branco no "Tudo", já que 0000-01-01/9999-12-31 não é uma data real.
         inicio=inicio if chave_periodo != "tudo" else "",
         fim=fim if chave_periodo != "tudo" else "",
+        # Trava o calendário: não deixa escolher período que ainda não
+        # chegou (veja o <input max="..."> e o form.js do filtro).
+        hoje=date.today().isoformat(),
         localidades=localidades_conhecidas(conn),
         estados_ccb=list(LOCALIDADES_CCB.keys()), localidades_ccb=LOCALIDADES_CCB,
         visitas_conhecidas=visitas_conhecidas(conn), nomes_conhecidos=nomes_conhecidos(conn),
