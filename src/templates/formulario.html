@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_icons.html" import icon_plus %}
+{% from "_icons.html" import icon_plus, icon_minus %}
 {% block titulo %}{{ 'Editar registro' if modo == 'editar' else 'Novo registro' }} · BI Jovens e Menores{% endblock %}
 {% block conteudo %}
 <div class="page-header">
@@ -123,7 +123,11 @@
     <div class="field-grid">
       <div class="field">
         <label for="recitativos_individuais">Recitativos individuais</label>
-        <input type="number" min="0" id="recitativos_individuais" name="recitativos_individuais" value="{{ registro['recitativos_individuais'] }}">
+        <div class="stepper">
+          <button type="button" class="stepper-btn" id="individuais-menos" aria-label="Diminuir">{{ icon_minus(14) }}</button>
+          <input type="number" min="0" inputmode="numeric" id="recitativos_individuais" name="recitativos_individuais" value="{{ registro['recitativos_individuais'] }}">
+          <button type="button" class="stepper-btn" id="individuais-mais" aria-label="Aumentar">{{ icon_plus(14) }}</button>
+        </div>
       </div>
       <!-- Testemunhos não faz parte do formulário atual — segue existindo no
            banco (registros antigos não podem perder o valor), só não aparece
@@ -163,10 +167,19 @@
         </select>
       </div>
       <div class="field">
-        <label for="versiculo">Versículo</label>
-        <select id="versiculo" name="versiculo" disabled>
-          <option value="">—</option>
-        </select>
+        <label for="versiculo-inicio">Versículo</label>
+        <!-- "Capítulo inteiro" é só mais uma opção dentro do próprio select
+             de início — ao escolher ela, o "até" (2º select) some, já que
+             não faz sentido perguntar onde termina. -->
+        <div class="versiculo-range">
+          <select id="versiculo-inicio" disabled><option value="">De</option></select>
+          <span class="muted" id="versiculo-ate-rotulo">até</span>
+          <select id="versiculo-fim" disabled><option value="">até</option></select>
+        </div>
+        <!-- O texto de verdade que viaja no POST ("1-10", "23", "Todos"...) é
+             montado pelo form.js a partir dos dois selects acima; eles nunca
+             têm "name" próprio. -->
+        <input type="hidden" id="versiculo" name="versiculo" value="{{ registro['versiculo'] }}">
       </div>
       <div class="field">
         <label for="presidido_por">Presidido por</label>

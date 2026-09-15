@@ -45,13 +45,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const registroAtual = window.REGISTRO_ATUAL || {};
   const selLivro = document.getElementById("livro");
   const selCapitulo = document.getElementById("capitulo");
-  const selVersiculo = document.getElementById("versiculo");
+  const selVersiculoInicio = document.getElementById("versiculo-inicio");
+  const selVersiculoFim = document.getElementById("versiculo-fim");
+  const rotuloAte = document.getElementById("versiculo-ate-rotulo");
+  const versiculoOculto = document.getElementById("versiculo");
+  const VALOR_CAPITULO_INTEIRO = "todos";
 
-  function popularOpcoes(select, quantidade, valorSelecionado) {
+  function popularOpcoes(select, quantidade, valorSelecionado, rotuloPreenchido) {
     select.innerHTML = "";
     const optVazia = document.createElement("option");
     optVazia.value = "";
-    optVazia.textContent = quantidade ? "Selecione..." : "—";
+    optVazia.textContent = quantidade ? (rotuloPreenchido || "Selecione...") : "—";
     select.appendChild(optVazia);
     for (let i = 1; i <= quantidade; i++) {
       const opt = document.createElement("option");
@@ -63,11 +67,60 @@ document.addEventListener("DOMContentLoaded", () => {
     select.disabled = quantidade === 0;
   }
 
+  // "Capítulo inteiro" é só mais uma opção dentro do próprio select de
+  // início (logo depois do "De") — não um campo à parte.
+  function popularOpcoesInicio(quantidade, valorSelecionado, capituloInteiro) {
+    popularOpcoes(selVersiculoInicio, quantidade, capituloInteiro ? "" : valorSelecionado, "De");
+    if (quantidade) {
+      const optTodos = document.createElement("option");
+      optTodos.value = VALOR_CAPITULO_INTEIRO;
+      optTodos.textContent = "Capítulo inteiro";
+      optTodos.selected = !!capituloInteiro;
+      selVersiculoInicio.insertBefore(optTodos, selVersiculoInicio.options[1] || null);
+    }
+  }
+
+  // O campo Versículo sempre foi texto livre no banco ("1-10", "todos",
+  // "1 a 32", "13 e 14"...) porque cada época/pessoa preencheu do seu jeito
+  // no papel — reconhece esses formatos pra pré-selecionar Início/Fim (ou
+  // "Capítulo inteiro") certo ao editar um registro antigo.
+  function interpretarVersiculo(texto) {
+    const bruto = (texto || "").trim();
+    if (!bruto) return { inteiro: false, inicio: "", fim: "" };
+    if (/^(todos?|tudo|inteiro|completo)$/i.test(bruto)) return { inteiro: true, inicio: "", fim: "" };
+    const numeros = bruto.match(/\d+/g);
+    if (!numeros || !numeros.length) return { inteiro: false, inicio: "", fim: "" };
+    return { inteiro: false, inicio: numeros[0], fim: numeros[numeros.length - 1] };
+  }
+
+  // Enquanto o início não é "Capítulo inteiro", o "até" fica esperando pra
+  // dizer onde o trecho termina; ao escolher "Capítulo inteiro" ele some
+  // (não faz sentido perguntar onde termina algo que já é o capítulo todo).
+  function atualizarVisibilidadeFim() {
+    const ehCapituloInteiro = selVersiculoInicio.value === VALOR_CAPITULO_INTEIRO;
+    selVersiculoFim.hidden = ehCapituloInteiro;
+    if (rotuloAte) rotuloAte.hidden = ehCapituloInteiro;
+    if (ehCapituloInteiro) selVersiculoFim.value = "";
+  }
+
+  function atualizarVersiculoOculto() {
+    if (!versiculoOculto) return;
+    const inicio = selVersiculoInicio.value;
+    if (inicio === VALOR_CAPITULO_INTEIRO) { versiculoOculto.value = "Todos"; return; }
+    if (!inicio) { versiculoOculto.value = ""; return; }
+    const fim = selVersiculoFim.value;
+    versiculoOculto.value = (!fim || fim === inicio) ? inicio : `${inicio}-${fim}`;
+  }
+
   function aoMudarCapitulo(valorVersiculoDesejado) {
     const capitulos = BIBLIA[selLivro.value] || [];
     const capSelecionado = parseInt(selCapitulo.value, 10);
     const totalVersiculos = capitulos[capSelecionado - 1] || 0;
-    popularOpcoes(selVersiculo, totalVersiculos, valorVersiculoDesejado);
+    const alvo = interpretarVersiculo(valorVersiculoDesejado);
+    popularOpcoesInicio(totalVersiculos, alvo.inicio, alvo.inteiro);
+    popularOpcoes(selVersiculoFim, totalVersiculos, alvo.fim, "até");
+    atualizarVisibilidadeFim();
+    atualizarVersiculoOculto();
   }
 
   function aoMudarLivro(valorCapituloDesejado, valorVersiculoDesejado) {
@@ -76,11 +129,48 @@ document.addEventListener("DOMContentLoaded", () => {
     aoMudarCapitulo(valorVersiculoDesejado);
   }
 
-  if (selLivro && selCapitulo && selVersiculo) {
+  if (selLivro && selCapitulo && selVersiculoInicio && selVersiculoFim) {
     selLivro.addEventListener("change", () => aoMudarLivro());
     selCapitulo.addEventListener("change", () => aoMudarCapitulo());
+    selVersiculoInicio.addEventListener("change", () => {
+      atualizarVisibilidadeFim();
+      // Não deixa escolher um "até" antes do "De" (mesma lógica já usada no
+      // filtro de período do Análises: trava o campo em vez de deixar
+      // inverter e dar um intervalo sem sentido).
+      if (!selVersiculoFim.hidden && selVersiculoFim.value &&
+          Number(selVersiculoFim.value) < Number(selVersiculoInicio.value)) {
+        selVersiculoFim.value = selVersiculoInicio.value;
+      }
+      atualizarVersiculoOculto();
+    });
+    selVersiculoFim.addEventListener("change", () => {
+      if (selVersiculoInicio.value && selVersiculoInicio.value !== VALOR_CAPITULO_INTEIRO &&
+          Number(selVersiculoInicio.value) > Number(selVersiculoFim.value)) {
+        selVersiculoInicio.value = selVersiculoFim.value;
+      }
+      atualizarVersiculoOculto();
+    });
     // Estado inicial: preenche capítulo/versículo se já vier de um registro existente.
     aoMudarLivro(registroAtual.capitulo, registroAtual.versiculo);
+  }
+
+  // ------------------------------------------------ recitativos individuais (contador)
+  // Substitui a setinha nativa do <input type=number> (feia e inconsistente
+  // entre navegadores) por dois botões dentro do próprio campo.
+  const campoIndividuais = document.getElementById("recitativos_individuais");
+  const botaoIndividuaisMenos = document.getElementById("individuais-menos");
+  const botaoIndividuaisMais = document.getElementById("individuais-mais");
+  if (campoIndividuais && botaoIndividuaisMenos && botaoIndividuaisMais) {
+    botaoIndividuaisMenos.addEventListener("click", () => {
+      const atual = parseInt(campoIndividuais.value, 10) || 0;
+      campoIndividuais.value = Math.max(0, atual - 1);
+      campoIndividuais.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    botaoIndividuaisMais.addEventListener("click", () => {
+      const atual = parseInt(campoIndividuais.value, 10) || 0;
+      campoIndividuais.value = atual + 1;
+      campoIndividuais.dispatchEvent(new Event("input", { bubbles: true }));
+    });
   }
 
   // ------------------------------------------- Local/Congregação -> Estado/Cidade
@@ -379,7 +469,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (el.name === "capitulo" || el.name === "versiculo") return;
       if (dados[el.name] !== undefined) el.value = dados[el.name];
     });
-    if (selLivro && selCapitulo && selVersiculo) {
+    if (selLivro && selCapitulo && selVersiculoInicio) {
       aoMudarLivro(dados.capitulo, dados.versiculo);
     }
     if (campoLocal) derivarLocalizacao(campoLocal.value);
