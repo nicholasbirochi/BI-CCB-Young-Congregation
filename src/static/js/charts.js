@@ -47,7 +47,16 @@
     return step * magnitude;
   }
 
-  function niceTicks(max, count) {
+  function niceTicks(max, count, step) {
+    // Com "step" fixo (ex.: de 100 em 100), ignora o count e sobe em
+    // múltiplos exatos do step até passar do maior valor — em vez do passo
+    // "arredondado" (125, 375...) que o cálculo automático abaixo geraria.
+    if (step) {
+      const top = Math.max(step, Math.ceil(max / step) * step);
+      const ticks = [];
+      for (let v = 0; v <= top; v += step) ticks.push(v);
+      return ticks;
+    }
     const top = niceMax(max);
     const ticks = [];
     for (let i = 0; i <= count; i++) {
@@ -209,7 +218,7 @@
     const plotH = height - padT - padB;
 
     const maxVal = Math.max(1, ...series.flatMap((s) => s.values));
-    const ticks = niceTicks(maxVal, 4);
+    const ticks = niceTicks(maxVal, 4, opts.stepY);
     const top = ticks[ticks.length - 1];
 
     const svg = el("svg", { viewBox: `0 0 ${width} ${height}`, width: "100%", height, role: "img" });
