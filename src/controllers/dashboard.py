@@ -104,8 +104,10 @@ def dashboard():
     # mocinhas/mocinhos, moças/moços) — Continuação e Particular (posições
     # 5 e 6) só existiam no formulário antigo e ficam de fora deste gráfico
     # específico para não misturar os dois modelos. Depois soma uma 5ª
-    # posição "Auxiliares", que vem de colunas próprias (não faz parte do
-    # quadro de recitativos).
+    # posição "Auxiliares", que vem de colunas próprias (auxiliares_femininos/
+    # auxiliares_masculinos) em vez de meninas_5/meninos_5 — apesar de contar
+    # no Total de cada coluna (total_meninas/total_meninos), Auxiliares tem
+    # campo próprio no formulário, não é uma posição do quadro de recitativos.
     soma_meninas_pos = [0] * len(COLUNAS_GRAFICO_MENINAS)
     soma_meninos_pos = [0] * len(COLUNAS_GRAFICO_MENINOS)
     for r in linhas:

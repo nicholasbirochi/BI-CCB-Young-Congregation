@@ -156,11 +156,14 @@ def close_db(exception=None):
 
 
 def total_meninas(row):
-    return sum(int(row[c] or 0) for c in COLUNAS_MENINAS)
+    # Auxiliares entra na soma: no formulário impresso ela é só mais uma
+    # linha do quadro de recitativos, e o "Total" de cada coluna já sai
+    # somado assim de fábrica — não é um número à parte.
+    return sum(int(row[c] or 0) for c in COLUNAS_MENINAS) + int(row["auxiliares_femininos"] or 0)
 
 
 def total_meninos(row):
-    return sum(int(row[c] or 0) for c in COLUNAS_MENINOS)
+    return sum(int(row[c] or 0) for c in COLUNAS_MENINOS) + int(row["auxiliares_masculinos"] or 0)
 
 
 def total_geral(row):
