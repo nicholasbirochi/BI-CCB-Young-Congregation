@@ -265,6 +265,32 @@
       svg.appendChild(el("circle", { cx: last[0], cy: last[1], r: 5, fill: s.color, stroke: cssVar("--surface-1"), "stroke-width": 2 }));
     });
 
+    // linha de tendência — regressão linear simples sobre a 1ª série,
+    // pontilhada, vermelha se a inclinação é negativa (caindo) ou verde se
+    // positiva (subindo). É a mesma leitura das cores de status usadas no
+    // resto do app (--critical/--good), só que aqui como indicador de
+    // direção, não de categoria.
+    if (opts.mostrarTendencia && series.length && series[0].values.length >= 2) {
+      const valores = series[0].values;
+      const n = valores.length;
+      const somaX = (n * (n - 1)) / 2;
+      const somaXX = valores.reduce((acc, _, i) => acc + i * i, 0);
+      const somaY = valores.reduce((acc, v) => acc + v, 0);
+      const somaXY = valores.reduce((acc, v, i) => acc + i * v, 0);
+      const den = n * somaXX - somaX * somaX;
+      if (den !== 0) {
+        const inclinacao = (n * somaXY - somaX * somaY) / den;
+        const intercepto = (somaY - inclinacao * somaX) / n;
+        const cor = inclinacao < 0 ? cssVar("--critical") : cssVar("--good");
+        const yInicio = yFor(Math.max(0, intercepto));
+        const yFim = yFor(Math.max(0, intercepto + inclinacao * (n - 1)));
+        svg.appendChild(el("line", {
+          x1: xFor(0), x2: xFor(n - 1), y1: yInicio, y2: yFim,
+          stroke: cor, "stroke-width": 2, "stroke-dasharray": "7 5", "stroke-linecap": "round",
+        }));
+      }
+    }
+
     // crosshair + tooltip
     const crosshair = el("line", { x1: 0, x2: 0, y1: padT, y2: padT + plotH, stroke: cssVar("--axis-line"), "stroke-width": 1, opacity: 0 });
     svg.appendChild(crosshair);
