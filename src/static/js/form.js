@@ -9,8 +9,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const campo = (nome) => form.querySelector(`[name="${nome}"]`);
 
   // ------------------------------------------------------ totais dos recitativos
-  const camposMeninas = ["meninas_1", "meninas_2", "meninas_3", "meninas_4", "meninas_5", "meninas_6"];
-  const camposMeninos = ["meninos_1", "meninos_2", "meninos_3", "meninos_4", "meninos_5", "meninos_6"];
+  // Auxiliares entra no total: no formulário impresso ela é só mais uma
+  // linha do quadro de recitativos (o "Total" de cada coluna já sai somado
+  // assim), não um número à parte.
+  const camposMeninas = ["meninas_1", "meninas_2", "meninas_3", "meninas_4", "meninas_5", "meninas_6", "auxiliares_femininos"];
+  const camposMeninos = ["meninos_1", "meninos_2", "meninos_3", "meninos_4", "meninos_5", "meninos_6", "auxiliares_masculinos"];
 
   function soma(nomes) {
     return nomes.reduce((acc, nome) => {
