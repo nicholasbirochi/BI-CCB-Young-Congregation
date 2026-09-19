@@ -159,48 +159,37 @@ async function logout() {
 }
 
 async function renderMenu() {
-  const summary = await api("/api/summary");
+  const linkAcesso = location.origin;
   $("#app-root").innerHTML = `
-    <div class="page-header">
-      <div>
-        <h1>Menu</h1>
-        <p class="subtitle">${escapeHtml(PAPEIS[app.session.papel])}</p>
-      </div>
+    <div class="hero">
+      <h1>Reunião de Jovens e Menores</h1>
+      <p>Congregação Cristã no Brasil - registre os formulários e acompanhe as análises.</p>
+      <p class="hero-papel">${escapeHtml(PAPEIS[app.session.papel])}</p>
     </div>
-    <div class="menu-grid">
-      <a class="card menu-card" href="#novo">
-        <strong>Novo registro</strong>
-        <span class="muted-small">Cadastrar a reunião pelo formulário digital.</span>
-      </a>
-      <a class="card menu-card" href="#registros">
-        <strong>Histórico</strong>
-        <span class="value">${numeroBr(summary.total_registros || 0)}</span>
-        <span class="muted-small">registros salvos</span>
-      </a>
-      ${app.session.papel === "cooperador" ? `
-        <a class="card menu-card" href="#dashboard">
-          <strong>Análises</strong>
-          <span class="muted-small">Indicadores, gráficos e filtros.</span>
-        </a>
-      ` : `
-        <div class="card menu-card">
-          <strong>Última reunião</strong>
-          <span class="value">${summary.ultima_reuniao ? dataBr(summary.ultima_reuniao) : "—"}</span>
-        </div>
-      `}
-    </div>
-    ${app.session.papel === "cooperador" ? `
-      <div class="card" style="margin-top:16px;">
-        <div class="toolbar-split">
-          <div>
-            <h2>Backup</h2>
-            <p class="subtitle">Exportação SQL dos registros atuais no D1.</p>
-          </div>
-          <a class="btn" href="/api/export.sql" target="_blank" rel="noopener">Baixar backup</a>
+
+    <div class="card network-banner">
+      <div class="info">
+        <h3>Acesso online</h3>
+        <p>Qualquer aparelho autorizado pode abrir este BI usando o link abaixo - não precisa instalar nada.</p>
+        <div class="network-link">
+          <span id="link-acesso">${escapeHtml(linkAcesso)}</span>
+          <button type="button" data-copy-target="#link-acesso">Copiar</button>
         </div>
       </div>
-    ` : ""}
+      <div class="qr-wrap">
+        <img src="/img/qrcode.svg" alt="QR code do link de acesso">
+      </div>
+    </div>
   `;
+  $("#app-root [data-copy-target]").addEventListener("click", async (event) => {
+    const button = event.currentTarget;
+    const target = $(button.dataset.copyTarget);
+    if (!target) return;
+    await navigator.clipboard.writeText(target.textContent.trim());
+    const original = button.textContent;
+    button.textContent = "Copiado!";
+    setTimeout(() => { button.textContent = original; }, 1500);
+  });
 }
 
 async function renderRegistros() {
