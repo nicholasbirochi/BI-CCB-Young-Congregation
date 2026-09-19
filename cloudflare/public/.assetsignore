@@ -1,0 +1,8 @@
+*.db
+*.sqlite
+*.sqlite3
+*.sql
+.env
+.dev.vars
+private/
+seed/

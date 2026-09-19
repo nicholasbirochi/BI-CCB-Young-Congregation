@@ -44,7 +44,10 @@
         <td class="num">{{ r.total_meninos | numero_br }}</td>
         <td class="num">{{ r.recitativos_individuais | numero_br }}</td>
         <td>{{ r.visitas | join(", ") or "—" }}</td>
-        <td>{% if r.livro %}{{ r.livro }} {{ r.capitulo }}{% if r.versiculo %}:{{ r.versiculo }}{% endif %}{% else %}—{% endif %}</td>
+        <!-- "Capítulo inteiro" (versiculo = Todos/Tudo/...) não aparece
+             depois dos dois-pontos — vira só "Livro Capítulo", o inteiro já
+             fica subentendido sem precisar escrever. -->
+        <td>{% if r.livro %}{{ r.livro }} {{ r.capitulo }}{% if r.versiculo and r.versiculo|lower not in ['todos', 'todo', 'tudo', 'inteiro', 'completo'] %}:{{ r.versiculo }}{% endif %}{% else %}—{% endif %}</td>
         <td>
           <div class="actions">
             <a class="btn small btn-icone" href="{{ url_for('registros.editar_registro', registro_id=r.id) }}" title="Editar" aria-label="Editar">{{ icon_pencil() }}</a>

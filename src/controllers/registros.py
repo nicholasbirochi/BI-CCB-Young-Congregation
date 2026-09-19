@@ -17,7 +17,6 @@ from models.database import (
 )
 from models.paises import PAISES_POR_CONTINENTE
 from services.localidades_ccb import LOCALIDADES_CCB
-from services.sugestoes import localidades_conhecidas, nomes_conhecidos, visitas_conhecidas
 
 bp = Blueprint("registros", __name__)
 
@@ -32,7 +31,7 @@ def _campo_int(nome):
         return 0
 
 
-def _dados_do_formulario():
+def _data_do_formulario():
     return {
         "data": request.form.get("data", "").strip(),
         "presidencia": request.form.get("presidencia", "").strip(),
@@ -40,6 +39,11 @@ def _dados_do_formulario():
         "local": request.form.get("local", "").strip(),
         "estado": request.form.get("estado", "").strip(),
         "cidade": request.form.get("cidade", "").strip(),
+        # Recitativo coletivo: algumas semanas o recitativo é feito "por
+        # conjunto" — só Crianças e um número único (Meninas+Mocinhas+Moças
+        # juntos) na caixinha de Moças/Moços, sem abrir por posição. Guarda
+        # o modo usado pra o formulário reabrir do jeito certo ao editar.
+        "recitativo_coletivo": 1 if request.form.get("recitativo_coletivo") == "1" else 0,
         "meninas_1": _campo_int("meninas_1"),
         "meninas_2": _campo_int("meninas_2"),
         "meninas_3": _campo_int("meninas_3"),
@@ -66,20 +70,16 @@ def _dados_do_formulario():
 
 
 def _contexto_formulario(conn, **extra):
-    """Dados que toda renderização do formulário precisa (localidades, listas
-    de sugestão, estrutura da Bíblia) — pra não repetir em três rotas."""
-    # Visitas também é alimentado pela base de localidades (as mesmas
-    # congregações já usadas no campo Local podem muito bem aparecer como
-    # visitantes um dia) — não só pelo próprio histórico de visitas.
-    localidades = localidades_conhecidas(conn)
+    """data que toda renderização do formulário precisa (estrutura da
+    Bíblia, base oficial de localidades) — pra não repetir em três rotas.
+    Local/Visitas/Presidência/Presidido por não têm mais sugestão nenhuma
+    (nem datalist nativo, nem histórico) — só a busca ao vivo de Local e
+    Visitas no diretório oficial da CCB, que não depende de nada daqui."""
     contexto = {
         "livros": biblia.LIVROS_DA_BIBLIA,
         "biblia_estrutura": biblia.BIBLIA_ESTRUTURA,
-        "localidades": localidades,
         "estados_ccb": list(LOCALIDADES_CCB.keys()),
         "localidades_ccb": LOCALIDADES_CCB,
-        "visitas_conhecidas": sorted(set(visitas_conhecidas(conn)) | set(localidades)),
-        "nomes_conhecidos": nomes_conhecidos(conn),
         "paises_por_continente": PAISES_POR_CONTINENTE,
         # Passados sempre (não só em registro novo): é o que permite o
         # Estado/Cidade se autopreencherem mesmo quando o Local digitado é
@@ -89,6 +89,9 @@ def _contexto_formulario(conn, **extra):
         "local_padrao": config.LOCAL_PADRAO,
         "estado_padrao": config.ESTADO_PADRAO,
         "cidade_padrao": config.CIDADE_PADRAO,
+        # Trava o campo Data pro calendário não deixar escolher um dia que
+        # ainda nem chegou (veja o <input max="..."> no template).
+        "hoje": date.today().isoformat(),
     }
     contexto.update(extra)
     return contexto
@@ -99,25 +102,25 @@ def _contexto_formulario(conn, **extra):
 def novo_registro():
     conn = get_db()
     if request.method == "POST":
-        dados = _dados_do_formulario()
+        data = _data_do_formulario()
         erro = None
-        if not dados["data"]:
+        if not data["data"]:
             erro = "Informe a data da reunião antes de salvar."
         else:
-            ok, erro_biblia = biblia.valida_referencia_biblica(dados["livro"], dados["capitulo"], dados["versiculo"])
+            ok, erro_biblia = biblia.valida_referencia_biblica(data["livro"], data["capitulo"], data["versiculo"])
             if not ok:
                 erro = erro_biblia
         if erro:
             flash(erro, "erro")
             return render_template(
                 "formulario.html",
-                **_contexto_formulario(conn, registro=dados, modo="novo"),
+                **_contexto_formulario(conn, registro=data, modo="novo"),
             )
-        colunas = ", ".join(dados.keys())
-        marcadores = ", ".join(["?"] * len(dados))
+        colunas = ", ".join(data.keys())
+        marcadores = ", ".join(["?"] * len(data))
         conn.execute(
             f"INSERT INTO registros ({colunas}) VALUES ({marcadores})",
-            list(dados.values()),
+            list(data.values()),
         )
         conn.commit()
         flash("Registro salvo com sucesso!", "sucesso")
@@ -127,6 +130,7 @@ def novo_registro():
         "data": date.today().isoformat(),
         "presidencia": "", "pais": config.PAIS_PADRAO, "local": config.LOCAL_PADRAO,
         "estado": config.ESTADO_PADRAO, "cidade": config.CIDADE_PADRAO,
+        "recitativo_coletivo": 0,
         "meninas_1": "", "meninas_2": "", "meninas_3": "", "meninas_4": "", "meninas_5": "", "meninas_6": "",
         "meninos_1": "", "meninos_2": "", "meninos_3": "", "meninos_4": "", "meninos_5": "", "meninos_6": "",
         "recitativos_individuais": "", "testemunhos": "", "visitas": "",
@@ -144,24 +148,24 @@ def novo_registro():
 def editar_registro(registro_id):
     conn = get_db()
     if request.method == "POST":
-        dados = _dados_do_formulario()
+        data = _data_do_formulario()
         erro = None
-        if not dados["data"]:
+        if not data["data"]:
             erro = "Informe a data da reunião antes de salvar."
         else:
-            ok, erro_biblia = biblia.valida_referencia_biblica(dados["livro"], dados["capitulo"], dados["versiculo"])
+            ok, erro_biblia = biblia.valida_referencia_biblica(data["livro"], data["capitulo"], data["versiculo"])
             if not ok:
                 erro = erro_biblia
         if erro:
             flash(erro, "erro")
             return render_template(
                 "formulario.html",
-                **_contexto_formulario(conn, registro=dados, modo="editar", registro_id=registro_id),
+                **_contexto_formulario(conn, registro=data, modo="editar", registro_id=registro_id),
             )
-        campos = ", ".join(f"{c} = ?" for c in dados.keys())
+        campos = ", ".join(f"{c} = ?" for c in data.keys())
         conn.execute(
             f"UPDATE registros SET {campos}, atualizado_em = datetime('now','localtime') WHERE id = ?",
-            list(dados.values()) + [registro_id],
+            list(data.values()) + [registro_id],
         )
         conn.commit()
         flash("Registro atualizado com sucesso!", "sucesso")

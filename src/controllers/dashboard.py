@@ -29,19 +29,27 @@ from utils.formatacao import data_br, data_curta
 bp = Blueprint("dashboard", __name__)
 
 
-def _periodo_do_filtro():
-    """Lê o filtro de período da querystring e devolve (inicio, fim, rotulo, chave)."""
+def _periodo_do_filtro(data_min_disponivel, data_max_disponivel):
+    """Lê o filtro de período da querystring e devolve (inicio, fim, rotulo, chave).
+
+    data_min_disponivel/data_max_disponivel são a primeira e a última data que
+    realmente existem no banco — não faz sentido deixar filtrar um período de
+    antes do primeiro registro nem depois do último (só "Tudo" cobre isso,
+    de propósito)."""
     hoje = date.today()
     chave = request.args.get("periodo", "ano")
     inicio_custom = request.args.get("inicio", "")
     fim_custom = request.args.get("fim", "")
 
     if chave == "personalizado" and inicio_custom and fim_custom:
-        # O <input type="date" max="..."> já trava isso no navegador, mas
-        # alguém digitando a data direto na URL passaria por cima — trava de
-        # novo aqui: não deixa filtrar período que ainda nem chegou.
-        inicio_custom = min(inicio_custom, hoje.isoformat())
-        fim_custom = min(fim_custom, hoje.isoformat())
+        # O <input type="date" min="..." max="..."> já trava isso no
+        # navegador, mas alguém digitando a data direto na URL passaria por
+        # cima — trava de novo aqui: não deixa filtrar de antes do primeiro
+        # registro nem depois do último que existe (nem período que ainda
+        # nem chegou, se por acaso for mais recente que o último registro).
+        limite_max = min(hoje.isoformat(), data_max_disponivel)
+        inicio_custom = max(data_min_disponivel, min(inicio_custom, limite_max))
+        fim_custom = max(data_min_disponivel, min(fim_custom, limite_max))
         # Nem período "de trás pra frente" (fim antes do início) — se vier
         # assim, inverte em vez de dar erro.
         if fim_custom < inicio_custom:
@@ -67,7 +75,14 @@ def _periodo_do_filtro():
 @somente_cooperador
 def dashboard():
     conn = get_db()
-    inicio, fim, rotulo_periodo, chave_periodo = _periodo_do_filtro()
+    # Primeira e última data que realmente existem no banco — usadas pra
+    # travar o filtro "Personalizado" (calendário e clamp no servidor) num
+    # intervalo que faz sentido, nem antes do primeiro registro nem depois
+    # do último.
+    limites = conn.execute("SELECT MIN(data) AS minimo, MAX(data) AS maximo FROM registros").fetchone()
+    data_min_disponivel = limites["minimo"] or date.today().isoformat()
+    data_max_disponivel = limites["maximo"] or date.today().isoformat()
+    inicio, fim, rotulo_periodo, chave_periodo = _periodo_do_filtro(data_min_disponivel, data_max_disponivel)
     localidade = request.args.get("localidade", "").strip()
     presidencia_filtro = request.args.get("presidencia", "").strip()
 
@@ -189,8 +204,11 @@ def dashboard():
         inicio=inicio if chave_periodo != "tudo" else "",
         fim=fim if chave_periodo != "tudo" else "",
         # Trava o calendário: não deixa escolher período que ainda não
-        # chegou (veja o <input max="..."> e o form.js do filtro).
+        # chegou nem de antes/depois do que existe no banco (veja os
+        # <input min="..." max="..."> e o script do filtro, no template).
         hoje=date.today().isoformat(),
+        data_min_disponivel=data_min_disponivel,
+        data_max_disponivel=min(data_max_disponivel, date.today().isoformat()),
         localidades=localidades_conhecidas(conn),
         estados_ccb=list(LOCALIDADES_CCB.keys()), localidades_ccb=LOCALIDADES_CCB,
         visitas_conhecidas=visitas_conhecidas(conn), nomes_conhecidos=nomes_conhecidos(conn),

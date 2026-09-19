@@ -208,7 +208,7 @@
     const height = opts.height || 230;
 
     if (!labels.length || series.every((s) => s.values.every((v) => !v))) {
-      container.innerHTML = '<div class="empty-state">Sem dados no período selecionado.</div>';
+      container.innerHTML = '<div class="empty-state">Sem data no período selecionado.</div>';
       return;
     }
 
@@ -339,7 +339,7 @@
 
     const hasData = qtdLinhas && (esquerda.valores.some((v) => v) || direita.valores.some((v) => v));
     if (!hasData) {
-      container.innerHTML = '<div class="empty-state">Sem dados no período selecionado.</div>';
+      container.innerHTML = '<div class="empty-state">Sem data no período selecionado.</div>';
       return;
     }
 
@@ -462,7 +462,7 @@
 
     const hasData = labels.length && series.some((s) => s.values.some((v) => v));
     if (!hasData) {
-      container.innerHTML = '<div class="empty-state">Sem dados no período selecionado.</div>';
+      container.innerHTML = '<div class="empty-state">Sem data no período selecionado.</div>';
       return;
     }
 
@@ -595,7 +595,7 @@
     const itens = opts.itens || []; // [{ rotulo, valor }]
 
     if (!itens.length) {
-      container.innerHTML = '<div class="empty-state">Sem dados no período selecionado.</div>';
+      container.innerHTML = '<div class="empty-state">Sem data no período selecionado.</div>';
       return;
     }
 

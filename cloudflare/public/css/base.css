@@ -1,0 +1,1015 @@
+/* ==========================================================================
+   BI - Reunião de Jovens e Menores (CCB)
+   Paleta e tipografia alinhadas ao site oficial congregacaocristanobrasil.org.br
+   (azul #033d60, cinza-azulado #645f77/#d4d9e2, fundo #f4f5f8, fonte Verdana).
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+  --surface-0: #f4f5f8;   /* plano de fundo da página */
+  --surface-1: #ffffff;   /* cartões / superfície de gráfico */
+  --surface-2: #ffffff;
+  --text-primary: #0c1e3f;
+  --text-secondary: #645f77;
+  --text-muted: #8b869c;
+  --grid-line: #e3e6ed;
+  --axis-line: #c3c9d6;
+  --border: #d4d9e2;
+
+  --series-1: #033d60; /* azul institucional da CCB */
+  --series-1-hover: #0056b3; /* mesmo azul de hover de link do site oficial */
+  --series-2: #eb6834; /* laranja */
+  --series-3: #2aba66; /* verde */
+  --series-4: #eda100; /* amarelo */
+
+  --good: #2aba66;
+  --good-text: #1c8a4b;
+  --warning: #fab219;
+  --critical: #d0281f;
+
+  --radius: 13px;      /* mesmo raio do ".page .box" (cartão) do site oficial */
+  --radius-sm: 6px;    /* mesmo raio dos botões do site oficial */
+  --shadow: 0 5px 15px 0 rgba(12,30,63,0.09); /* mesma sombra do site oficial */
+
+  --fonte-titulo: Verdana, Geneva, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--surface-0);
+  color: var(--text-primary);
+  font-family: var(--fonte-titulo);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-weight: 700;
+}
+
+/* Rodapé sempre no fim da página: o <main> cresce para ocupar o espaço
+   sobrando e empurra o <footer> para baixo, mesmo em páginas curtas. */
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.topbar { flex: none; }
+/* .page-main é o item flex "cru" (min-width:0 pra poder encolher abaixo do
+   conteúdo mais largo lá dentro, tipo a tabela do histórico). A centralização
+   com max-width + margin:auto fica só no .container de dentro — misturar os
+   dois no MESMO elemento quebra o "stretch" do flexbox e estoura a página. */
+.page-main { flex: 1 0 auto; min-width: 0; width: 100%; }
+.site-footer { flex: none; }
+
+a { color: var(--series-1); text-decoration: none; }
+a:hover { text-decoration: underline; color: var(--series-1-hover); }
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px 56px;
+}
+
+/* ---------------------------------------------------------------- header */
+/* Duas linhas, como o site oficial: logo em cima (centralizado-ish, com o
+   botão de tema à direita), navegação embaixo com a "Área Restrita" deles
+   virando o chip "Sair" aqui. */
+.topbar {
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.topbar-logo-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+.topbar-logo:hover { text-decoration: none; }
+.topbar-logo img { display: block; height: 30px; width: auto; }
+
+.topbar-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+  border-top: 1px solid var(--border);
+}
+.topbar-nav {
+  display: flex;
+  gap: 4px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.topbar-nav::-webkit-scrollbar { display: none; }
+.topbar-nav a {
+  flex: none;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+.topbar-nav a:hover { color: var(--series-1); text-decoration: none; }
+.topbar-nav a.ativo { color: var(--series-1); border-bottom-color: var(--series-1); }
+
+.chip-restrita {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 10px 12px;
+  padding: 7px 12px;
+  background: var(--surface-0);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+}
+.chip-restrita:hover { text-decoration: none; border-color: var(--series-1); color: var(--series-1); }
+
+@media (max-width: 480px) {
+  /* o texto ao lado da logo some (a logo já diz o que é); sem isso, logo +
+     texto + botão de tema não cabem numa tela de celular sem estourar. */
+  .topbar-logo span { display: none; }
+  .topbar-logo img { height: 26px; }
+  .topbar-logo-row { padding: 12px 14px; }
+  .topbar-nav-row { padding: 0 14px; }
+  .container { padding-left: 14px; padding-right: 14px; }
+}
+
+/* ------------------------------------------------------------- flashes */
+.flash {
+  margin: 16px 0 0;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+}
+.flash.sucesso { background: rgba(12,163,12,0.12); color: var(--good-text); }
+.flash.erro { background: rgba(208,59,59,0.12); color: var(--critical); }
+
+/* ---------------------------------------------------------------- hero */
+.hero {
+  padding: 40px 0 8px;
+}
+.hero h1 {
+  font-size: 26px;
+  margin: 0 0 6px;
+}
+.hero p {
+  color: var(--text-secondary);
+  margin: 0;
+  font-size: 15px;
+}
+.hero-papel {
+  margin-top: 10px !important;
+  font-size: 13px !important;
+  color: var(--text-muted) !important;
+}
+
+/* --------------------------------------------------------------- cards */
+.card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+/* -------------------------------------------------------- link de rede */
+.network-banner {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.network-banner .info { flex: 1; min-width: 240px; }
+.network-banner h3 { margin: 0 0 6px; font-size: 15px; }
+.network-banner p { margin: 0 0 12px; color: var(--text-secondary); font-size: 13.5px; }
+.network-link {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+}
+.network-link span { word-break: break-all; }
+.network-link button {
+  border: none;
+  background: var(--series-1);
+  color: white;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.qr-wrap {
+  background: white;
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  flex: none;
+}
+.qr-wrap img, .qr-wrap svg { display: block; width: 112px; height: 112px; }
+
+/* --------------------------------------------------------- stat / kpi */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+.stat-tile .label {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  line-height: 1.3;
+  min-height: 2.6em;
+}
+.stat-tile .value {
+  font-size: 28px;
+  font-weight: 700;
+  margin-top: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------- filtros */
+.filter-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 18px 0;
+}
+/* Todo bloco da linha de filtros (pill, select, campo de data, botão
+   Aplicar) compartilha a mesma fonte, altura e formato — um retângulo com
+   as pontas arredondadas (mesmo raio dos botões do site oficial), não mais
+   uma cápsula — só a cor muda pra indicar o que está ativo. Cor/fundo
+   ficam de fora desse bloco comum pra não brigar em especificidade com
+   .btn.primary. <select> não herda a fonte da página por padrão (usa a
+   fonte do sistema) e ignora line-height quando está com a aparência
+   nativa — por isso "appearance: none" abaixo, com uma setinha própria
+   desenhada em CSS. */
+.filter-row .pill,
+.filter-row input[type="date"],
+.filter-row select,
+.filter-row .btn.small {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  padding: 0 12px;
+  font-family: inherit;
+  font-size: 12.5px;
+  line-height: 1;
+  min-width: 0;
+}
+.filter-row .pill,
+.filter-row input[type="date"],
+.filter-row select {
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+}
+.filter-row .pill { font-weight: 600; cursor: pointer; color: var(--text-secondary); }
+.filter-row .pill.ativo {
+  background: var(--series-1);
+  border-color: var(--series-1);
+  color: white;
+}
+.filter-row select,
+.filter-row input[type="date"] { color: var(--text-primary); }
+.filter-row select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23645f77' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 11px;
+}
+.filter-row form.custom-range {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.filter-row input[type="date"] { max-width: 150px; }
+@media (max-width: 560px) {
+  .filter-row form.custom-range,
+  .filter-row select { flex: 1 1 100%; }
+  .filter-row input[type="date"] { max-width: none; flex: 1 1 120px; }
+  /* <select> às vezes ignora o encolhimento do flexbox e usa a largura da
+     opção mais comprida (ex.: um nome de localidade grande) mesmo com
+     min-width:0 — "width: 100%" força o tamanho certo independente disso,
+     cortando com reticências se ainda sobrar texto longo. */
+  .filter-row select {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+@media (max-width: 360px) {
+  /* nessa largura os dois campos de data lado a lado ficam espremidos
+     demais (o widget nativo do navegador tem um mínimo próprio) — empilha
+     um embaixo do outro em vez de arriscar cortar algo. */
+  .filter-row form.custom-range { flex-direction: column; align-items: stretch; }
+  .filter-row form.custom-range span { text-align: center; }
+  .filter-row input[type="date"] { flex: 1 1 auto; width: 100%; }
+}
+
+/* --------------------------------------------------------- grid gráfico */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+.chart-grid .card { min-width: 0; }
+@media (max-width: 800px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+/* Título + linha horizontal, igual ao "Comunicado Importante ————" do site
+   oficial: o texto vira um item flex e o ::after preenche o resto com um traço. */
+.card h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  margin: 0 0 2px;
+}
+.card h2::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--grid-line);
+}
+.card .subtitle {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin: 0 0 12px;
+  overflow-wrap: break-word;
+}
+
+.legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+.legend .item { display: inline-flex; align-items: center; gap: 6px; }
+.legend .swatch { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+.piramide-resumo {
+  display: flex;
+  margin-bottom: 6px;
+}
+/* cada item centralizado na metade da largura que corresponde ao seu lado
+   no gráfico (esquerda/direita do eixo central) — assim a % fica alinhada
+   com a cor das barras dela embaixo, não só coladas uma na outra à esquerda. */
+.piramide-resumo-item { display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: 1 1 0; }
+.piramide-resumo-item .swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+/* nome (Meninas/Meninos) + valor empilhados — a bolinha de cor já identifica
+   o lado, então o nome só precisa aparecer aqui (sem repetir numa legenda
+   à parte embaixo do gráfico). */
+.piramide-resumo-texto { display: flex; flex-direction: column; gap: 1px; }
+.piramide-resumo-texto .nome { font-size: 12.5px; color: var(--text-secondary); }
+.piramide-resumo-texto .valores strong { font-size: 18px; color: var(--text-primary); }
+.piramide-resumo-texto .valores .muted { font-size: 12.5px; color: var(--text-muted); }
+
+.heatmap-grade {
+  display: grid;
+  /* colunas fixas (não auto-fill) — assim os dois heatmaps da mesma linha
+     sempre têm o mesmo número de blocos por linha e o mesmo tamanho,
+     não importa o tamanho dos rótulos de cada um. */
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+}
+.heatmap-bloco {
+  min-width: 0;
+  min-height: 92px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px 8px;
+}
+@media (max-width: 480px) {
+  .heatmap-grade { grid-template-columns: repeat(3, 1fr); }
+}
+.heatmap-valor { font-size: 22px; font-weight: 700; line-height: 1.1; }
+.heatmap-rotulo {
+  font-size: 12.5px;
+  margin-top: 4px;
+  opacity: .92;
+  max-width: 100%;
+  line-height: 1.25;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.viz-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--text-primary);
+  color: var(--surface-0);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 9px;
+  border-radius: 7px;
+  white-space: nowrap;
+  transform: translate(-50%, -110%);
+  opacity: 0;
+  transition: opacity .08s ease;
+  z-index: 10;
+}
+.viz-tooltip.visivel { opacity: 1; }
+.viz-tooltip .muted { color: var(--text-muted); font-weight: 500; margin-left: 4px;}
+.viz-tooltip .titulo {
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 3px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid rgba(255,255,255,0.18);
+  white-space: nowrap;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* ----------------------------------------------------- importacao fotos */
+.import-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.import-layout {
+  display: grid;
+  grid-template-columns: minmax(360px, 0.95fr) minmax(420px, 1.05fr);
+  gap: 16px;
+  align-items: start;
+  margin-top: 16px;
+}
+
+.import-photo-card {
+  position: sticky;
+  top: 16px;
+}
+
+.import-photo {
+  display: block;
+  width: 100%;
+  max-height: 78vh;
+  object-fit: contain;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #111;
+}
+
+.import-form .field-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.import-rec-table {
+  margin: 14px 0;
+}
+
+@media (max-width: 980px) {
+  .import-layout {
+    grid-template-columns: 1fr;
+  }
+  .import-photo-card {
+    position: static;
+  }
+  .import-form .field-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------------------------------------- tabela */
+table.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+.data-table th {
+  text-align: left;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--grid-line);
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 10px;
+  border-bottom: 1px solid var(--grid-line);
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table td.num { text-align: right; }
+.data-table .actions { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+
+.table-scroll { overflow-x: auto; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn:hover { text-decoration: none; background: var(--border); }
+.btn.primary { background: var(--series-1); border-color: var(--series-1); color: white; }
+.btn.primary:hover { filter: brightness(1.05); }
+.btn.danger { color: var(--critical); }
+.btn.small { padding: 5px 9px; font-size: 12px; }
+.btn-icone { padding: 8px; }
+.btn-icone.small { padding: 6px; }
+.btn-icone svg { display: block; }
+
+/* ---------------------------------------------------------------- form */
+.form-section {
+  margin-bottom: 22px;
+}
+.form-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  margin: 0 0 7px;
+}
+.form-section h2::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--grid-line);
+}
+/* Combobox "Recitativos / Recitativo Coletivo" no lugar do título simples —
+   mesma linguagem visual dos selects de filtro (pill com setinha própria).
+   A largura é ajustada pelo form.js pra grudar a seta no textinho, em vez
+   de esticar pro tamanho da opção mais comprida do combo. */
+.recitativos-modo-select {
+  box-sizing: border-box;
+  font: inherit;
+  font-weight: 700;
+  color: var(--text-primary);
+  background-color: transparent;
+  border: none;
+  padding: 0 14px 0 0;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b869c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: 11px;
+}
+.recitativos-modo-select:focus {
+  outline: 2px solid var(--series-1);
+  outline-offset: 2px;
+}
+.form-section .subtitle {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin: 0 0 14px;
+}
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.field label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.field .hint { font-size: 11.5px; color: var(--text-muted); font-weight: 400; }
+.field input, .field select, .field textarea {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 11px;
+  font-size: 14px;
+  background: var(--surface-2);
+  color: var(--text-primary);
+  font-family: inherit;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: 2px solid var(--series-1);
+  outline-offset: 1px;
+}
+.field textarea { resize: vertical; min-height: 64px; }
+.field select:disabled { opacity: .5; cursor: not-allowed; }
+
+.muted { color: var(--text-muted); }
+
+/* Intervalo de versículo (De/até): "Capítulo inteiro" é uma opção dentro do
+   próprio select de início — ao escolher ela, o "até" some (o select ou o
+   "até" ficam com o atributo hidden, que aqui precisa de reforço porque o
+   container é flex e a regra nativa de [hidden] perde de especificidade). */
+.versiculo-range { display: flex; align-items: center; gap: 8px; }
+.versiculo-range select { flex: 1; min-width: 0; }
+.versiculo-range [hidden] { display: none; }
+
+/* Contador (Recitativos individuais): dois botões dentro do próprio campo,
+   no lugar da setinha nativa do <input type=number> — feia e inconsistente
+   entre navegadores. */
+.stepper {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+/* Duas setinhas pequenas empilhadas (▲ em cima / ▼ embaixo), como o
+   "spinner" nativo de <input type=number> — só que do jeito da casa. */
+.stepper-setas {
+  flex: none;
+  width: 26px;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--border);
+}
+.stepper-seta {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0;
+  min-height: 0;
+}
+.stepper-seta:first-child { border-bottom: 1px solid var(--border); }
+.stepper-seta:hover { background: var(--border); color: var(--text-primary); }
+.stepper-seta:active { filter: brightness(.95); }
+.field .stepper input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding-left: 11px;
+  border-radius: 0;
+}
+.field .stepper input:focus { outline: none; }
+.stepper input::-webkit-inner-spin-button,
+.stepper input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.stepper input[type="number"] { -moz-appearance: textfield; }
+
+.resultados-localidade[hidden] { display: none; }
+.resultados-localidade {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 15;
+  margin-top: 4px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  /* Mostra ~4 resultados de cada vez; se vier mais (a busca não tem mais
+     limite — veja controllers/localidade_api.py), rola pra ver o resto. */
+  max-height: 208px;
+  overflow-y: auto;
+}
+.resultados-localidade button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  border-bottom: 1px solid var(--grid-line);
+  background: none;
+  padding: 9px 12px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text-primary);
+}
+.resultados-localidade button:last-child { border-bottom: none; }
+.resultados-localidade button:hover { background: var(--surface-0); }
+.resultados-localidade button strong { display: block; font-size: 13.5px; }
+.resultados-localidade button span { display: block; font-size: 12px; color: var(--text-muted); }
+.resultados-localidade .aviso { padding: 10px 12px; font-size: 13px; color: var(--text-muted); }
+
+.chip-input { display: flex; gap: 8px; min-width: 0; }
+.chip-input input { flex: 1; min-width: 0; }
+.chip-input .btn { flex: none; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; }
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.chips:empty { margin-top: 0; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-0);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px 6px 5px 12px;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+.chip button {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+.chip button:hover { background: var(--border); color: var(--critical); }
+
+.rascunho-banner[hidden] { display: none; }
+.rascunho-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: rgba(3, 61, 96, 0.10);
+  border: 1px solid rgba(3, 61, 96, 0.35);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 13.5px;
+  margin-top: 16px;
+}
+.rascunho-banner-acoes { display: flex; gap: 8px; }
+.rascunho-status {
+  margin-right: auto;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  align-self: center;
+}
+
+.recitativos-table {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 700px) {
+  .recitativos-table { grid-template-columns: 1fr; }
+}
+.recitativos-col h3 {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+.recitativos-linha {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+/* [hidden] nativo perde pra "display:flex" acima (mesma especificidade,
+   ordem de declaração) — reforça aqui pra esconder de verdade a
+   linha inteira (Meninas/Mocinhas) quando o recitativo é coletivo. */
+.recitativos-linha[hidden] { display: none; }
+.recitativos-linha label {
+  flex: 1;
+  font-size: 13.5px;
+  color: var(--text-primary);
+}
+.recitativos-linha input {
+  width: 76px;
+  text-align: right;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 14px;
+  background: var(--surface-2);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.recitativos-total {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--grid-line);
+  font-weight: 700;
+  font-size: 14px;
+}
+.total-geral-box {
+  margin-top: 18px;
+  text-align: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+.total-geral-box .value { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.total-geral-box .label { font-size: 12.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .03em; }
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 26px;
+}
+
+.search-row {
+  display: flex;
+  gap: 10px;
+  margin: 18px 0;
+}
+.search-row input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  font-size: 14px;
+  background: var(--surface-1);
+  color: var(--text-primary);
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 32px;
+}
+.page-header h1 { margin: 0; font-size: 22px; }
+.page-header p.subtitle { color: var(--text-secondary); font-size: 14px; margin: 4px 0 0; }
+
+/* ---------------------------------------------------------------- login */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px;
+}
+.login-logo {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+.login-logo img { width: 100%; max-width: 220px; height: auto; display: block; }
+.login-caption {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+}
+.login-card .saudacao {
+  font-family: var(--fonte-titulo);
+  font-style: italic;
+  color: var(--series-1);
+  font-size: 14px;
+  margin: 0 0 14px;
+}
+.login-card h1 { margin: 0 0 4px; font-size: 22px; }
+.login-card .subtitle { color: var(--text-secondary); font-size: 13.5px; margin: 0 0 18px; }
+.login-papeis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.papel-opcao {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--surface-2);
+}
+.papel-opcao:has(input:checked) {
+  border-color: var(--series-1);
+  background: rgba(3, 61, 96, 0.10);
+  color: var(--series-1);
+}
+.papel-opcao input { accent-color: var(--series-1); }
+
+.site-footer {
+  margin-top: 40px;
+  padding: 18px 20px 32px;
+  border-top: 2px solid var(--series-1);
+}
+.verse-quote {
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.verse-quote cite {
+  display: block;
+  margin-top: 6px;
+  font-style: normal;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}

@@ -1,2 +1,13 @@
 # Sistema
 .DS_Store
+
+# Dados reais locais
+src/data/*.db*
+src/data/.chave_sessao
+
+# Cloudflare: seeds reais e segredos locais não entram no repositório
+cloudflare/private/
+cloudflare/seed/*.sql
+cloudflare/seed/*.json
+cloudflare/.dev.vars
+cloudflare/.wrangler/

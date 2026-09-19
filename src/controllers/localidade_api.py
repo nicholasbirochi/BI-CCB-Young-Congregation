@@ -22,4 +22,7 @@ def api_localidade_busca():
         resultados = buscar_localidades_ccb(termo)
     except Exception:
         resultados = []
-    return {"resultados": resultados[:8]}
+    # Sem limite de quantas opções voltam — a lista toda fica disponível pra
+    # rolar; só a altura visível da caixa (~4 linhas por vez) é limitada, lá
+    # no CSS de .resultados-localidade.
+    return {"resultados": resultados}

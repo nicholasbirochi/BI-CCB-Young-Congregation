@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Camada de acesso ao banco de dados (SQLite).
-Um arquivo único (dados/ccb.db) guarda todos os registros do formulário
+Um arquivo único (data/ccb.db) guarda todos os registros do formulário
 "Reunião de Jovens e Menores". Não depende de nenhum servidor externo.
 
 get_db()/close_db() seguem o padrão oficial do próprio tutorial do Flask
@@ -14,9 +14,9 @@ import sqlite3
 from flask import g
 
 # BASE_DIR é a raiz do projeto (um nível acima deste pacote models/), onde
-# ficam as pastas dados/ e static/.
+# ficam as pastas data/ e static/.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DB_PATH = os.path.join(BASE_DIR, "dados", "ccb.db")
+DB_PATH = os.path.join(BASE_DIR, "data", "ccb.db")
 
 # Colunas numéricas do quadro de RECITATIVOS, na ordem impressa nas fotos
 # do caderno: crianças, meninas/meninos, mocinhas/mocinhos, moças/moços,
@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS registros (
     auxiliares_masculinos INTEGER NOT NULL DEFAULT 0,
     auxiliares_femininos INTEGER NOT NULL DEFAULT 0,
     oracao_pai_nosso TEXT,
+    recitativo_coletivo INTEGER NOT NULL DEFAULT 0,
     livro TEXT,
     capitulo TEXT,
     versiculo TEXT,
@@ -101,6 +102,7 @@ def init_db():
         _garantir_colunas_recitativos(conn)
         _garantir_colunas_localizacao(conn)
         _garantir_colunas_formulario_atual(conn)
+        _garantir_coluna_recitativo_coletivo(conn)
         conn.commit()
     finally:
         conn.close()
@@ -139,6 +141,16 @@ def _garantir_colunas_formulario_atual(conn):
         conn.execute("ALTER TABLE registros ADD COLUMN oracao_pai_nosso TEXT NOT NULL DEFAULT ''")
     if "testemunhos" not in existentes:
         conn.execute("ALTER TABLE registros ADD COLUMN testemunhos INTEGER NOT NULL DEFAULT 0")
+
+
+def _garantir_coluna_recitativo_coletivo(conn):
+    """Algumas semanas o recitativo é feito "por conjunto" (só Crianças e um
+    número único de Moças/Moços juntando Meninas+Mocinhas+Moças, sem abrir
+    por posição) — essa coluna guarda se o registro foi digitado assim, pra
+    o formulário saber que exibe só essas duas caixinhas ao editar."""
+    existentes = {row["name"] for row in conn.execute("PRAGMA table_info(registros)").fetchall()}
+    if "recitativo_coletivo" not in existentes:
+        conn.execute("ALTER TABLE registros ADD COLUMN recitativo_coletivo INTEGER NOT NULL DEFAULT 0")
 
 
 def get_db():

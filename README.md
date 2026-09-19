@@ -16,7 +16,7 @@ através de um link (e um QR code).
   em cascata que só permitem combinações que existem na Bíblia (dados de
   versificação embutidos, veja `src/models/biblia.py`).
 - **Localidade oficial da CCB**: os campos Estado/Cidade vêm do diretório
-  público da CCB (`src/static/dados/localidades_ccb.json`, baixado uma única
+  público da CCB (`src/static/data/localidades_ccb.json`, baixado uma única
   vez do site oficial) — funciona 100% offline depois de instalado. Tem
   também uma busca ao vivo (`/api/localidade-busca`) pra achar a unidade
   específica pelo nome — essa parte precisa de internet; sem ela, o campo
@@ -114,7 +114,7 @@ para desconectar.
 
 ### Onde ficam os dados
 
-Tudo é salvo no arquivo `src/dados/ccb.db` — um banco de dados único
+Tudo é salvo no arquivo `src/data/ccb.db` — um banco de dados único
 (SQLite). Para fazer backup, basta copiar esse arquivo para um pen drive ou
 nuvem de vez em quando. Para "zerar" o sistema, apague esse arquivo (ele é
 recriado vazio automaticamente na próxima vez que abrir).
@@ -213,8 +213,8 @@ src/
     js/form.js                    cascatas do formulário + rascunho automático
     js/main.js                    utilidades pequenas (copiar link, confirmar exclusão)
     img/                           logo e favicon oficiais da CCB
-    dados/localidades_ccb.json    estados/cidades (diretório oficial CCB)
-  dados/                          banco SQLite + chave de sessão (não versionados)
+    data/localidades_ccb.json    estados/cidades (diretório oficial CCB)
+  data/                          banco SQLite + chave de sessão (não versionados)
   docs/                           capturas de tela deste readme
 ```
 

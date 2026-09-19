@@ -38,7 +38,59 @@ document.addEventListener("DOMContentLoaded", () => {
     const el = campo(nome);
     if (el) el.addEventListener("input", atualizarTotais);
   });
-  atualizarTotais();
+
+  // ------------------------------------------------- recitativo coletivo
+  // Algumas semanas o recitativo é feito "por conjunto": só Crianças e um
+  // número único de Moças/Moços (juntando Meninas+Mocinhas+Moças), sem abrir
+  // por idade. Escolhendo esse modo no combobox, esconde as linhas de
+  // Meninas/Mocinhas (zerando o valor delas, já que deixam de fazer sentido
+  // nesse modo) e avisa que a caixinha de Moças/Moços passou a valer pelo
+  // grupo inteiro.
+  const selectColetivo = document.getElementById("recitativo-coletivo");
+  const linhasDetalhadas = form.querySelectorAll("[data-linha-detalhada]");
+  const dicasColetivo = [
+    document.getElementById("dica-coletivo-meninas"),
+    document.getElementById("dica-coletivo-meninos"),
+  ].filter(Boolean);
+
+  // O <select> por padrão fica largo o bastante pra opção mais comprida do
+  // combo ("Recitativo Coletivo"), mesmo com "Recitativos" selecionado —
+  // sobra espaço vazio antes da seta. Mede o texto da opção escolhida e
+  // ajusta a largura do próprio select, pra seta ficar grudada nele.
+  function ajustarLarguraCombo(select) {
+    const medidor = document.createElement("span");
+    const estilo = getComputedStyle(select);
+    medidor.style.cssText = "position:absolute; visibility:hidden; white-space:nowrap; left:-9999px;";
+    medidor.style.font = estilo.font;
+    medidor.style.fontWeight = estilo.fontWeight;
+    medidor.textContent = select.options[select.selectedIndex].textContent;
+    document.body.appendChild(medidor);
+    const larguraTexto = medidor.getBoundingClientRect().width;
+    document.body.removeChild(medidor);
+    const espacoParaSetaEBorda = 14; // padding-right, onde a seta fica desenhada
+    select.style.width = `${Math.ceil(larguraTexto) + espacoParaSetaEBorda}px`;
+  }
+
+  function aplicarModoColetivo() {
+    const coletivo = selectColetivo.value === "1";
+    linhasDetalhadas.forEach((linha) => {
+      linha.hidden = coletivo;
+      if (coletivo) {
+        const input = linha.querySelector("input");
+        if (input) input.value = "0";
+      }
+    });
+    dicasColetivo.forEach((dica) => { dica.hidden = !coletivo; });
+    ajustarLarguraCombo(selectColetivo);
+    atualizarTotais();
+  }
+
+  if (selectColetivo) {
+    selectColetivo.addEventListener("change", aplicarModoColetivo);
+    aplicarModoColetivo();
+  } else {
+    atualizarTotais();
+  }
 
   // ------------------------------------------------- cascata Livro > Capítulo > Versículo
   const BIBLIA = window.BIBLIA_ESTRUTURA || {};
@@ -205,10 +257,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // A busca ao vivo devolve a cidade às vezes com a UF colada no fim
-  // ("Cidade/SP", "Cidade - SP") — tira isso antes de comparar com a base.
+  // A busca ao vivo hoje devolve a cidade como "Cidade, UF, País" — fica só
+  // com o que vem antes da primeira vírgula. Formatos antigos ("Cidade/SP",
+  // "Cidade - SP", sem vírgula nenhuma) continuam tratados pelo regex depois.
   function limparSufixoUF(cidade) {
-    return (cidade || "").replace(/\s*[\/\-]\s*[A-Za-z]{2}$/, "").trim();
+    const semPaisEstado = (cidade || "").split(",")[0].trim();
+    return semPaisEstado.replace(/\s*[\/\-]\s*[A-Za-z]{2}$/, "").trim();
   }
 
   // Depois de qualquer mudança nos <select> (desabilitados, não viajam no
@@ -314,7 +368,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (resultados.length === 0) {
         const aviso = document.createElement("div");
         aviso.className = "aviso";
-        aviso.textContent = "Nada encontrado com esse nome — pode continuar digitando na mão.";
+        aviso.textContent = "Nada encontrado com esse nome - pode continuar digitando na mão.";
         resultadosEl.appendChild(aviso);
       } else {
         resultados.forEach((item) => {
@@ -346,7 +400,7 @@ document.addEventListener("DOMContentLoaded", () => {
       temporizadorBusca = setTimeout(() => {
         fetch(`/api/localidade-busca?q=${encodeURIComponent(termo)}`)
           .then((r) => r.json())
-          .then((dados) => mostrarResultados(dados.resultados || []))
+          .then((data) => mostrarResultados(data.resultados || []))
           .catch(() => mostrarResultados(null));
       }, 400);
     });
@@ -360,7 +414,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const listaResultadosLocal = document.getElementById("resultados-localidade");
   ativarBuscaLocalidade(campoLocal, listaResultadosLocal, (item) => {
-    campoLocal.value = `${item.nome} — ${item.cidade}`;
+    campoLocal.value = `${item.nome} - ${item.cidade}`;
     derivarLocalizacao(limparSufixoUF(item.cidade));
     agendarSalvamento();
   });
@@ -433,7 +487,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (chipsVisitas) {
     const inputVisita = document.getElementById("visita-input");
     ativarBuscaLocalidade(inputVisita, document.getElementById("resultados-visita"), (item) => {
-      chipsVisitas.adicionarNome(`${item.nome} — ${item.cidade}`);
+      chipsVisitas.adicionarNome(`${item.nome} - ${item.cidade}`);
       inputVisita.value = "";
     });
   }
@@ -448,9 +502,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function salvarRascunho() {
     if (restaurando) return;
-    const dados = {};
-    form.querySelectorAll("[name]").forEach((el) => { dados[el.name] = el.value; });
-    localStorage.setItem(chave, JSON.stringify(dados));
+    const data = {};
+    form.querySelectorAll("[name]").forEach((el) => { data[el.name] = el.value; });
+    localStorage.setItem(chave, JSON.stringify(data));
     if (statusEl) {
       const hora = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
       statusEl.textContent = `Rascunho salvo neste aparelho às ${hora}`;
@@ -463,14 +517,14 @@ document.addEventListener("DOMContentLoaded", () => {
     temporizador = setTimeout(salvarRascunho, 500);
   }
 
-  function aplicarRascunho(dados) {
+  function aplicarRascunho(data) {
     restaurando = true;
     form.querySelectorAll("[name]").forEach((el) => {
       if (el.name === "capitulo" || el.name === "versiculo") return;
-      if (dados[el.name] !== undefined) el.value = dados[el.name];
+      if (data[el.name] !== undefined) el.value = data[el.name];
     });
     if (selLivro && selCapitulo && selVersiculoInicio) {
-      aoMudarLivro(dados.capitulo, dados.versiculo);
+      aoMudarLivro(data.capitulo, data.versiculo);
     }
     if (campoLocal) derivarLocalizacao(campoLocal.value);
     renderChipsVisitas();
@@ -482,14 +536,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const rascunhoSalvo = localStorage.getItem(chave);
   if (rascunhoSalvo && banner) {
     try {
-      const dados = JSON.parse(rascunhoSalvo);
-      const temConteudo = Object.keys(dados).some((k) => dados[k]);
+      const data = JSON.parse(rascunhoSalvo);
+      const temConteudo = Object.keys(data).some((k) => data[k]);
       if (temConteudo) {
         banner.hidden = false;
         const btnRestaurar = document.getElementById("rascunho-restaurar");
         const btnDescartar = document.getElementById("rascunho-descartar");
         if (btnRestaurar) btnRestaurar.addEventListener("click", () => {
-          aplicarRascunho(dados);
+          aplicarRascunho(data);
           banner.hidden = true;
         });
         if (btnDescartar) btnDescartar.addEventListener("click", () => {
