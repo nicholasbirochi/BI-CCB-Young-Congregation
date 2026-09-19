@@ -12,7 +12,7 @@
     {
       "binding": "DB",
       "database_name": "ccb-bi",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "f2d2323c-b55a-4412-9697-1e5c86bf1854",
       "migrations_dir": "migrations"
     }
   ],
