@@ -24,18 +24,27 @@ const COLUNAS_GRAFICO_MENINOS = ["meninos_1", "meninos_2", "meninos_3", "meninos
 const LABELS_MENINAS = ["Crianças", "Meninas", "Mocinhas", "Moças", "Auxiliares"];
 const LABELS_MENINOS = ["Crianças", "Meninos", "Mocinhos", "Moços", "Auxiliares"];
 
+const SECURITY_HEADERS = {
+  "Content-Security-Policy": "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; upgrade-insecure-requests",
+  "Referrer-Policy": "same-origin",
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=()",
+};
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (!url.pathname.startsWith("/api/")) {
-      return env.ASSETS ? env.ASSETS.fetch(request) : new Response("Not found", { status: 404 });
+      const response = env.ASSETS ? await env.ASSETS.fetch(request) : new Response("Not found", { status: 404 });
+      return withSecurityHeaders(response);
     }
 
     try {
       return await routeApi(request, env, url);
     } catch (error) {
       console.error(error);
-      return json({ erro: "Erro interno no servidor.", detalhe: String(error?.message || error) }, 500);
+      return json({ erro: "Erro interno no servidor." }, 500);
     }
   },
 };
@@ -67,7 +76,6 @@ async function routeApi(request, env, url) {
   if (match && request.method === "GET") return getRegistro(env, Number(match[1]));
   if (match && request.method === "PUT") return saveRegistro(request, env, Number(match[1]));
   if (match && request.method === "DELETE") {
-    if (session.papel !== "cooperador") return json({ erro: "Só o Cooperador de Jovens pode excluir." }, 403);
     return deleteRegistro(env, Number(match[1]));
   }
 
@@ -79,9 +87,13 @@ async function login(request, env) {
   const papel = String(body.papel || "");
   const senha = String(body.senha || "");
   const senhaCorreta = {
-    cooperador: env.SENHA_COOPERADOR || "troque-esta-senha-1",
-    contagem: env.SENHA_CONTAGEM || "troque-esta-senha-2",
+    cooperador: env.SENHA_COOPERADOR,
+    contagem: env.SENHA_CONTAGEM,
   }[papel];
+
+  if (!senhaCorreta) {
+    return json({ erro: "Configuração de segurança ausente." }, 503);
+  }
 
   if (!senhaCorreta || !senha || senha !== senhaCorreta) {
     return json({ erro: "Senha incorreta. Confira com a liderança e tente novamente." }, 401);
@@ -371,7 +383,10 @@ async function hmac(value, secret) {
 }
 
 function sessionSecret(env) {
-  return env.SESSION_SECRET || "dev-only-change-me";
+  if (!env.SESSION_SECRET) {
+    throw new Error("SESSION_SECRET ausente.");
+  }
+  return env.SESSION_SECRET;
 }
 
 function parseCookies(header) {
@@ -385,10 +400,20 @@ function json(body, status = 200, headers = {}) {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
+      ...SECURITY_HEADERS,
+      "cache-control": "no-store",
       "content-type": "application/json; charset=utf-8",
       ...headers,
     },
   });
+}
+
+function withSecurityHeaders(response) {
+  const secured = new Response(response.body, response);
+  for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
+    secured.headers.set(key, value);
+  }
+  return secured;
 }
 
 function number(value) {

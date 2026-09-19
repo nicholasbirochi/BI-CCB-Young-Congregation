@@ -264,8 +264,12 @@ function tabelaRegistros(registros) {
             <td>${palavra(r)}</td>
             <td>
               <div class="table-actions">
-                <a class="btn small" href="#editar/${r.id}">Editar</a>
-                ${app.session.papel === "cooperador" ? `<button class="btn small danger" type="button" data-delete-id="${r.id}">Excluir</button>` : ""}
+                <a class="btn btn-icone small" href="#editar/${r.id}" aria-label="Editar registro" title="Editar">
+                  ${iconSvg("edit")}
+                </a>
+                <button class="btn btn-icone small danger" type="button" data-delete-id="${r.id}" aria-label="Excluir registro" title="Excluir">
+                  ${iconSvg("trash")}
+                </button>
               </div>
             </td>
           </tr>
@@ -910,6 +914,14 @@ function todayIso() {
 function dataBr(value) {
   const [year, month, day] = String(value || "").split("-");
   return year && month && day ? `${day}/${month}/${year}` : value || "—";
+}
+
+function iconSvg(name) {
+  const icons = {
+    edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+    trash: '<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/>',
+  };
+  return `<svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icons[name] || ""}</svg>`;
 }
 
 function numeroBr(value) {

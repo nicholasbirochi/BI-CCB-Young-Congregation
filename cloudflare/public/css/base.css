@@ -571,7 +571,8 @@ table.data-table {
 }
 .data-table tr:last-child td { border-bottom: none; }
 .data-table td.num { text-align: right; }
-.data-table .actions { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.data-table .actions,
+.data-table .table-actions { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
 
 .table-scroll { overflow-x: auto; }
 
@@ -593,8 +594,14 @@ table.data-table {
 .btn.primary:hover { filter: brightness(1.05); }
 .btn.danger { color: var(--critical); }
 .btn.small { padding: 5px 9px; font-size: 12px; }
-.btn-icone { padding: 8px; }
-.btn-icone.small { padding: 6px; }
+.btn-icone {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+.btn-icone.small { width: 30px; height: 30px; padding: 0; }
 .btn-icone svg { display: block; }
 
 /* ---------------------------------------------------------------- form */
