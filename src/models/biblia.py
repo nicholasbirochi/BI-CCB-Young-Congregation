@@ -106,7 +106,7 @@ def valida_referencia_biblica(livro, capitulo, versiculo):
     except ValueError:
         return False, "O capítulo precisa ser um número."
     if cap < 1 or cap > len(estrutura):
-        return False, f"{livro} tem {len(estrutura)} capítulo(s) — o capítulo {cap} não existe."
+        return False, f"{livro} tem {len(estrutura)} capítulo(s) - o capítulo {cap} não existe."
 
     if versiculo:
         # Aceita um versículo único ("7"), um intervalo ("De"/"até" do
@@ -122,6 +122,6 @@ def valida_referencia_biblica(livro, capitulo, versiculo):
             return False, "O versículo precisa ser um número (ou um intervalo, ex.: 7-12)."
         if inicio < 1 or fim > maximo or inicio > fim:
             alvo = versiculo if len(partes) == 2 else str(inicio)
-            return False, f"{livro} {cap} tem {maximo} versículo(s) — {alvo} não existe."
+            return False, f"{livro} {cap} tem {maximo} versículo(s) - {alvo} não existe."
 
     return True, None

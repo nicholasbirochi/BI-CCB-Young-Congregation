@@ -9,7 +9,7 @@ import secrets
 def obter_secret_key(base_dir):
     """Gera (uma vez) e reaproveita uma chave própria deste computador,
     para assinar os cookies de sessão do login."""
-    caminho = os.path.join(base_dir, "dados", ".chave_sessao")
+    caminho = os.path.join(base_dir, "data", ".chave_sessao")
     os.makedirs(os.path.dirname(caminho), exist_ok=True)
     if os.path.exists(caminho):
         with open(caminho, "r") as f:

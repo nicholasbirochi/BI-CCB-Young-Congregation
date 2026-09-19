@@ -1,0 +1,20 @@
+{
+  "name": "ccb-bi-cloudflare",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:migrate:local": "wrangler d1 migrations apply ccb-bi --local",
+    "db:migrate:remote": "wrangler d1 migrations apply ccb-bi --remote",
+    "db:export": "python3 scripts/export_sqlite_to_d1.py ../src/data/ccb.db private/seed/current_data.sql",
+    "db:seed:local": "wrangler d1 execute ccb-bi --local --file=./private/seed/current_data.sql",
+    "db:seed:remote": "wrangler d1 execute ccb-bi --remote --file=./private/seed/current_data.sql",
+    "check": "node --check src/worker.js && node --check public/js/app.js",
+    "check:sensitive": "bash scripts/check_sensitive_files.sh"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

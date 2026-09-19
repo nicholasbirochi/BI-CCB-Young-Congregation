@@ -5,7 +5,7 @@ Integração com o diretório oficial de unidades da CCB
 
 Duas fontes de dados, cada uma com uma responsabilidade:
   - LOCALIDADES_CCB: estados/cidades, baixados uma única vez e salvos em
-    static/dados/localidades_ccb.json — alimenta o Estado/Cidade do
+    static/data/localidades_ccb.json — alimenta o Estado/Cidade do
     formulário mesmo sem internet no dia a dia.
   - buscar_localidades_ccb(termo): busca AO VIVO por unidade específica
     pelo nome — só roda quando alguém pesquisa de verdade no formulário,
@@ -41,7 +41,7 @@ def _carregar_localidades_ccb():
     (congregacaocristanobrasil.org.br/relatorio) — baixado uma vez e salvo
     localmente, pra o campo "Local" funcionar mesmo sem internet no dia a dia.
     """
-    caminho = os.path.join(BASE_DIR, "static", "dados", "localidades_ccb.json")
+    caminho = os.path.join(BASE_DIR, "static", "data", "localidades_ccb.json")
     try:
         with open(caminho, encoding="utf-8") as f:
             return json.load(f)

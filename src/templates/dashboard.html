@@ -47,25 +47,27 @@
     <input type="hidden" name="periodo" value="personalizado">
     <input type="hidden" name="localidade" value="{{ localidade_selecionada }}">
     <input type="hidden" name="presidencia" value="{{ presidencia_selecionada }}">
-    <input type="date" name="inicio" id="data-inicio" value="{{ inicio }}" max="{{ hoje }}" required>
+    <input type="date" name="inicio" id="data-inicio" value="{{ inicio }}" min="{{ data_min_disponivel }}" max="{{ data_max_disponivel }}" required>
     <span class="muted">até</span>
-    <input type="date" name="fim" id="data-fim" value="{{ fim }}" max="{{ hoje }}" required>
+    <input type="date" name="fim" id="data-fim" value="{{ fim }}" min="{{ data_min_disponivel }}" max="{{ data_max_disponivel }}" required>
     <button type="submit" class="btn small {{ 'primary' if chave_periodo == 'personalizado' else '' }}">Aplicar</button>
   </form>
 </div>
 <script>
   // Trava os dois campos um contra o outro: início nunca pode passar do fim
-  // (nem de hoje) e fim nunca pode ficar antes do início — evita escolher
-  // um período "de trás pra frente" já no próprio calendário, antes de
-  // enviar o formulário.
+  // (nem do último registro que existe) e fim nunca pode ficar antes do
+  // início (nem antes do primeiro registro) — evita escolher um período
+  // "de trás pra frente", ou de fora do que o banco realmente tem, já no
+  // próprio calendário, antes de enviar o formulário.
   (function () {
-    const HOJE = {{ hoje | tojson }};
+    const DATA_MIN = {{ data_min_disponivel | tojson }};
+    const DATA_MAX = {{ data_max_disponivel | tojson }};
     const campoInicio = document.getElementById("data-inicio");
     const campoFim = document.getElementById("data-fim");
     if (!campoInicio || !campoFim) return;
     function sincronizar() {
-      campoFim.min = campoInicio.value || "";
-      campoInicio.max = campoFim.value || HOJE;
+      campoFim.min = campoInicio.value || DATA_MIN;
+      campoInicio.max = campoFim.value || DATA_MAX;
     }
     campoInicio.addEventListener("change", sincronizar);
     campoFim.addEventListener("change", sincronizar);
