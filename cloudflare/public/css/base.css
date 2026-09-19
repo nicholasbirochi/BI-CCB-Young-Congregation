@@ -141,6 +141,7 @@ a:hover { text-decoration: underline; color: var(--series-1-hover); }
   flex: none;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   margin: 10px 0 10px 12px;
   padding: 7px 12px;
@@ -150,6 +151,9 @@ a:hover { text-decoration: underline; color: var(--series-1-hover); }
   color: var(--text-secondary);
   font-size: 13px;
   font-weight: 700;
+  line-height: 1;
+  min-height: 36px;
+  cursor: pointer;
 }
 .chip-restrita:hover { text-decoration: none; border-color: var(--series-1); color: var(--series-1); }
 
@@ -571,14 +575,17 @@ table.data-table {
 }
 .data-table tr:last-child td { border-bottom: none; }
 .data-table td.num { text-align: right; }
+.data-table th.actions-col,
+.data-table td.actions-cell { text-align: center; }
 .data-table .actions,
-.data-table .table-actions { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.data-table .table-actions { display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
 
 .table-scroll { overflow-x: auto; }
 
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   border: 1px solid var(--border);
   background: var(--surface-2);
@@ -588,21 +595,33 @@ table.data-table {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  line-height: 1;
+  min-height: 36px;
+  vertical-align: middle;
+}
+.btn .icon,
+.chip-restrita .icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+  flex: 0 0 16px;
 }
 .btn:hover { text-decoration: none; background: var(--border); }
 .btn.primary { background: var(--series-1); border-color: var(--series-1); color: white; }
 .btn.primary:hover { filter: brightness(1.05); }
 .btn.danger { color: var(--critical); }
-.btn.small { padding: 5px 9px; font-size: 12px; }
+.btn.small { min-height: 32px; padding: 5px 9px; font-size: 12px; }
 .btn-icone {
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
+  min-height: 38px;
   padding: 0;
   justify-content: center;
   flex: 0 0 auto;
 }
-.btn-icone.small { width: 30px; height: 30px; padding: 0; }
-.btn-icone svg { display: block; }
+.btn-icone.small { width: 34px; height: 34px; min-height: 34px; padding: 0; }
+.btn-icone .icon { width: 17px; height: 17px; flex-basis: 17px; }
+.btn-icone.small .icon { width: 16px; height: 16px; flex-basis: 16px; }
 
 /* ---------------------------------------------------------------- form */
 .form-section {

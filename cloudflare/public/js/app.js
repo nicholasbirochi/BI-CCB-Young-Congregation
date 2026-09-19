@@ -102,7 +102,7 @@ function renderNav() {
       <a href="#registros" class="${route === "registros" || route.startsWith("editar/") ? "ativo" : ""}">Histórico</a>
       ${app.session.papel === "cooperador" ? `<a href="#dashboard" class="${route === "dashboard" ? "ativo" : ""}">Análises</a>` : ""}
     </nav>
-    <button class="chip-restrita" type="button" id="logout-btn"><span>Sair</span></button>
+    <button class="chip-restrita" type="button" id="logout-btn">${iconSvg("logout")}<span>Sair</span></button>
   `;
   $("#logout-btn").addEventListener("click", logout);
 }
@@ -128,7 +128,7 @@ function renderLogin() {
           <input id="senha" name="senha" type="password" required autocomplete="current-password">
         </div>
         <div class="form-actions">
-          <button type="submit" class="btn primary">Entrar</button>
+          <button type="submit" class="btn primary">${iconSvg("lock")}<span>Entrar</span></button>
         </div>
       </form>
     </div>
@@ -203,12 +203,12 @@ async function renderRegistros() {
         <h1>Histórico de reuniões</h1>
         <p class="subtitle">${data.registros.length} registro(s)${busca ? ` para "${escapeHtml(busca)}"` : ""}.</p>
       </div>
-      <a class="btn primary" href="#novo">Novo registro</a>
+      <a class="btn primary btn-icone" href="#novo" title="Novo registro" aria-label="Novo registro">${iconSvg("plus")}</a>
     </div>
     <form class="search-row" id="search-form">
       <input type="text" name="busca" value="${escapeAttr(busca)}" placeholder="Buscar por data, presidência, livro, local...">
-      <button class="btn" type="submit">Buscar</button>
-      ${busca ? `<a class="btn" href="#registros">Limpar</a>` : ""}
+      <button class="btn btn-icone" type="submit" title="Buscar" aria-label="Buscar">${iconSvg("search")}</button>
+      ${busca ? `<a class="btn" href="#registros">${iconSvg("minus")}<span>Limpar</span></a>` : ""}
     </form>
     <div class="card table-scroll">
       ${data.registros.length ? tabelaRegistros(data.registros) : `<div class="empty-state">Nenhum registro encontrado. <a href="#novo">Cadastre o primeiro.</a></div>`}
@@ -236,7 +236,7 @@ function tabelaRegistros(registros) {
         <tr>
           <th>Data</th><th>Presidência</th><th>Local</th>
           <th class="num">Total geral</th><th class="num">Meninas</th><th class="num">Meninos</th>
-          <th class="num">Individuais</th><th>Visitas</th><th>Palavra</th><th>Ações</th>
+          <th class="num">Individuais</th><th>Visitas</th><th>Palavra</th><th class="actions-col">Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -251,7 +251,7 @@ function tabelaRegistros(registros) {
             <td class="num">${numeroBr(r.recitativos_individuais)}</td>
             <td class="visitas-list">${escapeHtml((r.visitas_lista || []).join(", ") || "—")}</td>
             <td>${palavra(r)}</td>
-            <td>
+            <td class="actions-cell">
               <div class="table-actions">
                 <a class="btn btn-icone small" href="#editar/${r.id}" aria-label="Editar registro" title="Editar">
                   ${iconSvg("edit")}
@@ -281,8 +281,8 @@ async function renderForm(id = null) {
     <div id="rascunho-banner" class="rascunho-banner" hidden>
       <span>Encontramos um preenchimento não terminado neste aparelho.</span>
       <div class="rascunho-banner-acoes">
-        <button type="button" class="btn small primary" id="rascunho-restaurar">Restaurar</button>
-        <button type="button" class="btn small" id="rascunho-descartar">Descartar</button>
+        <button type="button" class="btn small primary" id="rascunho-restaurar">${iconSvg("history")}<span>Restaurar</span></button>
+        <button type="button" class="btn small" id="rascunho-descartar">${iconSvg("x")}<span>Descartar</span></button>
       </div>
     </div>
     <form class="card" id="registro-form" data-rascunho-chave="${modo}-${id || "novo"}" novalidate>
@@ -292,8 +292,8 @@ async function renderForm(id = null) {
       ${formPalavra(registro)}
       <div class="form-actions">
         <span class="rascunho-status" id="rascunho-status"></span>
-        <a class="btn" href="${modo === "editar" ? "#registros" : "#menu"}">Cancelar</a>
-        <button type="submit" class="btn primary">Salvar registro</button>
+        <a class="btn" href="${modo === "editar" ? "#registros" : "#menu"}">${iconSvg("x")}<span>Cancelar</span></a>
+        <button type="submit" class="btn primary">${iconSvg("save")}<span>Salvar registro</span></button>
       </div>
     </form>
   `;
@@ -391,7 +391,7 @@ function formVisitas(r) {
           <label for="visita-input">Visitas <span class="hint">(igrejas que visitaram)</span></label>
           <div class="chip-input-row">
             <input type="text" id="visita-input" list="sugestoes-visitas" autocomplete="off">
-            <button type="button" class="btn small" id="visita-adicionar">Adicionar</button>
+            <button type="button" class="btn small btn-icone" id="visita-adicionar" title="Adicionar visita" aria-label="Adicionar visita">${iconSvg("plus")}</button>
           </div>
           <datalist id="sugestoes-visitas"></datalist>
           <div class="chips" id="visitas-chips"></div>
@@ -713,7 +713,7 @@ function dashboardFilters(data, params) {
         <input type="date" name="inicio" value="${p.chave === "personalizado" ? p.inicio : ""}" min="${data.limites.data_min_disponivel}" max="${data.limites.data_max_disponivel}" required>
         <span class="muted">até</span>
         <input type="date" name="fim" value="${p.chave === "personalizado" ? p.fim : ""}" min="${data.limites.data_min_disponivel}" max="${data.limites.data_max_disponivel}" required>
-        <button type="submit" class="btn small ${p.chave === "personalizado" ? "primary" : ""}">Aplicar</button>
+        <button type="submit" class="btn small ${p.chave === "personalizado" ? "primary" : ""}">${iconSvg("check")}<span>Aplicar</span></button>
       </form>
     </div>
   `;
@@ -907,10 +907,19 @@ function dataBr(value) {
 
 function iconSvg(name) {
   const icons = {
-    edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
-    trash: '<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/>',
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>',
+    history: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3.2 1.8"/>',
+    lock: '<rect x="4.5" y="10.5" width="15" height="10" rx="1.8"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/>',
+    logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>',
+    minus: '<path d="M5 12h14"/>',
+    plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
+    save: '<path d="M5 3h12l2 2v16H5z"/><path d="M8 3v6h8V3"/><path d="M8 21v-7h8v7"/>',
+    search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.35-4.35"/>',
+    trash: '<path d="M4 7h16"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6"/><path d="M14 11v6"/>',
+    x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
   };
-  return `<svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icons[name] || ""}</svg>`;
+  return `<svg aria-hidden="true" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${icons[name] || ""}</svg>`;
 }
 
 function numeroBr(value) {
