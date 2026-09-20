@@ -95,12 +95,6 @@
   flex-wrap: wrap;
 }
 
-.table-actions {
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-}
-
 .visitas-list {
   max-width: 320px;
 }

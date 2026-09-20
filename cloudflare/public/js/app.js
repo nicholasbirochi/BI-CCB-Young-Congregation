@@ -128,7 +128,7 @@ function renderLogin() {
           <input id="senha" name="senha" type="password" required autocomplete="current-password">
         </div>
         <div class="form-actions">
-          <button type="submit" class="btn primary">${iconSvg("lock")}<span>Entrar</span></button>
+          <button type="submit" class="btn primary">Entrar</button>
         </div>
       </form>
     </div>
@@ -159,6 +159,7 @@ async function logout() {
 }
 
 async function renderMenu() {
+  const resumo = await api("/api/summary");
   const linkAcesso = location.origin;
   $("#app-root").innerHTML = `
     <div class="hero">
@@ -180,6 +181,34 @@ async function renderMenu() {
         <img src="/img/qrcode.svg" alt="QR code do link de acesso">
       </div>
     </div>
+
+    <div class="menu-grid">
+      <a class="card menu-card" href="#novo">
+        <h2>Novo registro</h2>
+        <p class="subtitle">Cadastrar a reunião pelo formulário digital.</p>
+      </a>
+      <a class="card menu-card" href="#registros">
+        <h2>Histórico</h2>
+        <div class="value">${numeroBr(resumo.total_registros)}</div>
+        <p class="subtitle">registros salvos</p>
+      </a>
+      ${app.session.papel === "cooperador" ? `
+        <a class="card menu-card" href="#dashboard">
+          <h2>Análises</h2>
+          <p class="subtitle">Indicadores, gráficos e filtros.</p>
+        </a>
+      ` : ""}
+    </div>
+
+    ${app.session.papel === "cooperador" ? `
+      <div class="card toolbar-split">
+        <div>
+          <h2>Backup</h2>
+          <p class="subtitle">Exportação SQL dos registros atuais no D1.</p>
+        </div>
+        <a class="btn" href="/api/export.sql">Baixar backup</a>
+      </div>
+    ` : ""}
   `;
   $("#app-root [data-copy-target]").addEventListener("click", async (event) => {
     const button = event.currentTarget;
@@ -208,7 +237,7 @@ async function renderRegistros() {
     <form class="search-row" id="search-form">
       <input type="text" name="busca" value="${escapeAttr(busca)}" placeholder="Buscar por data, presidência, livro, local...">
       <button class="btn btn-icone" type="submit" title="Buscar" aria-label="Buscar">${iconSvg("search")}</button>
-      ${busca ? `<a class="btn" href="#registros">${iconSvg("minus")}<span>Limpar</span></a>` : ""}
+      ${busca ? `<a class="btn" href="#registros">Limpar</a>` : ""}
     </form>
     <div class="card table-scroll">
       ${data.registros.length ? tabelaRegistros(data.registros) : `<div class="empty-state">Nenhum registro encontrado. <a href="#novo">Cadastre o primeiro.</a></div>`}
@@ -236,7 +265,7 @@ function tabelaRegistros(registros) {
         <tr>
           <th>Data</th><th>Presidência</th><th>Local</th>
           <th class="num">Total geral</th><th class="num">Meninas</th><th class="num">Meninos</th>
-          <th class="num">Individuais</th><th>Visitas</th><th>Palavra</th><th class="actions-col">Ações</th>
+          <th class="num">Individuais</th><th>Visitas</th><th>Palavra</th><th>Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -251,12 +280,12 @@ function tabelaRegistros(registros) {
             <td class="num">${numeroBr(r.recitativos_individuais)}</td>
             <td class="visitas-list">${escapeHtml((r.visitas_lista || []).join(", ") || "—")}</td>
             <td>${palavra(r)}</td>
-            <td class="actions-cell">
-              <div class="table-actions">
-                <a class="btn btn-icone small" href="#editar/${r.id}" aria-label="Editar registro" title="Editar">
+            <td>
+              <div class="actions">
+                <a class="btn small btn-icone" href="#editar/${r.id}" aria-label="Editar registro" title="Editar">
                   ${iconSvg("edit")}
                 </a>
-                <button class="btn btn-icone small danger" type="button" data-delete-id="${r.id}" aria-label="Excluir registro" title="Excluir">
+                <button class="btn small danger btn-icone" type="button" data-delete-id="${r.id}" aria-label="Excluir registro" title="Excluir">
                   ${iconSvg("trash")}
                 </button>
               </div>
@@ -281,8 +310,8 @@ async function renderForm(id = null) {
     <div id="rascunho-banner" class="rascunho-banner" hidden>
       <span>Encontramos um preenchimento não terminado neste aparelho.</span>
       <div class="rascunho-banner-acoes">
-        <button type="button" class="btn small primary" id="rascunho-restaurar">${iconSvg("history")}<span>Restaurar</span></button>
-        <button type="button" class="btn small" id="rascunho-descartar">${iconSvg("x")}<span>Descartar</span></button>
+        <button type="button" class="btn small primary" id="rascunho-restaurar">Restaurar</button>
+        <button type="button" class="btn small" id="rascunho-descartar">Descartar</button>
       </div>
     </div>
     <form class="card" id="registro-form" data-rascunho-chave="${modo}-${id || "novo"}" novalidate>
@@ -292,8 +321,8 @@ async function renderForm(id = null) {
       ${formPalavra(registro)}
       <div class="form-actions">
         <span class="rascunho-status" id="rascunho-status"></span>
-        <a class="btn" href="${modo === "editar" ? "#registros" : "#menu"}">${iconSvg("x")}<span>Cancelar</span></a>
-        <button type="submit" class="btn primary">${iconSvg("save")}<span>Salvar registro</span></button>
+        <a class="btn" href="${modo === "editar" ? "#registros" : "#menu"}">Cancelar</a>
+        <button type="submit" class="btn primary">Salvar registro</button>
       </div>
     </form>
   `;
@@ -384,14 +413,20 @@ function formVisitas(r) {
       <div class="field-grid">
         <div class="field">
           <label for="recitativos_individuais">Recitativos individuais</label>
-          <input type="number" min="0" inputmode="numeric" id="recitativos_individuais" name="recitativos_individuais" value="${number(r.recitativos_individuais)}">
+          <div class="stepper">
+            <input type="number" min="0" inputmode="numeric" id="recitativos_individuais" name="recitativos_individuais" value="${number(r.recitativos_individuais)}">
+            <div class="stepper-setas">
+              <button type="button" class="stepper-seta" id="individuais-mais" aria-label="Aumentar">${iconSvg("chevron-up", 11)}</button>
+              <button type="button" class="stepper-seta" id="individuais-menos" aria-label="Diminuir">${iconSvg("chevron-down", 11)}</button>
+            </div>
+          </div>
         </div>
         <input type="hidden" name="testemunhos" value="${number(r.testemunhos)}">
         <div class="field">
           <label for="visita-input">Visitas <span class="hint">(igrejas que visitaram)</span></label>
           <div class="chip-input-row">
             <input type="text" id="visita-input" list="sugestoes-visitas" autocomplete="off">
-            <button type="button" class="btn small btn-icone" id="visita-adicionar" title="Adicionar visita" aria-label="Adicionar visita">${iconSvg("plus")}</button>
+            <button type="button" class="btn small" id="visita-adicionar" title="Adicionar visita" aria-label="Adicionar visita">${iconSvg("plus", 14)}</button>
           </div>
           <datalist id="sugestoes-visitas"></datalist>
           <div class="chips" id="visitas-chips"></div>
@@ -444,6 +479,7 @@ function setupForm(registro, id) {
   setupTotals();
   setupLocalizacao(registro);
   setupVisitas();
+  setupIndividuaisStepper();
   setupBiblia(registro);
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -577,6 +613,22 @@ function setupVisitas() {
     }
   });
   render();
+}
+
+function setupIndividuaisStepper() {
+  const input = $("#recitativos_individuais");
+  const plus = $("#individuais-mais");
+  const minus = $("#individuais-menos");
+  if (!input || !plus || !minus) return;
+
+  function step(delta) {
+    input.value = Math.max(0, number(input.value) + delta);
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  plus.addEventListener("click", () => step(1));
+  minus.addEventListener("click", () => step(-1));
 }
 
 function setupBiblia(registro) {
@@ -713,7 +765,7 @@ function dashboardFilters(data, params) {
         <input type="date" name="inicio" value="${p.chave === "personalizado" ? p.inicio : ""}" min="${data.limites.data_min_disponivel}" max="${data.limites.data_max_disponivel}" required>
         <span class="muted">até</span>
         <input type="date" name="fim" value="${p.chave === "personalizado" ? p.fim : ""}" min="${data.limites.data_min_disponivel}" max="${data.limites.data_max_disponivel}" required>
-        <button type="submit" class="btn small ${p.chave === "personalizado" ? "primary" : ""}">${iconSvg("check")}<span>Aplicar</span></button>
+        <button type="submit" class="btn small ${p.chave === "personalizado" ? "primary" : ""}">Aplicar</button>
       </form>
     </div>
   `;
@@ -905,21 +957,17 @@ function dataBr(value) {
   return year && month && day ? `${day}/${month}/${year}` : value || "—";
 }
 
-function iconSvg(name) {
+function iconSvg(name, size = 16) {
   const icons = {
-    check: '<path d="M20 6 9 17l-5-5"/>',
+    "chevron-down": '<path d="M5 9l7 7 7-7"/>',
+    "chevron-up": '<path d="M5 15l7-7 7 7"/>',
     edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>',
-    history: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3.2 1.8"/>',
-    lock: '<rect x="4.5" y="10.5" width="15" height="10" rx="1.8"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/>',
     logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>',
-    minus: '<path d="M5 12h14"/>',
     plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
-    save: '<path d="M5 3h12l2 2v16H5z"/><path d="M8 3v6h8V3"/><path d="M8 21v-7h8v7"/>',
     search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.35-4.35"/>',
     trash: '<path d="M4 7h16"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6"/><path d="M14 11v6"/>',
-    x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
   };
-  return `<svg aria-hidden="true" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${icons[name] || ""}</svg>`;
+  return `<svg aria-hidden="true" class="icon" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${icons[name] || ""}</svg>`;
 }
 
 function numeroBr(value) {
