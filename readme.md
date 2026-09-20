@@ -1,10 +1,6 @@
 # BI · Reunião de Jovens e Menores
 
-Aplicativo local (Flask + SQLite) para registrar e analisar os formulários da
-**Reunião de Jovens e Menores** da Congregação Cristã no Brasil. Roda no
-computador da igreja — sem instalar servidor, sem internet no dia a dia — e
-fica disponível para qualquer celular/tablet conectado na mesma rede Wi-Fi
-através de um link (e um QR code).
+Aplicativo local para registrar os formulários da Reunião de Jovens e Menores e consultar os indicadores em um painel. Ele usa Flask e SQLite: um computador na igreja serve a aplicação, e os demais aparelhos acessam pela mesma rede Wi-Fi. As funções locais não dependem de internet no uso diário.
 
 ![Dashboard](src/docs/screenshot-dashboard.png)
 
@@ -178,7 +174,7 @@ com uma camada extra de **services** para integrações e regras que não são
 nem "model" nem "controller" puro — cada módulo com uma responsabilidade só.
 
 ```
-readme.md, LICENSE, requirements.txt        documentação e metadados
+readme.md, license, requirements.txt        documentação e metadados
 Iniciar_Windows.bat / Iniciar_Mac.command   atalhos de "duplo clique"
 
 src/
@@ -220,7 +216,7 @@ src/
 
 ## Licença
 
-Código sob [MIT](LICENSE).
+Código sob [MIT](license).
 
 **Marcas**: "Congregação Cristã no Brasil", a sigla "CCB" e o emblema
 institucional são marcas da Congregação Cristã no Brasil e **não** estão

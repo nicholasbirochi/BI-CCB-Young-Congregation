@@ -25,7 +25,7 @@ O seed real é gerado localmente apenas na hora de importar para o D1.
 - `public/`: frontend estático, assets, gráficos e dados auxiliares públicos.
 - `migrations/0001_schema.sql`: schema do banco D1, sem registros reais.
 - `scripts/export_sqlite_to_d1.py`: gera o seed privado a partir do SQLite local.
-- `seed/README.md`: lembrete de que a pasta não guarda base real.
+- `seed/readme.md`: lembrete de que a pasta não guarda base real.
 
 ## Publicar
 
