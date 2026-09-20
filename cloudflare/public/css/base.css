@@ -575,10 +575,7 @@ table.data-table {
 }
 .data-table tr:last-child td { border-bottom: none; }
 .data-table td.num { text-align: right; }
-.data-table th.actions-col,
-.data-table td.actions-cell { text-align: center; }
-.data-table .actions,
-.data-table .table-actions { display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
+.data-table .actions { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
 
 .table-scroll { overflow-x: auto; }
 
@@ -595,33 +592,15 @@ table.data-table {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  line-height: 1;
-  min-height: 36px;
-  vertical-align: middle;
-}
-.btn .icon,
-.chip-restrita .icon {
-  width: 16px;
-  height: 16px;
-  display: block;
-  flex: 0 0 16px;
 }
 .btn:hover { text-decoration: none; background: var(--border); }
 .btn.primary { background: var(--series-1); border-color: var(--series-1); color: white; }
 .btn.primary:hover { filter: brightness(1.05); }
 .btn.danger { color: var(--critical); }
-.btn.small { min-height: 32px; padding: 5px 9px; font-size: 12px; }
-.btn-icone {
-  width: 38px;
-  height: 38px;
-  min-height: 38px;
-  padding: 0;
-  justify-content: center;
-  flex: 0 0 auto;
-}
-.btn-icone.small { width: 34px; height: 34px; min-height: 34px; padding: 0; }
-.btn-icone .icon { width: 17px; height: 17px; flex-basis: 17px; }
-.btn-icone.small .icon { width: 16px; height: 16px; flex-basis: 16px; }
+.btn.small { padding: 5px 9px; font-size: 12px; }
+.btn-icone { padding: 8px; }
+.btn-icone.small { padding: 6px; }
+.btn-icone svg { display: block; }
 
 /* ---------------------------------------------------------------- form */
 .form-section {
